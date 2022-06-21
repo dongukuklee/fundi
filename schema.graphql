@@ -3,5 +3,18 @@
 
 
 type Query {
-  ok: Boolean!
+  users: [User!]!
+}
+
+"""Define user roles"""
+enum Role {
+  ADMIN
+  INVESTOR
+  MANAGER
+}
+
+type User {
+  id: Int!
+  name: String!
+  role: Role!
 }

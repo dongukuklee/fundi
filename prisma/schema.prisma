@@ -16,6 +16,7 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   role      Role     @default(INVESTOR)
+  name      String
 }
 
 enum Role {
