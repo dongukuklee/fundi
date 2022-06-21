@@ -2,22 +2,24 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  // role      Role     @default(INVESTOR)
+  role      Role     @default(INVESTOR)
 }
 
-// enum Role {
-//   INVESTOR
-//   MANAGER
-//   ADMIN
-// }
+enum Role {
+  INVESTOR
+  MANAGER
+  ADMIN
+}
