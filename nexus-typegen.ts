@@ -5,8 +5,23 @@
 
 
 import type { Context } from "./src/context"
-
-
+import type { core } from "nexus"
+declare global {
+  interface NexusGenCustomInputMethods<TypeName extends string> {
+    /**
+     * Date custom scalar type
+     */
+    dateTime<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "dateTime";
+  }
+}
+declare global {
+  interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * Date custom scalar type
+     */
+    dateTime<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "dateTime";
+  }
+}
 
 
 declare global {
@@ -26,14 +41,17 @@ export interface NexusGenScalars {
   Float: number
   Boolean: boolean
   ID: string
+  dateTime: any
 }
 
 export interface NexusGenObjects {
   Query: {};
   User: { // root type
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
     name: string; // String!
     role: NexusGenEnums['Role']; // Role!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
   }
 }
 
@@ -49,27 +67,38 @@ export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnu
 
 export interface NexusGenFieldTypes {
   Query: { // field return type
+    user: NexusGenRootTypes['User']; // User!
     users: NexusGenRootTypes['User'][]; // [User!]!
   }
   User: { // field return type
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
     name: string; // String!
     role: NexusGenEnums['Role']; // Role!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
   }
 }
 
 export interface NexusGenFieldTypeNames {
   Query: { // field return type name
+    user: 'User'
     users: 'User'
   }
   User: { // field return type name
+    createdAt: 'dateTime'
     id: 'Int'
     name: 'String'
     role: 'Role'
+    updatedAt: 'dateTime'
   }
 }
 
 export interface NexusGenArgTypes {
+  Query: {
+    user: { // args
+      id: number; // Int!
+    }
+  }
 }
 
 export interface NexusGenAbstractTypeMembers {
