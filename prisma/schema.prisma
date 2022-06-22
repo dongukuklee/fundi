@@ -13,14 +13,102 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  role      Role     @default(INVESTOR)
-  name      String
+  id              Int              @id @default(autoincrement())
+  role            Role             @default(INVESTOR)
+  name            String
+  accountFundings AccountFunding[]
+  accountCash     AccountCash[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
 }
 
 enum Role {
   INVESTOR
   MANAGER
   ADMIN
+}
+
+model AccountCash {
+  id       Int           @id @default(autoincrement())
+  owner    User          @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  balance  BigInt        @default(0)
+  Sender   Transaction[] @relation(name: "cashSender")
+  Receiver Transaction[] @relation(name: "cashReceiver")
+}
+
+model Transaction {
+  id         Int         @id @default(autoincrement())
+  title      String
+  Sender     AccountCash @relation(fields: [SenderId], references: [id], name: "cashSender")
+  SenderId   Int
+  Receiver   AccountCash @relation(fields: [ReceiverId], references: [id], name: "cashReceiver")
+  ReceiverId Int
+  amount     BigInt
+  //type Type
+  type       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @default(now())
+}
+
+model AccountFunding {
+  id        Int     @id @default(autoincrement())
+  owner     User    @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+  funding   Funding @relation(fields: [fundingId], references: [id])
+  fundingId Int
+  balance   BigInt
+  Sender    Trade[] @relation(name: "fundingSender")
+  Receiver  Trade[] @relation(name: "fundingReceiver")
+}
+
+model Trade {
+  id         Int            @id @default(autoincrement())
+  title      String
+  Sender     AccountFunding @relation(fields: [SenderId], references: [id], name: "fundingSender")
+  SenderId   Int
+  Receiver   AccountFunding @relation(fields: [ReceiverId], references: [id], name: "fundingReceiver")
+  ReceiverId Int
+  amount     BigInt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @default(now())
+}
+
+model Funding {
+  id              Int              @id @default(autoincrement())
+  title           String
+  artist          Artist           @relation(fields: [artistId], references: [id])
+  artistId        Int
+  contract        Contract?
+  status          String
+  bondTotalNumber BigInt
+  bondPrice       BigInt           @default(10000)
+  accountFundings AccountFunding[]
+  artworks        Artwork[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
+}
+
+model Artist {
+  id       Int       @id @default(autoincrement())
+  fundings Funding[]
+}
+
+model Contract {
+  id                    Int     @id @default(autoincrement())
+  fundings              Funding @relation(fields: [fundingId], references: [id])
+  fundingId             Int     @unique
+  terms                 Int
+  price                 BigInt
+  artworksRequireNumber Int
+}
+
+model Artwork {
+  id           Int     @id @default(autoincrement())
+  title        String
+  funding      Funding @relation(fields: [fundingId], references: [id])
+  fundingId    Int
+  initialPrice BigInt
+  sellingPrice BigInt
+  isSold       Boolean @default(false)
 }
