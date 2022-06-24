@@ -1,6 +1,6 @@
-import { arg, enumType, extendType, intArg, nonNull, objectType } from "nexus";
+import { Role } from "@prisma/client";
+import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
-import { Role } from "./Role";
 
 export const User = objectType({
   name: "User",
@@ -10,42 +10,23 @@ export const User = objectType({
     t.nonNull.field("role", {
       type: "Role",
     });
+    t.list.int("accountFunding");
+    t.list.int("accountCash");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
   },
 });
 
-let usersInMemory: NexusGenObjects["User"][] = [
-  {
-    id: 1,
-    name: "기름왕",
-    role: "INVESTOR",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    name: "철강왕",
-    role: "INVESTOR",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 3,
-    name: "금융왕",
-    role: "MANAGER",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+type UserType = NexusGenObjects["User"];
+type UserArrType = NexusGenObjects["User"][];
 
 export const UserQuery = extendType({
   type: "Query",
   definition(t) {
     t.nonNull.list.nonNull.field("users", {
       type: "User",
-      resolve(parent, args, context, info) {
-        return usersInMemory;
+      async resolve(parent, args, { prisma }, info): Promise<UserArrType> {
+        return await prisma.user.findMany();
       },
     }),
       t.nonNull.field("user", {
@@ -53,12 +34,46 @@ export const UserQuery = extendType({
         args: {
           id: nonNull(intArg()),
         },
-        resolve: async (parent, { id }, { prisma }, info) => {
-          const user = <NexusGenObjects["User"]>(
-            usersInMemory.find((el) => el.id === id)
-          );
-          return user;
+        resolve: async (
+          parent,
+          { id },
+          { prisma },
+          info
+        ): Promise<UserType> => {
+          const user = await prisma.user.findUnique({
+            where: {
+              id,
+            },
+          });
+          return <UserType>user;
         },
       });
+  },
+});
+
+export const UserMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("createUser", {
+      type: "User",
+      args: {
+        name: nonNull(stringArg()),
+        role: nonNull(stringArg()),
+      },
+      async resolve(
+        parent,
+        { name, role },
+        { prisma },
+        info
+      ): Promise<UserType> {
+        const convertedRole: Role = <Role>role;
+        return <UserType>await prisma.user.create({
+          data: {
+            name,
+            role: convertedRole,
+          },
+        });
+      },
+    });
   },
 });

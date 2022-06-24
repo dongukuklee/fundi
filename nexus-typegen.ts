@@ -45,8 +45,11 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  Mutation: {};
   Query: {};
   User: { // root type
+    accountCash?: Array<number | null> | null; // [Int]
+    accountFunding?: Array<number | null> | null; // [Int]
     createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
     name: string; // String!
@@ -66,11 +69,16 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
+  Mutation: { // field return type
+    createUser: NexusGenRootTypes['User'] | null; // User
+  }
   Query: { // field return type
     user: NexusGenRootTypes['User']; // User!
     users: NexusGenRootTypes['User'][]; // [User!]!
   }
   User: { // field return type
+    accountCash: Array<number | null> | null; // [Int]
+    accountFunding: Array<number | null> | null; // [Int]
     createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
     name: string; // String!
@@ -80,11 +88,16 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  Mutation: { // field return type name
+    createUser: 'User'
+  }
   Query: { // field return type name
     user: 'User'
     users: 'User'
   }
   User: { // field return type name
+    accountCash: 'Int'
+    accountFunding: 'Int'
     createdAt: 'dateTime'
     id: 'Int'
     name: 'String'
@@ -94,6 +107,12 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    createUser: { // args
+      name: string; // String!
+      role: string; // String!
+    }
+  }
   Query: {
     user: { // args
       id: number; // Int!
