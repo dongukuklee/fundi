@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
@@ -14,64 +11,83 @@ datasource db {
 
 model User {
   id              Int              @id @default(autoincrement())
+  name            String?
   role            Role             @default(INVESTOR)
-  name            String
+  auth            Auth?
+  accountCash     AccountCash?
   accountFundings AccountFunding[]
-  accountCash     AccountCash[]
   createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 enum Role {
-  INVESTOR
-  MANAGER
   ADMIN
+  MANAGER
+  INVESTOR
+}
+
+model Auth {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AccountCash {
-  id       Int           @id @default(autoincrement())
-  owner    User          @relation(fields: [ownerId], references: [id])
-  ownerId  Int
-  balance  BigInt        @default(0)
-  Sender   Transaction[] @relation(name: "cashSender")
-  Receiver Transaction[] @relation(name: "cashReceiver")
+  id               Int           @id @default(autoincrement())
+  owner            User          @relation(fields: [ownerId], references: [id])
+  ownerId          Int           @unique
+  balance          BigInt        @default(0)
+  transactionsSent Transaction[] @relation(name: "CashSender")
+  transactionsRcvd Transaction[] @relation(name: "CashReceiver")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 model Transaction {
-  id         Int         @id @default(autoincrement())
-  title      String
-  Sender     AccountCash @relation(fields: [SenderId], references: [id], name: "cashSender")
-  SenderId   Int
-  Receiver   AccountCash @relation(fields: [ReceiverId], references: [id], name: "cashReceiver")
-  ReceiverId Int
-  amount     BigInt
-  //type Type
-  type       String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @default(now())
+  id              Int             @id @default(autoincrement())
+  title           String
+  sender          AccountCash     @relation(name: "CashSender", fields: [senderId], references: [id])
+  senderId        Int
+  receiver        AccountCash     @relation(name: "CashReceiver", fields: [receiverId], references: [id])
+  receiverId      Int
+  amount          BigInt
+  transactionType TransactionType @default(TRANSFER)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+enum TransactionType {
+  TRANSFER
+  RETURN
 }
 
 model AccountFunding {
-  id        Int     @id @default(autoincrement())
-  owner     User    @relation(fields: [ownerId], references: [id])
-  ownerId   Int
-  funding   Funding @relation(fields: [fundingId], references: [id])
-  fundingId Int
-  balance   BigInt
-  Sender    Trade[] @relation(name: "fundingSender")
-  Receiver  Trade[] @relation(name: "fundingReceiver")
+  id         Int      @id @default(autoincrement())
+  owner      User     @relation(fields: [ownerId], references: [id])
+  ownerId    Int
+  balance    BigInt   @default(0)
+  funding    Funding  @relation(fields: [fundingId], references: [id])
+  fundingId  Int
+  tradesSent Trade[]  @relation(name: "FundingSender")
+  tradesRcvd Trade[]  @relation(name: "FundingReceiver")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Trade {
   id         Int            @id @default(autoincrement())
   title      String
-  Sender     AccountFunding @relation(fields: [SenderId], references: [id], name: "fundingSender")
-  SenderId   Int
-  Receiver   AccountFunding @relation(fields: [ReceiverId], references: [id], name: "fundingReceiver")
-  ReceiverId Int
+  sender     AccountFunding @relation("FundingSender", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   AccountFunding @relation("FundingReceiver", fields: [receiverId], references: [id])
+  receiverId Int
   amount     BigInt
   createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }
 
 model Funding {
@@ -79,36 +95,51 @@ model Funding {
   title           String
   artist          Artist           @relation(fields: [artistId], references: [id])
   artistId        Int
-  contract        Contract?
-  status          String
+  contract        Contract         @relation(fields: [contractId], references: [id])
+  contractId      Int              @unique
+  bondPrice       BigInt
   bondTotalNumber BigInt
-  bondPrice       BigInt           @default(10000)
+  fundingStatus   FundingStatus    @default(PRE_CAMPAIGN)
   accountFundings AccountFunding[]
   artworks        Artwork[]
   createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum FundingStatus {
+  PRE_CAMPAIGN
+  CAMPAIGNING
+  POST_CAMPAIGN
+  END
 }
 
 model Artist {
-  id       Int       @id @default(autoincrement())
-  fundings Funding[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  age       Int
+  fundings  Funding[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Contract {
-  id                    Int     @id @default(autoincrement())
-  fundings              Funding @relation(fields: [fundingId], references: [id])
-  fundingId             Int     @unique
-  terms                 Int
-  price                 BigInt
-  artworksRequireNumber Int
+  id                     Int      @id @default(autoincrement())
+  funding                Funding?
+  price                  BigInt
+  terms                  Int
+  artworksRequiredNumber Int
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
 
 model Artwork {
-  id           Int     @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   title        String
-  funding      Funding @relation(fields: [fundingId], references: [id])
+  funding      Funding  @relation(fields: [fundingId], references: [id])
   fundingId    Int
   initialPrice BigInt
   sellingPrice BigInt
-  isSold       Boolean @default(false)
+  isSold       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
