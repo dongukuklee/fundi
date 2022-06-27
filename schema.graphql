@@ -2,8 +2,48 @@
 ### Do not make changes to this file directly
 
 
+type AccountCash {
+  balance: Int!
+  createdAt: dateTime!
+  id: Int!
+  owner: User!
+  ownerId: Int!
+  updatedAt: dateTime!
+}
+
+type AccountFunding {
+  balance: Int!
+  createdAt: dateTime!
+  funding: Funding!
+  fundingId: Int!
+  id: Int!
+  owner: User!
+  ownerId: Int!
+  updatedAt: dateTime!
+}
+
+type Auth {
+  createdAt: dateTime!
+  email: String!
+  id: Int!
+  name: String!
+  password: String!
+  updatedAt: dateTime!
+  user: User!
+  userId: Int!
+}
+
+type Funding {
+  bondPrice: Int!
+  bondTotalNumber: Int!
+  createdAt: dateTime!
+  id: Int!
+  title: String!
+  updatedAt: dateTime!
+}
+
 type Mutation {
-  createUser(name: String!, role: String!): User
+  createUser(email: String!, name: String!, password: String!, role: String!): User
 }
 
 type Query {
@@ -19,11 +59,11 @@ enum Role {
 }
 
 type User {
-  accountCash: [Int]
-  accountFunding: [Int]
+  accountCash: AccountCash!
+  accountFunding: [AccountFunding]
+  auth: Auth!
   createdAt: dateTime!
   id: Int!
-  name: String!
   role: Role!
   updatedAt: dateTime!
 }

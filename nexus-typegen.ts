@@ -45,14 +45,50 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  AccountCash: { // root type
+    balance: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    id: number; // Int!
+    owner: NexusGenRootTypes['User']; // User!
+    ownerId: number; // Int!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
+  AccountFunding: { // root type
+    balance: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    funding: NexusGenRootTypes['Funding']; // Funding!
+    fundingId: number; // Int!
+    id: number; // Int!
+    owner: NexusGenRootTypes['User']; // User!
+    ownerId: number; // Int!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
+  Auth: { // root type
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
+    password: string; // String!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    user: NexusGenRootTypes['User']; // User!
+    userId: number; // Int!
+  }
+  Funding: { // root type
+    bondPrice: number; // Int!
+    bondTotalNumber: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    id: number; // Int!
+    title: string; // String!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
   Mutation: {};
   Query: {};
   User: { // root type
-    accountCash?: Array<number | null> | null; // [Int]
-    accountFunding?: Array<number | null> | null; // [Int]
+    accountCash: NexusGenRootTypes['AccountCash']; // AccountCash!
+    accountFunding?: Array<NexusGenRootTypes['AccountFunding'] | null> | null; // [AccountFunding]
+    auth: NexusGenRootTypes['Auth']; // Auth!
     createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
-    name: string; // String!
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['dateTime']; // dateTime!
   }
@@ -69,6 +105,42 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
+  AccountCash: { // field return type
+    balance: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    id: number; // Int!
+    owner: NexusGenRootTypes['User']; // User!
+    ownerId: number; // Int!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
+  AccountFunding: { // field return type
+    balance: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    funding: NexusGenRootTypes['Funding']; // Funding!
+    fundingId: number; // Int!
+    id: number; // Int!
+    owner: NexusGenRootTypes['User']; // User!
+    ownerId: number; // Int!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
+  Auth: { // field return type
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
+    password: string; // String!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    user: NexusGenRootTypes['User']; // User!
+    userId: number; // Int!
+  }
+  Funding: { // field return type
+    bondPrice: number; // Int!
+    bondTotalNumber: number; // Int!
+    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    id: number; // Int!
+    title: string; // String!
+    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+  }
   Mutation: { // field return type
     createUser: NexusGenRootTypes['User'] | null; // User
   }
@@ -77,17 +149,53 @@ export interface NexusGenFieldTypes {
     users: NexusGenRootTypes['User'][]; // [User!]!
   }
   User: { // field return type
-    accountCash: Array<number | null> | null; // [Int]
-    accountFunding: Array<number | null> | null; // [Int]
+    accountCash: NexusGenRootTypes['AccountCash']; // AccountCash!
+    accountFunding: Array<NexusGenRootTypes['AccountFunding'] | null> | null; // [AccountFunding]
+    auth: NexusGenRootTypes['Auth']; // Auth!
     createdAt: NexusGenScalars['dateTime']; // dateTime!
     id: number; // Int!
-    name: string; // String!
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['dateTime']; // dateTime!
   }
 }
 
 export interface NexusGenFieldTypeNames {
+  AccountCash: { // field return type name
+    balance: 'Int'
+    createdAt: 'dateTime'
+    id: 'Int'
+    owner: 'User'
+    ownerId: 'Int'
+    updatedAt: 'dateTime'
+  }
+  AccountFunding: { // field return type name
+    balance: 'Int'
+    createdAt: 'dateTime'
+    funding: 'Funding'
+    fundingId: 'Int'
+    id: 'Int'
+    owner: 'User'
+    ownerId: 'Int'
+    updatedAt: 'dateTime'
+  }
+  Auth: { // field return type name
+    createdAt: 'dateTime'
+    email: 'String'
+    id: 'Int'
+    name: 'String'
+    password: 'String'
+    updatedAt: 'dateTime'
+    user: 'User'
+    userId: 'Int'
+  }
+  Funding: { // field return type name
+    bondPrice: 'Int'
+    bondTotalNumber: 'Int'
+    createdAt: 'dateTime'
+    id: 'Int'
+    title: 'String'
+    updatedAt: 'dateTime'
+  }
   Mutation: { // field return type name
     createUser: 'User'
   }
@@ -96,11 +204,11 @@ export interface NexusGenFieldTypeNames {
     users: 'User'
   }
   User: { // field return type name
-    accountCash: 'Int'
-    accountFunding: 'Int'
+    accountCash: 'AccountCash'
+    accountFunding: 'AccountFunding'
+    auth: 'Auth'
     createdAt: 'dateTime'
     id: 'Int'
-    name: 'String'
     role: 'Role'
     updatedAt: 'dateTime'
   }
@@ -109,7 +217,9 @@ export interface NexusGenFieldTypeNames {
 export interface NexusGenArgTypes {
   Mutation: {
     createUser: { // args
+      email: string; // String!
       name: string; // String!
+      password: string; // String!
       role: string; // String!
     }
   }
