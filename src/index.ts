@@ -1,12 +1,12 @@
 import { ApolloServer } from "apollo-server";
 import { context } from "./context";
-// import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 import { schema } from "./schema";
 export const server = new ApolloServer({
   schema,
   context,
-  //   plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 });
 
 const port = 3000;

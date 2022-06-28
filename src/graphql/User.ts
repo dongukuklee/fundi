@@ -1,17 +1,18 @@
 import { Role } from "@prisma/client";
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
+import { AccountCash } from "./AccountCash";
+import { AccountFunding } from "./AccountFunding";
+import { Auth } from "./Auth";
 
 export const User = objectType({
   name: "User",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.string("name");
-    t.nonNull.field("role", {
-      type: "Role",
-    });
-    t.list.int("accountFunding");
-    t.list.int("accountCash");
+    t.nonNull.field("role", { type: "Role" });
+    t.nonNull.field("auth", { type: Auth });
+    t.list.field("accountFunding", { type: AccountFunding });
+    t.nonNull.field("accountCash", { type: AccountCash });
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
   },
@@ -26,7 +27,9 @@ export const UserQuery = extendType({
     t.nonNull.list.nonNull.field("users", {
       type: "User",
       async resolve(parent, args, { prisma }, info): Promise<UserArrType> {
-        return await prisma.user.findMany();
+        const users = <UserArrType>await prisma.user.findMany();
+        console.log(users);
+        return users;
       },
     }),
       t.nonNull.field("user", {
@@ -45,6 +48,7 @@ export const UserQuery = extendType({
               id,
             },
           });
+
           return <UserType>user;
         },
       });
@@ -59,20 +63,39 @@ export const UserMutation = extendType({
       args: {
         name: nonNull(stringArg()),
         role: nonNull(stringArg()),
+        email: nonNull(stringArg()),
+        password: nonNull(stringArg()),
       },
       async resolve(
         parent,
-        { name, role },
+        { name, role, email, password },
         { prisma },
         info
       ): Promise<UserType> {
         const convertedRole: Role = <Role>role;
-        return <UserType>await prisma.user.create({
+        const user = await prisma.user.create({
+          data: { role: convertedRole },
+        });
+        await prisma.auth.create({
           data: {
+            email,
+            password,
             name,
-            role: convertedRole,
+            userId: user.id,
           },
         });
+        const userResult: UserType = <UserType>{
+          id: user.id,
+          auth: await prisma.auth.findUnique({
+            where: {
+              userId: user.id,
+            },
+          }),
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        };
+        return userResult;
       },
     });
   },
