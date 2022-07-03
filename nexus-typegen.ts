@@ -9,17 +9,25 @@ import type { core } from "nexus"
 declare global {
   interface NexusGenCustomInputMethods<TypeName extends string> {
     /**
-     * Date custom scalar type
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
      */
-    dateTime<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "dateTime";
+    dateTime<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "DateTime";
+    /**
+     * The `BigInt` scalar type represents non-fractional signed whole numeric values.
+     */
+    bigInt<FieldName extends string>(fieldName: FieldName, opts?: core.CommonInputFieldConfig<TypeName, FieldName>): void // "BigInt";
   }
 }
 declare global {
   interface NexusGenCustomOutputMethods<TypeName extends string> {
     /**
-     * Date custom scalar type
+     * A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
      */
-    dateTime<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "dateTime";
+    dateTime<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "DateTime";
+    /**
+     * The `BigInt` scalar type represents non-fractional signed whole numeric values.
+     */
+    bigInt<FieldName extends string>(fieldName: FieldName, ...opts: core.ScalarOutSpread<TypeName, FieldName>): void // "BigInt";
   }
 }
 
@@ -32,7 +40,9 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
+  FundingStatus: "CAMPAIGNING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
+  TransactionCashType: "RETURN" | "TRANSFER"
 }
 
 export interface NexusGenScalars {
@@ -41,56 +51,90 @@ export interface NexusGenScalars {
   Float: number
   Boolean: boolean
   ID: string
-  dateTime: any
+  BigInt: any
+  DateTime: any
 }
 
 export interface NexusGenObjects {
+  AccountBond: { // root type
+    balance: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   AccountCash: { // root type
-    balance: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    balance: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    owner: NexusGenRootTypes['User']; // User!
-    ownerId: number; // Int!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
-  AccountFunding: { // root type
-    balance: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
-    funding: NexusGenRootTypes['Funding']; // Funding!
-    fundingId: number; // Int!
-    id: number; // Int!
-    owner: NexusGenRootTypes['User']; // User!
-    ownerId: number; // Int!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
-  }
-  Auth: { // root type
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
-    email: string; // String!
+  Artist: { // root type
+    age?: number | null; // Int
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     name: string; // String!
-    password: string; // String!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Artwork: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    initialPrice: NexusGenScalars['BigInt']; // BigInt!
+    isSold: boolean; // Boolean!
+    sellingPrice: NexusGenScalars['BigInt']; // BigInt!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Auth: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  AuthPayload: { // root type
+    token: string; // String!
     user: NexusGenRootTypes['User']; // User!
-    userId: number; // Int!
+  }
+  Contract: { // root type
+    artworksRequiredNumber: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    price: NexusGenScalars['BigInt']; // BigInt!
+    terms: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // root type
-    bondPrice: number; // Int!
-    bondTotalNumber: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    accountBond?: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    bondPrice: NexusGenScalars['BigInt']; // BigInt!
+    bondTotalNumber: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: {};
   Query: {};
-  User: { // root type
-    accountCash: NexusGenRootTypes['AccountCash']; // AccountCash!
-    accountFunding?: Array<NexusGenRootTypes['AccountFunding'] | null> | null; // [AccountFunding]
-    auth: NexusGenRootTypes['Auth']; // Auth!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
+  TransactionBond: { // root type
+    amount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TransactionCash: { // root type
+    amount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    title: string; // String!
+    type: NexusGenEnums['TransactionCashType']; // TransactionCashType!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  User: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    email: string; // String!
+    id: number; // Int!
+    name: string; // String!
     role: NexusGenEnums['Role']; // Role!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
 }
 
@@ -105,127 +149,239 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
-  AccountCash: { // field return type
-    balance: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
+  AccountBond: { // field return type
+    balance: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
-    owner: NexusGenRootTypes['User']; // User!
-    ownerId: number; // Int!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    owner: NexusGenRootTypes['User'] | null; // User
+    transactionRcvd: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
+    transactionSent: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
-  AccountFunding: { // field return type
-    balance: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
-    funding: NexusGenRootTypes['Funding']; // Funding!
-    fundingId: number; // Int!
+  AccountCash: { // field return type
+    balance: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    owner: NexusGenRootTypes['User']; // User!
-    ownerId: number; // Int!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    owner: NexusGenRootTypes['User'] | null; // User
+    transactionRcvd: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
+    transactionSent: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Artist: { // field return type
+    age: number | null; // Int
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    id: number; // Int!
+    name: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Artwork: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
+    id: number; // Int!
+    initialPrice: NexusGenScalars['BigInt']; // BigInt!
+    isSold: boolean; // Boolean!
+    sellingPrice: NexusGenScalars['BigInt']; // BigInt!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Auth: { // field return type
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    user: NexusGenRootTypes['User'] | null; // User
+  }
+  AuthPayload: { // field return type
+    token: string; // String!
+    user: NexusGenRootTypes['User']; // User!
+  }
+  Contract: { // field return type
+    artworksRequiredNumber: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
+    id: number; // Int!
+    price: NexusGenScalars['BigInt']; // BigInt!
+    terms: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Funding: { // field return type
+    accountBond: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    artist: NexusGenRootTypes['Artist'] | null; // Artist
+    artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
+    bondPrice: NexusGenScalars['BigInt']; // BigInt!
+    bondTotalNumber: NexusGenScalars['BigInt']; // BigInt!
+    contract: NexusGenRootTypes['Contract'] | null; // Contract
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    status: NexusGenEnums['FundingStatus']; // FundingStatus!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Mutation: { // field return type
+    signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+  }
+  Query: { // field return type
+    user: NexusGenRootTypes['User'] | null; // User
+  }
+  TransactionBond: { // field return type
+    amount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    receiver: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    sender: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TransactionCash: { // field return type
+    amount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    receiver: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    sender: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    title: string; // String!
+    type: NexusGenEnums['TransactionCashType']; // TransactionCashType!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  User: { // field return type
+    accountCash: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    accountsBond: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
+    auth: NexusGenRootTypes['Auth'] | null; // Auth
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
     name: string; // String!
-    password: string; // String!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
-    user: NexusGenRootTypes['User']; // User!
-    userId: number; // Int!
-  }
-  Funding: { // field return type
-    bondPrice: number; // Int!
-    bondTotalNumber: number; // Int!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
-    id: number; // Int!
-    title: string; // String!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
-  }
-  Mutation: { // field return type
-    createUser: NexusGenRootTypes['User'] | null; // User
-  }
-  Query: { // field return type
-    user: NexusGenRootTypes['User']; // User!
-    users: NexusGenRootTypes['User'][]; // [User!]!
-  }
-  User: { // field return type
-    accountCash: NexusGenRootTypes['AccountCash']; // AccountCash!
-    accountFunding: Array<NexusGenRootTypes['AccountFunding'] | null> | null; // [AccountFunding]
-    auth: NexusGenRootTypes['Auth']; // Auth!
-    createdAt: NexusGenScalars['dateTime']; // dateTime!
-    id: number; // Int!
     role: NexusGenEnums['Role']; // Role!
-    updatedAt: NexusGenScalars['dateTime']; // dateTime!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
 }
 
 export interface NexusGenFieldTypeNames {
-  AccountCash: { // field return type name
-    balance: 'Int'
-    createdAt: 'dateTime'
-    id: 'Int'
-    owner: 'User'
-    ownerId: 'Int'
-    updatedAt: 'dateTime'
-  }
-  AccountFunding: { // field return type name
-    balance: 'Int'
-    createdAt: 'dateTime'
+  AccountBond: { // field return type name
+    balance: 'BigInt'
+    createdAt: 'DateTime'
     funding: 'Funding'
-    fundingId: 'Int'
     id: 'Int'
     owner: 'User'
-    ownerId: 'Int'
-    updatedAt: 'dateTime'
+    transactionRcvd: 'TransactionBond'
+    transactionSent: 'TransactionBond'
+    updatedAt: 'DateTime'
   }
-  Auth: { // field return type name
-    createdAt: 'dateTime'
-    email: 'String'
+  AccountCash: { // field return type name
+    balance: 'BigInt'
+    createdAt: 'DateTime'
+    id: 'Int'
+    owner: 'User'
+    transactionRcvd: 'TransactionCash'
+    transactionSent: 'TransactionCash'
+    updatedAt: 'DateTime'
+  }
+  Artist: { // field return type name
+    age: 'Int'
+    createdAt: 'DateTime'
+    fundings: 'Funding'
     id: 'Int'
     name: 'String'
-    password: 'String'
-    updatedAt: 'dateTime'
+    updatedAt: 'DateTime'
+  }
+  Artwork: { // field return type name
+    createdAt: 'DateTime'
+    funding: 'Funding'
+    id: 'Int'
+    initialPrice: 'BigInt'
+    isSold: 'Boolean'
+    sellingPrice: 'BigInt'
+    title: 'String'
+    updatedAt: 'DateTime'
+  }
+  Auth: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    updatedAt: 'DateTime'
     user: 'User'
-    userId: 'Int'
+  }
+  AuthPayload: { // field return type name
+    token: 'String'
+    user: 'User'
+  }
+  Contract: { // field return type name
+    artworksRequiredNumber: 'Int'
+    createdAt: 'DateTime'
+    funding: 'Funding'
+    id: 'Int'
+    price: 'BigInt'
+    terms: 'Int'
+    updatedAt: 'DateTime'
   }
   Funding: { // field return type name
-    bondPrice: 'Int'
-    bondTotalNumber: 'Int'
-    createdAt: 'dateTime'
+    accountBond: 'AccountBond'
+    artist: 'Artist'
+    artworks: 'Artwork'
+    bondPrice: 'BigInt'
+    bondTotalNumber: 'BigInt'
+    contract: 'Contract'
+    createdAt: 'DateTime'
     id: 'Int'
+    status: 'FundingStatus'
     title: 'String'
-    updatedAt: 'dateTime'
+    updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
-    createUser: 'User'
+    signin: 'AuthPayload'
+    signup: 'AuthPayload'
   }
   Query: { // field return type name
     user: 'User'
-    users: 'User'
+  }
+  TransactionBond: { // field return type name
+    amount: 'BigInt'
+    createdAt: 'DateTime'
+    id: 'Int'
+    receiver: 'AccountBond'
+    sender: 'AccountBond'
+    title: 'String'
+    updatedAt: 'DateTime'
+  }
+  TransactionCash: { // field return type name
+    amount: 'BigInt'
+    createdAt: 'DateTime'
+    id: 'Int'
+    receiver: 'AccountCash'
+    sender: 'AccountCash'
+    title: 'String'
+    type: 'TransactionCashType'
+    updatedAt: 'DateTime'
   }
   User: { // field return type name
     accountCash: 'AccountCash'
-    accountFunding: 'AccountFunding'
+    accountsBond: 'AccountBond'
     auth: 'Auth'
-    createdAt: 'dateTime'
+    createdAt: 'DateTime'
+    email: 'String'
     id: 'Int'
+    name: 'String'
     role: 'Role'
-    updatedAt: 'dateTime'
+    updatedAt: 'DateTime'
   }
 }
 
 export interface NexusGenArgTypes {
   Mutation: {
-    createUser: { // args
+    signin: { // args
+      email: string; // String!
+      password: string; // String!
+    }
+    signup: { // args
       email: string; // String!
       name: string; // String!
       password: string; // String!
-      role: string; // String!
     }
   }
   Query: {
     user: { // args
-      id: number; // Int!
+      email?: string | null; // String
+      id?: number | null; // Int
     }
   }
 }

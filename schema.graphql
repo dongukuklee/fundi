@@ -2,53 +2,108 @@
 ### Do not make changes to this file directly
 
 
-type AccountCash {
-  balance: Int!
-  createdAt: dateTime!
+type AccountBond {
+  balance: BigInt!
+  createdAt: DateTime!
+  funding: Funding
   id: Int!
-  owner: User!
-  ownerId: Int!
-  updatedAt: dateTime!
+  owner: User
+  transactionRcvd: [TransactionBond!]!
+  transactionSent: [TransactionBond!]!
+  updatedAt: DateTime!
 }
 
-type AccountFunding {
-  balance: Int!
-  createdAt: dateTime!
-  funding: Funding!
-  fundingId: Int!
+type AccountCash {
+  balance: BigInt!
+  createdAt: DateTime!
   id: Int!
-  owner: User!
-  ownerId: Int!
-  updatedAt: dateTime!
+  owner: User
+  transactionRcvd: [TransactionCash!]!
+  transactionSent: [TransactionCash!]!
+  updatedAt: DateTime!
+}
+
+type Artist {
+  age: Int
+  createdAt: DateTime!
+  fundings: [Funding!]!
+  id: Int!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type Artwork {
+  createdAt: DateTime!
+  funding: Funding
+  id: Int!
+  initialPrice: BigInt!
+  isSold: Boolean!
+  sellingPrice: BigInt!
+  title: String!
+  updatedAt: DateTime!
 }
 
 type Auth {
-  createdAt: dateTime!
-  email: String!
+  createdAt: DateTime!
   id: Int!
-  name: String!
-  password: String!
-  updatedAt: dateTime!
-  user: User!
-  userId: Int!
+  updatedAt: DateTime!
+  user: User
 }
 
-type Funding {
-  bondPrice: Int!
-  bondTotalNumber: Int!
-  createdAt: dateTime!
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
+type Contract {
+  artworksRequiredNumber: Int!
+  createdAt: DateTime!
+  funding: Funding
   id: Int!
+  price: BigInt!
+  terms: Int!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type Funding {
+  accountBond: AccountBond
+  artist: Artist
+  artworks: [Artwork!]!
+  bondPrice: BigInt!
+  bondTotalNumber: BigInt!
+  contract: Contract
+  createdAt: DateTime!
+  id: Int!
+  status: FundingStatus!
   title: String!
-  updatedAt: dateTime!
+  updatedAt: DateTime!
+}
+
+"""Define funding status"""
+enum FundingStatus {
+  CAMPAIGNING
+  END
+  POST_CAMPAIGN
+  PRE_CAMPAIGN
 }
 
 type Mutation {
-  createUser(email: String!, name: String!, password: String!, role: String!): User
+  signin(email: String!, password: String!): AuthPayload!
+  signup(email: String!, name: String!, password: String!): AuthPayload!
 }
 
 type Query {
-  user(id: Int!): User!
-  users: [User!]!
+  user(email: String, id: Int): User
 }
 
 """Define user roles"""
@@ -58,15 +113,41 @@ enum Role {
   MANAGER
 }
 
-type User {
-  accountCash: AccountCash!
-  accountFunding: [AccountFunding]
-  auth: Auth!
-  createdAt: dateTime!
+type TransactionBond {
+  amount: BigInt!
+  createdAt: DateTime!
   id: Int!
-  role: Role!
-  updatedAt: dateTime!
+  receiver: AccountBond
+  sender: AccountBond
+  title: String!
+  updatedAt: DateTime!
 }
 
-"""Date custom scalar type"""
-scalar dateTime
+type TransactionCash {
+  amount: BigInt!
+  createdAt: DateTime!
+  id: Int!
+  receiver: AccountCash
+  sender: AccountCash
+  title: String!
+  type: TransactionCashType!
+  updatedAt: DateTime!
+}
+
+"""Define transaction cash types"""
+enum TransactionCashType {
+  RETURN
+  TRANSFER
+}
+
+type User {
+  accountCash: AccountCash
+  accountsBond: [AccountBond!]!
+  auth: Auth
+  createdAt: DateTime!
+  email: String!
+  id: Int!
+  name: String!
+  role: Role!
+  updatedAt: DateTime!
+}

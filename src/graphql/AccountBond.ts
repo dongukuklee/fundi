@@ -1,7 +1,7 @@
-import { objectType, queryType } from "nexus";
+import { objectType } from "nexus";
 
-export const AccountCash = objectType({
-  name: "AccountCash",
+export const AccountBond = objectType({
+  name: "AccountBond",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
@@ -10,25 +10,33 @@ export const AccountCash = objectType({
     t.field("owner", {
       type: "User",
       resolve(parent, args, context, info) {
-        return context.prisma.accountCash
+        return context.prisma.accountBond
           .findUnique({ where: { id: parent.id } })
           .owner();
       },
     });
     t.nonNull.list.nonNull.field("transactionSent", {
-      type: "TransactionCash",
+      type: "TransactionBond",
       resolve(parent, args, context, info) {
-        return context.prisma.accountCash
+        return context.prisma.accountBond
           .findUnique({ where: { id: parent.id } })
           .transactionsSent();
       },
     });
     t.nonNull.list.nonNull.field("transactionRcvd", {
-      type: "TransactionCash",
+      type: "TransactionBond",
       resolve(parent, args, context, info) {
-        return context.prisma.accountCash
+        return context.prisma.accountBond
           .findUnique({ where: { id: parent.id } })
           .transactionsRcvd();
+      },
+    });
+    t.field("funding", {
+      type: "Funding",
+      resolve(parent, args, context, info) {
+        return context.prisma.accountBond
+          .findUnique({ where: { id: parent.id } })
+          .funding();
       },
     });
   },
