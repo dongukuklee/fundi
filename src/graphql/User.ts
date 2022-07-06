@@ -48,7 +48,7 @@ export const UserQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId, userRole } = context;
-        const { id } = args;
+        const id = args?.id as number | undefined;
         if (!userId) {
           throw new Error(
             "Cannot inquiry user information without signing in."

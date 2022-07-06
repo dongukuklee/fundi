@@ -42,7 +42,7 @@ export interface NexusGenInputs {
 export interface NexusGenEnums {
   FundingStatus: "CAMPAIGNING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
-  TransactionCashType: "RETURN" | "TRANSFER"
+  TransactionType: "DEPOSIT" | "WITHDRAW"
 }
 
 export interface NexusGenScalars {
@@ -118,6 +118,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     title: string; // String!
+    type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TransactionCash: { // root type
@@ -125,7 +126,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     title: string; // String!
-    type: NexusGenEnums['TransactionCashType']; // TransactionCashType!
+    type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   User: { // root type
@@ -155,8 +156,7 @@ export interface NexusGenFieldTypes {
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     owner: NexusGenRootTypes['User'] | null; // User
-    transactionRcvd: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
-    transactionSent: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
+    transactions: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   AccountCash: { // field return type
@@ -164,8 +164,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     owner: NexusGenRootTypes['User'] | null; // User
-    transactionRcvd: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
-    transactionSent: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
+    transactions: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Artist: { // field return type
@@ -224,26 +223,27 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     user: NexusGenRootTypes['User'] | null; // User
   }
   TransactionBond: { // field return type
+    account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     amount: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    receiver: NexusGenRootTypes['AccountBond'] | null; // AccountBond
-    sender: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     title: string; // String!
+    type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TransactionCash: { // field return type
+    account: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     amount: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    receiver: NexusGenRootTypes['AccountCash'] | null; // AccountCash
-    sender: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     title: string; // String!
-    type: NexusGenEnums['TransactionCashType']; // TransactionCashType!
+    type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   User: { // field return type
@@ -266,8 +266,7 @@ export interface NexusGenFieldTypeNames {
     funding: 'Funding'
     id: 'Int'
     owner: 'User'
-    transactionRcvd: 'TransactionBond'
-    transactionSent: 'TransactionBond'
+    transactions: 'TransactionBond'
     updatedAt: 'DateTime'
   }
   AccountCash: { // field return type name
@@ -275,8 +274,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     id: 'Int'
     owner: 'User'
-    transactionRcvd: 'TransactionCash'
-    transactionSent: 'TransactionCash'
+    transactions: 'TransactionCash'
     updatedAt: 'DateTime'
   }
   Artist: { // field return type name
@@ -335,26 +333,27 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     balanceCash: 'BigInt'
+    myFundings: 'Funding'
+    transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
     user: 'User'
   }
   TransactionBond: { // field return type name
+    account: 'AccountBond'
     amount: 'BigInt'
     createdAt: 'DateTime'
     id: 'Int'
-    receiver: 'AccountBond'
-    sender: 'AccountBond'
     title: 'String'
+    type: 'TransactionType'
     updatedAt: 'DateTime'
   }
   TransactionCash: { // field return type name
+    account: 'AccountCash'
     amount: 'BigInt'
     createdAt: 'DateTime'
     id: 'Int'
-    receiver: 'AccountCash'
-    sender: 'AccountCash'
     title: 'String'
-    type: 'TransactionCashType'
+    type: 'TransactionType'
     updatedAt: 'DateTime'
   }
   User: { // field return type name
@@ -383,10 +382,20 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    myFundings: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
+    }
+    transactionsBond: { // args
+      ids?: Array<number | null> | null; // [Int]
+      skip?: number | null; // Int
+      take?: number | null; // Int
+      type?: NexusGenEnums['TransactionType'] | null; // TransactionType
+    }
     transactionsCash: { // args
       skip?: number | null; // Int
       take?: number | null; // Int
-      type?: string | null; // String
+      type?: NexusGenEnums['TransactionType'] | null; // TransactionType
     }
     user: { // args
       email?: string | null; // String

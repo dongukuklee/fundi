@@ -1,4 +1,6 @@
-import { extendType, intArg, objectType, stringArg } from "nexus";
+import { TransactionType } from "@prisma/client";
+import { arg, extendType, intArg, objectType, stringArg } from "nexus";
+import { TAKE } from "../common/const";
 
 export const TransactionCash = objectType({
   name: "TransactionCash",
@@ -7,24 +9,16 @@ export const TransactionCash = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("title");
-    t.field("sender", {
+    t.field("account", {
       type: "AccountCash",
       resolve(parent, args, context, info) {
         return context.prisma.transactionCash
           .findUnique({ where: { id: parent.id } })
-          .sender();
-      },
-    });
-    t.field("receiver", {
-      type: "AccountCash",
-      resolve(parent, args, context, info) {
-        return context.prisma.transactionCash
-          .findUnique({ where: { id: parent.id } })
-          .receiver();
+          .account();
       },
     });
     t.nonNull.bigInt("amount");
-    t.nonNull.field("type", { type: "TransactionCashType" });
+    t.nonNull.field("type", { type: "TransactionType" });
   },
 });
 
@@ -36,7 +30,7 @@ export const TransactionCashQuery = extendType({
       args: {
         skip: intArg(),
         take: intArg(),
-        type: stringArg(), // SENT or RCVD or undefined
+        type: arg({ type: "TransactionType" }),
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
@@ -45,17 +39,15 @@ export const TransactionCashQuery = extendType({
             "Cannot inquiry the transactions of the account without signing in."
           );
         }
-        const where =
-          args?.type === "SENT"
-            ? { senderId: userId }
-            : args?.type === "RCVD"
-            ? { receiverId: userId }
-            : { OR: [{ senderId: userId }, { receiverId: userId }] };
-
         const transactions = await context.prisma.transactionCash.findMany({
-          where,
+          where: {
+            account: {
+              ownerId: userId,
+            },
+            type: args?.type as TransactionType | undefined,
+          },
           skip: args?.skip as number | undefined,
-          take: args?.take as number | undefined,
+          take: args?.take ? args.take : TAKE,
         });
         return transactions;
       },

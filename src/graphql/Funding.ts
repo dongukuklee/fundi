@@ -1,4 +1,4 @@
-import { objectType } from "nexus";
+import { extendType, intArg, objectType } from "nexus";
 
 export const Funding = objectType({
   name: "Funding",
@@ -33,6 +33,29 @@ export const Funding = objectType({
         return context.prisma.funding
           .findUnique({ where: { id: parent.id } })
           .artworks();
+      },
+    });
+  },
+});
+
+export const FundingQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.nonNull.list.nonNull.field("myFundings", {
+      type: "Funding",
+      args: {
+        skip: intArg(),
+        take: intArg(),
+      },
+      async resolve(parent, args, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error("Cannot inquiry my funding list without signing in.");
+        }
+        const fundings = await context.prisma.user
+          .findUnique({ where: { id: userId } })
+          .fundings();
+        return fundings;
       },
     });
   },

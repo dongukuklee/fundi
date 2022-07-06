@@ -30,6 +30,7 @@ model User {
   authId       Int           @unique
   accountCash  AccountCash?
   accountsBond AccountBond[]
+  fundings     Funding[]
 }
 
 enum Role {
@@ -39,57 +40,52 @@ enum Role {
 }
 
 model AccountCash {
-  id               Int               @id @default(autoincrement())
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  owner            User              @relation(fields: [ownerId], references: [id])
-  ownerId          Int               @unique
-  balance          BigInt            @default(0)
-  transactionsSent TransactionCash[] @relation(name: "TransactionCashSender")
-  transactionsRcvd TransactionCash[] @relation(name: "TransactionCashReceiver")
+  id           Int               @id @default(autoincrement())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  owner        User              @relation(fields: [ownerId], references: [id])
+  ownerId      Int               @unique
+  balance      BigInt            @default(0)
+  transactions TransactionCash[]
 }
 
 model TransactionCash {
-  id         Int                 @id @default(autoincrement())
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  title      String
-  sender     AccountCash         @relation(name: "TransactionCashSender", fields: [senderId], references: [id])
-  senderId   Int
-  receiver   AccountCash         @relation(name: "TransactionCashReceiver", fields: [receiverId], references: [id])
-  receiverId Int
-  amount     BigInt
-  type       TransactionCashType @default(TRANSFER)
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  title     String
+  account   AccountCash     @relation(fields: [accountId], references: [id])
+  accountId Int
+  amount    BigInt
+  type      TransactionType
 }
 
-enum TransactionCashType {
-  TRANSFER
-  RETURN
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
 }
 
 model AccountBond {
-  id               Int               @id @default(autoincrement())
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  owner            User              @relation(fields: [ownerId], references: [id])
-  ownerId          Int               @unique
-  balance          BigInt            @default(0)
-  transactionsSent TransactionBond[] @relation(name: "TransactionBondSender")
-  transactionsRcvd TransactionBond[] @relation(name: "TransactionBondReceiver")
-  funding          Funding?          @relation(fields: [fundingId], references: [id])
-  fundingId        Int
+  id           Int               @id @default(autoincrement())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  owner        User              @relation(fields: [ownerId], references: [id])
+  ownerId      Int
+  balance      BigInt            @default(0)
+  transactions TransactionBond[]
+  funding      Funding?          @relation(fields: [fundingId], references: [id])
+  fundingId    Int
 }
 
 model TransactionBond {
-  id         Int         @id @default(autoincrement())
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  title      String
-  sender     AccountBond @relation(name: "TransactionBondSender", fields: [senderId], references: [id])
-  senderId   Int
-  receiver   AccountBond @relation(name: "TransactionBondReceiver", fields: [receiverId], references: [id])
-  receiverId Int
-  amount     BigInt
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  title     String
+  account   AccountBond     @relation(fields: [accountId], references: [id])
+  accountId Int
+  amount    BigInt
+  type      TransactionType
 }
 
 model Funding {
@@ -105,6 +101,7 @@ model Funding {
   status          FundingStatus @default(PRE_CAMPAIGN)
   accountsBond    AccountBond[]
   artworks        Artwork[]
+  investors       User[]
 }
 
 enum FundingStatus {

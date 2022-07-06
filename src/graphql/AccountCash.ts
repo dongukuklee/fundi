@@ -15,20 +15,12 @@ export const AccountCash = objectType({
           .owner();
       },
     });
-    t.nonNull.list.nonNull.field("transactionSent", {
+    t.nonNull.list.nonNull.field("transactions", {
       type: "TransactionCash",
       resolve(parent, args, context, info) {
         return context.prisma.accountCash
           .findUnique({ where: { id: parent.id } })
-          .transactionsSent();
-      },
-    });
-    t.nonNull.list.nonNull.field("transactionRcvd", {
-      type: "TransactionCash",
-      resolve(parent, args, context, info) {
-        return context.prisma.accountCash
-          .findUnique({ where: { id: parent.id } })
-          .transactionsRcvd();
+          .transactions();
       },
     });
   },
