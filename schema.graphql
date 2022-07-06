@@ -103,6 +103,8 @@ type Mutation {
 }
 
 type Query {
+  balanceCash: BigInt
+  transactionsCash(skip: Int, take: Int, type: String): [TransactionCash!]!
   user(email: String, id: Int): User
 }
 

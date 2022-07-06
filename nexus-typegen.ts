@@ -223,6 +223,8 @@ export interface NexusGenFieldTypes {
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
   }
   Query: { // field return type
+    balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     user: NexusGenRootTypes['User'] | null; // User
   }
   TransactionBond: { // field return type
@@ -332,6 +334,8 @@ export interface NexusGenFieldTypeNames {
     signup: 'AuthPayload'
   }
   Query: { // field return type name
+    balanceCash: 'BigInt'
+    transactionsCash: 'TransactionCash'
     user: 'User'
   }
   TransactionBond: { // field return type name
@@ -379,6 +383,11 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    transactionsCash: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
+      type?: string | null; // String
+    }
     user: { // args
       email?: string | null; // String
       id?: number | null; // Int
