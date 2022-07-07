@@ -213,16 +213,19 @@ export interface NexusGenFieldTypes {
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    remainingBonds: Array<number | null> | null; // [Int]
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
+    fundParticipation: NexusGenRootTypes['Funding'] | null; // Funding
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
   }
   Query: { // field return type
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    fundingList: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
@@ -323,16 +326,19 @@ export interface NexusGenFieldTypeNames {
     contract: 'Contract'
     createdAt: 'DateTime'
     id: 'Int'
+    remainingBonds: 'Int'
     status: 'FundingStatus'
     title: 'String'
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
+    fundParticipation: 'Funding'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
   }
   Query: { // field return type name
     balanceCash: 'BigInt'
+    fundingList: 'Funding'
     myFundings: 'Funding'
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
@@ -371,6 +377,10 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
+    fundParticipation: { // args
+      balance: number; // Int!
+      id: number; // Int!
+    }
     signin: { // args
       email: string; // String!
       password: string; // String!

@@ -82,6 +82,7 @@ type Funding {
   contract: Contract
   createdAt: DateTime!
   id: Int!
+  remainingBonds: [Int]
   status: FundingStatus!
   title: String!
   updatedAt: DateTime!
@@ -96,12 +97,14 @@ enum FundingStatus {
 }
 
 type Mutation {
+  fundParticipation(balance: Int!, id: Int!): Funding
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, name: String!, password: String!): AuthPayload!
 }
 
 type Query {
   balanceCash: BigInt
+  fundingList: [Funding]
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
