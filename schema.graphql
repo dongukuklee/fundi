@@ -8,8 +8,7 @@ type AccountBond {
   funding: Funding
   id: Int!
   owner: User
-  transactionRcvd: [TransactionBond!]!
-  transactionSent: [TransactionBond!]!
+  transactions: [TransactionBond!]!
   updatedAt: DateTime!
 }
 
@@ -18,8 +17,7 @@ type AccountCash {
   createdAt: DateTime!
   id: Int!
   owner: User
-  transactionRcvd: [TransactionCash!]!
-  transactionSent: [TransactionCash!]!
+  transactions: [TransactionCash!]!
   updatedAt: DateTime!
 }
 
@@ -103,6 +101,10 @@ type Mutation {
 }
 
 type Query {
+  balanceCash: BigInt
+  myFundings(skip: Int, take: Int): [Funding!]!
+  transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
+  transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user(email: String, id: Int): User
 }
 
@@ -114,30 +116,29 @@ enum Role {
 }
 
 type TransactionBond {
+  account: AccountBond
   amount: BigInt!
   createdAt: DateTime!
   id: Int!
-  receiver: AccountBond
-  sender: AccountBond
   title: String!
+  type: TransactionType!
   updatedAt: DateTime!
 }
 
 type TransactionCash {
+  account: AccountCash
   amount: BigInt!
   createdAt: DateTime!
   id: Int!
-  receiver: AccountCash
-  sender: AccountCash
   title: String!
-  type: TransactionCashType!
+  type: TransactionType!
   updatedAt: DateTime!
 }
 
-"""Define transaction cash types"""
-enum TransactionCashType {
-  RETURN
-  TRANSFER
+"""Define transaction types - DEPOSIT and WITHDRAW"""
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
 }
 
 type User {

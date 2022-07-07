@@ -15,20 +15,12 @@ export const AccountBond = objectType({
           .owner();
       },
     });
-    t.nonNull.list.nonNull.field("transactionSent", {
+    t.nonNull.list.nonNull.field("transactions", {
       type: "TransactionBond",
       resolve(parent, args, context, info) {
         return context.prisma.accountBond
           .findUnique({ where: { id: parent.id } })
-          .transactionsSent();
-      },
-    });
-    t.nonNull.list.nonNull.field("transactionRcvd", {
-      type: "TransactionBond",
-      resolve(parent, args, context, info) {
-        return context.prisma.accountBond
-          .findUnique({ where: { id: parent.id } })
-          .transactionsRcvd();
+          .transactions();
       },
     });
     t.field("funding", {
