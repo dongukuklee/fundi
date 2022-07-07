@@ -14,7 +14,7 @@ model Auth {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email     String   @unique
-  name      String
+  name      String?
   password  String
   user      User?
 }
@@ -24,7 +24,7 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   email        String        @unique
-  name         String
+  name         String?
   role         Role          @default(INVESTOR)
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique

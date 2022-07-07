@@ -8,7 +8,7 @@ export const User = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("email");
-    t.nonNull.string("name");
+    t.string("name");
     t.nonNull.field("role", { type: "Role" });
     t.field("auth", {
       type: "Auth",

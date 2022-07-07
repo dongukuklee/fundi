@@ -1,8 +1,20 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
+import { send_gmail } from "../utils/auth";
+import { getString, setString } from "../utils/redis/ctrl";
 
 const APP_SECRET = process.env.APP_SECRET!;
+
+const getAuthByEmail = async (prisma: any, email: string) => {
+  {
+    return await prisma.auth.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+};
 
 export const Auth = objectType({
   name: "Auth",
@@ -31,6 +43,34 @@ export const AuthPayload = objectType({
   },
 });
 
+export const AuthQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.nonNull.field("emailCheck", {
+      type: Auth,
+      args: {
+        email: nonNull(stringArg()),
+      },
+      resolve: async (parent, { email }, { prisma }) => {
+        const auth = await getAuthByEmail(prisma, email);
+        if (!auth) {
+          throw new Error("email already exists");
+        }
+        return auth;
+      },
+    });
+    t.nonNull.field("verificationCode", {
+      type: "Boolean",
+      args: {
+        email: nonNull(stringArg()),
+        verificationCode: nonNull(stringArg()),
+      },
+      resolve: async (parent, { email, verificationCode }, { prisma }) =>
+        (await getString(email)) === verificationCode,
+    });
+  },
+});
+
 export const AuthMutation = extendType({
   type: "Mutation",
   definition(t) {
@@ -39,18 +79,15 @@ export const AuthMutation = extendType({
       args: {
         email: nonNull(stringArg()),
         password: nonNull(stringArg()),
-        name: nonNull(stringArg()),
       },
       async resolve(parent, args, context, info) {
-        const { email, name } = args;
+        const { email } = args;
         const password = await bcrypt.hash(args.password, 10);
         const user = await context.prisma.user.create({
           data: {
-            name,
             email,
             auth: {
               create: {
-                name,
                 email,
                 password,
               },
@@ -61,7 +98,7 @@ export const AuthMutation = extendType({
           },
         });
         const token = jwt.sign(
-          { userId: user.id, userName: user.name, userRole: user.role },
+          { userId: user.id, userRole: user.role },
           APP_SECRET
         );
         return { token, user };
@@ -92,7 +129,6 @@ export const AuthMutation = extendType({
         const token = jwt.sign(
           {
             userId: auth.user?.id,
-            userName: auth.user?.name,
             userRole: auth.user?.role,
           },
           APP_SECRET
@@ -101,6 +137,22 @@ export const AuthMutation = extendType({
           token,
           user: auth.user!,
         };
+      },
+    });
+    t.field("emailAuthentication", {
+      type: "String",
+      args: {
+        email: nonNull(stringArg()),
+      },
+      async resolve(parent, { email }, context, info) {
+        const verificationCode = String(Math.floor(Math.random() * 1000000));
+        try {
+          send_gmail({ email, verificationCode });
+        } catch (error) {
+          console.log(error);
+        }
+        await setString(email, verificationCode, 300);
+        return "email sent successfully";
       },
     });
   },
