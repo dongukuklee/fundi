@@ -1,4 +1,4 @@
-import { objectType } from "nexus";
+import { extendType, intArg, nonNull, objectType } from "nexus";
 
 export const Artwork = objectType({
   name: "Artwork",
@@ -18,5 +18,32 @@ export const Artwork = objectType({
     t.nonNull.bigInt("initialPrice");
     t.nonNull.bigInt("sellingPrice");
     t.nonNull.boolean("isSold");
+  },
+});
+
+export const ArtworkQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.field("artwork", {
+      type: "Artwork",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        return await context.prisma.artwork.findUnique({ where: { id } });
+      },
+    });
+    t.list.field("artworks", {
+      type: "Artwork",
+      args: {
+        id: nonNull(intArg()),
+        //fundId
+      },
+      async resolve(parent, { id }, context, info) {
+        return await context.prisma.funding
+          .findUnique({ where: { id } })
+          .artworks();
+      },
+    });
   },
 });

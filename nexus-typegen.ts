@@ -225,8 +225,13 @@ export interface NexusGenFieldTypes {
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
   }
   Query: { // field return type
+    artist: NexusGenRootTypes['Artist'] | null; // Artist
+    artists: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
+    artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
+    artworks: Array<NexusGenRootTypes['Artwork'] | null> | null; // [Artwork]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
     emailCheck: NexusGenRootTypes['Auth']; // Auth!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundingList: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
@@ -341,8 +346,13 @@ export interface NexusGenFieldTypeNames {
     signup: 'AuthPayload'
   }
   Query: { // field return type name
+    artist: 'Artist'
+    artists: 'Artist'
+    artwork: 'Artwork'
+    artworks: 'Artwork'
     balanceCash: 'BigInt'
     emailCheck: 'Auth'
+    funding: 'Funding'
     fundingList: 'Funding'
     myFundings: 'Funding'
     transactionsBond: 'TransactionBond'
@@ -400,8 +410,28 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    artist: { // args
+      id: number; // Int!
+    }
+    artists: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
+    }
+    artwork: { // args
+      id: number; // Int!
+    }
+    artworks: { // args
+      id: number; // Int!
+    }
     emailCheck: { // args
       email: string; // String!
+    }
+    funding: { // args
+      id: number; // Int!
+    }
+    fundingList: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
     }
     myFundings: { // args
       skip?: number | null; // Int
