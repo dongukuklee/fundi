@@ -104,9 +104,14 @@ type Mutation {
 }
 
 type Query {
+  artist(id: Int!): Artist
+  artists(skip: Int, take: Int): [Artist]
+  artwork(id: Int!): Artwork
+  artworks(id: Int!): [Artwork]
   balanceCash: BigInt
   emailCheck(email: String!): Auth!
-  fundingList: [Funding]
+  funding(id: Int!): Funding
+  fundingList(skip: Int, take: Int): [Funding]
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!

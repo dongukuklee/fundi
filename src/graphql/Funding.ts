@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { extendType, intArg, nonNull, objectType } from "nexus";
+import { TAKE } from "../common/const";
 
 interface BondsBalance {
   balance: bigint;
@@ -113,10 +114,30 @@ export const FundingQuery = extendType({
         return fundings;
       },
     });
+    t.field("funding", {
+      type: "Funding",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        return await context.prisma.funding.findUnique({
+          where: {
+            id,
+          },
+        });
+      },
+    });
     t.list.field("fundingList", {
       type: "Funding",
+      args: {
+        skip: intArg(),
+        take: intArg(),
+      },
       async resolve(parent, args, context, info) {
-        const funding = await context.prisma.funding.findMany({});
+        const funding = await context.prisma.funding.findMany({
+          skip: args?.skip as number | undefined,
+          take: args?.take ? args.take : TAKE,
+        });
         return funding;
       },
     });
