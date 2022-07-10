@@ -33,7 +33,7 @@ export const ArtworkQuery = extendType({
         return await context.prisma.artwork.findUnique({ where: { id } });
       },
     });
-    t.list.field("artworks", {
+    t.nonNull.list.nonNull.field("artworks", {
       type: "Artwork",
       args: {
         id: nonNull(intArg()),

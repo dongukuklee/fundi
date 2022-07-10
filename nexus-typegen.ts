@@ -102,9 +102,8 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // root type
-    accountBond?: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
-    bondTotalNumber: NexusGenScalars['BigInt']; // BigInt!
+    bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
@@ -205,39 +204,38 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // field return type
-    accountBond: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    accounstInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
+    accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     artist: NexusGenRootTypes['Artist'] | null; // Artist
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
-    bondTotalNumber: NexusGenScalars['BigInt']; // BigInt!
+    bondsRemaining: NexusGenScalars['BigInt']; // BigInt!
+    bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    remainingBonds: Array<number | null> | null; // [Int]
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
-    emailAuthentication: string | null; // String
-    fundParticipation: NexusGenRootTypes['Funding'] | null; // Funding
+    participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
   }
   Query: { // field return type
     artist: NexusGenRootTypes['Artist'] | null; // Artist
-    artists: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
+    artists: NexusGenRootTypes['Artist'][]; // [Artist!]!
     artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
-    artworks: Array<NexusGenRootTypes['Artwork'] | null> | null; // [Artwork]
+    artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
     emailCheck: NexusGenRootTypes['Auth']; // Auth!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
-    fundingList: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
+    fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     user: NexusGenRootTypes['User'] | null; // User
-    verificationCode: boolean; // Boolean!
   }
   TransactionBond: { // field return type
     account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -326,22 +324,22 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Funding: { // field return type name
-    accountBond: 'AccountBond'
+    accounstInvestor: 'AccountBond'
+    accountManager: 'AccountBond'
     artist: 'Artist'
     artworks: 'Artwork'
     bondPrice: 'BigInt'
-    bondTotalNumber: 'BigInt'
+    bondsRemaining: 'BigInt'
+    bondsTotalNumber: 'BigInt'
     contract: 'Contract'
     createdAt: 'DateTime'
     id: 'Int'
-    remainingBonds: 'Int'
     status: 'FundingStatus'
     title: 'String'
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
-    emailAuthentication: 'String'
-    fundParticipation: 'Funding'
+    participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
   }
@@ -353,12 +351,11 @@ export interface NexusGenFieldTypeNames {
     balanceCash: 'BigInt'
     emailCheck: 'Auth'
     funding: 'Funding'
-    fundingList: 'Funding'
+    fundings: 'Funding'
     myFundings: 'Funding'
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
     user: 'User'
-    verificationCode: 'Boolean'
   }
   TransactionBond: { // field return type name
     account: 'AccountBond'
@@ -393,11 +390,8 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
-    emailAuthentication: { // args
-      email: string; // String!
-    }
-    fundParticipation: { // args
-      balance: number; // Int!
+    participateFunding: { // args
+      amount: number; // Int!
       id: number; // Int!
     }
     signin: { // args
@@ -429,7 +423,7 @@ export interface NexusGenArgTypes {
     funding: { // args
       id: number; // Int!
     }
-    fundingList: { // args
+    fundings: { // args
       skip?: number | null; // Int
       take?: number | null; // Int
     }
@@ -451,10 +445,6 @@ export interface NexusGenArgTypes {
     user: { // args
       email?: string | null; // String
       id?: number | null; // Int
-    }
-    verificationCode: { // args
-      email: string; // String!
-      verificationCode: string; // String!
     }
   }
 }

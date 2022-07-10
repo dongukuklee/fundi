@@ -74,15 +74,16 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTime
 
 type Funding {
-  accountBond: AccountBond
+  accounstInvestor: [AccountBond!]!
+  accountManager: AccountBond
   artist: Artist
   artworks: [Artwork!]!
   bondPrice: BigInt!
-  bondTotalNumber: BigInt!
+  bondsRemaining: BigInt!
+  bondsTotalNumber: BigInt!
   contract: Contract
   createdAt: DateTime!
   id: Int!
-  remainingBonds: [Int]
   status: FundingStatus!
   title: String!
   updatedAt: DateTime!
@@ -97,26 +98,24 @@ enum FundingStatus {
 }
 
 type Mutation {
-  emailAuthentication(email: String!): String
-  fundParticipation(balance: Int!, id: Int!): Funding
+  participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
 }
 
 type Query {
   artist(id: Int!): Artist
-  artists(skip: Int, take: Int): [Artist]
+  artists(skip: Int, take: Int): [Artist!]!
   artwork(id: Int!): Artwork
-  artworks(id: Int!): [Artwork]
+  artworks(id: Int!): [Artwork!]!
   balanceCash: BigInt
   emailCheck(email: String!): Auth!
   funding(id: Int!): Funding
-  fundingList(skip: Int, take: Int): [Funding]
+  fundings(skip: Int, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user(email: String, id: Int): User
-  verificationCode(email: String!, verificationCode: String!): Boolean!
 }
 
 """Define user roles"""

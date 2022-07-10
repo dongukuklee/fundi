@@ -32,7 +32,7 @@ export const ArtistQuery = extendType({
         return await context.prisma.artist.findUnique({ where: { id } });
       },
     });
-    t.list.field("artists", {
+    t.nonNull.list.nonNull.field("artists", {
       type: "Artist",
       args: {
         skip: intArg(),
