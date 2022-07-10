@@ -98,6 +98,7 @@ enum FundingStatus {
 }
 
 type Mutation {
+  emailAuthentication(email: String!): String
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
@@ -116,6 +117,7 @@ type Query {
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user(email: String, id: Int): User
+  verificationCode(email: String!, verificationCode: String!): Boolean!
 }
 
 """Define user roles"""

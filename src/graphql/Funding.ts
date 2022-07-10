@@ -243,7 +243,7 @@ export const FundingMutation = extendType({
           throw new Error("Invalid funding");
         }
 
-        const investmentPrice = funding.bondPrice * amount;
+        const investmentPrice = funding.bondPrice * BigInt(amount);
 
         if (investmentPrice > investor.accountCash.balance) {
           throw new Error("Your account does not have sufficient balance.");
