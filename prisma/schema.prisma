@@ -14,7 +14,7 @@ model Auth {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email     String   @unique
-  name      String
+  name      String?
   password  String
   user      User?
 }
@@ -24,13 +24,12 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   email        String        @unique
-  name         String
+  name         String?
   role         Role          @default(INVESTOR)
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
   accountCash  AccountCash?
   accountsBond AccountBond[]
-  fundings     Funding[]
 }
 
 enum Role {
@@ -89,19 +88,18 @@ model TransactionBond {
 }
 
 model Funding {
-  id              Int           @id @default(autoincrement())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  title           String
-  artist          Artist?       @relation(fields: [artistId], references: [id])
-  artistId        Int
-  contract        Contract?
-  bondPrice       BigInt        @default(10000)
-  bondTotalNumber BigInt        @default(10000)
-  status          FundingStatus @default(PRE_CAMPAIGN)
-  accountsBond    AccountBond[]
-  artworks        Artwork[]
-  investors       User[]
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  status           FundingStatus @default(PRE_CAMPAIGN)
+  title            String
+  artist           Artist?       @relation(fields: [artistId], references: [id])
+  artistId         Int?
+  contract         Contract?
+  bondPrice        BigInt        @default(10000)
+  bondsTotalNumber BigInt        @default(10000)
+  accountsBond     AccountBond[]
+  artworks         Artwork[]
 }
 
 enum FundingStatus {
@@ -137,7 +135,7 @@ model Artwork {
   updatedAt    DateTime @updatedAt
   title        String
   funding      Funding? @relation(fields: [fundingId], references: [id])
-  fundingId    Int
+  fundingId    Int?
   initialPrice BigInt   @default(0)
   sellingPrice BigInt   @default(0)
   isSold       Boolean  @default(false)

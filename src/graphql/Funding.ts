@@ -1,53 +1,7 @@
-import { Role } from "@prisma/client";
+import { AccountBond, Role } from "@prisma/client";
 import { extendType, intArg, nonNull, objectType } from "nexus";
-
-interface BondsBalance {
-  balance: bigint;
-  owner: {
-    id: number;
-    role: Role;
-  };
-}
-
-const getFunding = async (context: any, id: number) => {
-  const funding = await context.prisma.funding.findUnique({
-    where: { id },
-  });
-
-  return funding;
-};
-
-const getRemainigBondTotalPrice = async (
-  bondPrice: bigint,
-  fundingId: number,
-  context: any
-) => {
-  //const investors = accountsBond.filter((el) => el.owner.role === "INVESTOR");
-  const accountsBond: BondsBalance[] =
-    await context.prisma.accountBond.findMany({
-      select: {
-        balance: true,
-        owner: {
-          select: {
-            id: true,
-            role: true,
-          },
-        },
-      },
-      where: {
-        fundingId,
-      },
-    });
-
-  if (!accountsBond) {
-    throw new Error("accountsBond not found");
-  }
-
-  const [manager] = accountsBond.filter((el) => el.owner.role === "MANAGER");
-  const remainigBondTotalPrice = manager.balance;
-  const remainigBondNumber = Number(remainigBondTotalPrice / bondPrice);
-  return [Number(remainigBondTotalPrice), remainigBondNumber];
-};
+import { TransactionType } from "@prisma/client";
+import { TAKE } from "../common/const";
 
 export const Funding = objectType({
   name: "Funding",
@@ -55,13 +9,8 @@ export const Funding = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
+    t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
-    t.list.field("remainingBonds", {
-      type: "Int",
-      async resolve(parent, args, context, info) {
-        return getRemainigBondTotalPrice(parent.bondPrice, parent.id, context);
-      },
-    });
     t.field("artist", {
       type: "Artist",
       resolve(parent, args, context, info) {
@@ -79,9 +28,7 @@ export const Funding = objectType({
       },
     });
     t.nonNull.bigInt("bondPrice");
-    t.nonNull.bigInt("bondTotalNumber");
-    t.nonNull.field("status", { type: "FundingStatus" });
-    t.field("accountBond", { type: "AccountBond" });
+    t.nonNull.bigInt("bondsTotalNumber");
     t.nonNull.list.nonNull.field("artworks", {
       type: "Artwork",
       resolve(parent, args, context, info) {
@@ -90,12 +37,103 @@ export const Funding = objectType({
           .artworks();
       },
     });
+    t.nonNull.field("bondsRemaining", {
+      type: "BigInt",
+      async resolve(parent, args, context, info) {
+        const accountManager = (await context.prisma.accountBond.findFirst({
+          where: {
+            AND: {
+              fundingId: parent.id,
+              owner: {
+                role: Role.MANAGER,
+              },
+            },
+          },
+          select: {
+            balance: true,
+          },
+        })) as AccountBond | undefined;
+        if (!accountManager) {
+          throw new Error("accountManager not found");
+        }
+        return accountManager.balance;
+      },
+    });
+    t.nonNull.list.nonNull.field("accounstInvestor", {
+      type: "AccountBond",
+      async resolve(parent, args, context, info) {
+        const { userRole } = context;
+        if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
+          throw new Error(
+            "Only the manager and administrator can inquiry accounts of fundings."
+          );
+        }
+        return await context.prisma.accountBond.findMany({
+          where: {
+            AND: {
+              fundingId: parent.id,
+              owner: {
+                role: Role.INVESTOR,
+              },
+            },
+          },
+        });
+      },
+    });
+    t.field("accountManager", {
+      type: "AccountBond",
+      async resolve(parent, args, context, info) {
+        const { userRole } = context;
+        if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
+          throw new Error(
+            "Only the manager and administrator can inquiry accounts of fundings."
+          );
+        }
+        return await context.prisma.accountBond.findFirst({
+          where: {
+            AND: {
+              fundingId: parent.id,
+              owner: {
+                role: Role.MANAGER,
+              },
+            },
+          },
+        });
+      },
+    });
   },
 });
 
 export const FundingQuery = extendType({
   type: "Query",
   definition(t) {
+    t.field("funding", {
+      type: "Funding",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        return await context.prisma.funding.findUnique({
+          where: {
+            id,
+          },
+        });
+      },
+    });
+    t.nonNull.list.nonNull.field("fundings", {
+      type: "Funding",
+      args: {
+        skip: intArg(),
+        take: intArg(),
+      },
+      async resolve(parent, args, context, info) {
+        const funding = await context.prisma.funding.findMany({
+          skip: args?.skip as number | undefined,
+          take: args?.take ? args.take : TAKE,
+        });
+        return funding;
+      },
+    });
     t.nonNull.list.nonNull.field("myFundings", {
       type: "Funding",
       args: {
@@ -107,17 +145,15 @@ export const FundingQuery = extendType({
         if (!userId) {
           throw new Error("Cannot inquiry my funding list without signing in.");
         }
-        const fundings = await context.prisma.user
-          .findUnique({ where: { id: userId } })
-          .fundings();
-        return fundings;
-      },
-    });
-    t.list.field("fundingList", {
-      type: "Funding",
-      async resolve(parent, args, context, info) {
-        const funding = await context.prisma.funding.findMany({});
-        return funding;
+        return await context.prisma.funding.findMany({
+          where: {
+            accountsBond: {
+              every: {
+                ownerId: userId,
+              },
+            },
+          },
+        });
       },
     });
   },
@@ -126,38 +162,30 @@ export const FundingQuery = extendType({
 export const FundingMutation = extendType({
   type: "Mutation",
   definition(t) {
-    t.field("fundParticipation", {
-      type: "Funding",
+    t.field("participateFunding", {
+      type: "AccountBond",
       args: {
         id: nonNull(intArg()),
-        balance: nonNull(intArg()),
+        amount: nonNull(intArg()),
       },
-      async resolve(parent, { id, balance }, context, info) {
-        // accountCash 에 balance 만큼 차감.
-        const funding = await context.prisma.funding.findUnique({
-          select: {
-            bondPrice: true,
-            bondTotalNumber: true,
-            accountsBond: true,
-          },
-          where: { id },
-        });
+      async resolve(parent, args, context, info) {
+        const { id, amount } = args;
+        const { userId } = context;
 
-        if (!funding) {
-          throw new Error("funding not found");
+        if (!userId) {
+          throw new Error(
+            "Cannot participate in a funding without signing in."
+          );
         }
-        // 펀드 조회
 
-        const { bondPrice, accountsBond } = funding;
-
-        const owner = await context.prisma.user.findUnique({
+        //유저 계좌 조회
+        let investor = await context.prisma.user.findUnique({
           where: {
-            id: context.userId,
-            //id: 1,
+            id: userId,
           },
-          select: {
+          include: {
             accountCash: {
-              select: { balance: true },
+              select: { id: true, balance: true },
             },
             accountsBond: {
               where: {
@@ -165,9 +193,10 @@ export const FundingMutation = extendType({
               },
               select: {
                 id: true,
+              },
+              include: {
                 funding: {
                   select: {
-                    id: true,
                     title: true,
                   },
                 },
@@ -175,245 +204,84 @@ export const FundingMutation = extendType({
             },
           },
         });
-        if (!owner) {
-          throw new Error("user invalid");
+
+        if (
+          !investor ||
+          !investor.accountCash ||
+          investor.accountsBond.length > 1
+        ) {
+          throw new Error("Invalid user");
         }
-        //유저 조회
-        const managedAccountBond = await context.prisma.accountBond.findFirst({
-          select: { owner: true, id: true },
-          where: { AND: [{ owner: { role: "MANAGER" } }, { fundingId: id }] },
+
+        // 펀드 조회
+        const funding = await context.prisma.funding.findUnique({
+          where: { id },
+          select: {
+            bondPrice: true,
+            accountsBond: {
+              where: {
+                owner: {
+                  role: Role.MANAGER,
+                },
+              },
+              include: {
+                owner: {
+                  select: {
+                    accountCash: true,
+                  },
+                },
+              },
+              select: {
+                balance: true,
+                ownerId: true,
+              },
+            },
+          },
         });
-        if (!managedAccountBond) {
-          throw new Error("manager invalid");
+
+        if (!funding || !funding.accountsBond) {
+          throw new Error("Invalid funding");
         }
 
-        const userBalance = Number(owner?.accountCash?.balance);
-        const userAccountBond = owner?.accountsBond;
-        if (userBalance < balance) {
-          throw new Error("balance is not enougth");
-        }
-        //유저 잔액 체크
+        const investmentPrice = funding.bondPrice * BigInt(amount);
 
-        const [remainigBondTotalPrice] = await getRemainigBondTotalPrice(
-          bondPrice,
-          id,
-          context
-        );
-        if (remainigBondTotalPrice < balance) {
-          throw new Error("balance is larger than remaining bond price");
+        if (investmentPrice > investor.accountCash.balance) {
+          throw new Error("Your account does not have sufficient balance.");
         }
-        //구매 신청한 채권이 구매 가능한 채권보다 많을 경우
 
-        const bondAmount = balance / Number(bondPrice);
-        if (!!userAccountBond.length) {
-          await context.prisma.user.update({
+        if (amount > funding.accountsBond[0].balance) {
+          throw new Error("You cannot buy more than the remaining bonds");
+        }
+
+        // 해당 채권 계좌가 없는 경우에 채권 계좌 개설
+        if (investor.accountsBond.length === 0) {
+          investor = await context.prisma.user.update({
             where: {
               id: context.userId,
-              //id: 1,
-            },
-            data: {
-              accountsBond: {
-                update: {
-                  where: {
-                    id: userAccountBond[0].id,
-                  },
-                  data: {
-                    balance: {
-                      increment: balance,
-                    },
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: bondAmount,
-                      type: "DEPOSIT",
-                      title: "거래",
-                    },
-                  },
-                },
-              },
-              accountCash: {
-                update: {
-                  balance: {
-                    decrement: balance,
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: balance,
-                      title: "거래",
-                      type: "WITHDRAW",
-                    },
-                  },
-                },
-              },
-            },
-          });
-
-          //채권 판매자(MANAGER)
-          await context.prisma.user.update({
-            select: {
-              accountsBond: {
-                select: {
-                  id: true,
-                },
-              },
-              accountCash: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-            where: {
-              id: managedAccountBond.owner.id,
-            },
-            data: {
-              accountCash: {
-                update: {
-                  balance: {
-                    increment: balance,
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: balance,
-                      title: "거래",
-                      type: "DEPOSIT",
-                    },
-                  },
-                },
-              },
-              accountsBond: {
-                update: {
-                  where: {
-                    id: managedAccountBond.id,
-                  },
-                  data: {
-                    balance: {
-                      decrement: balance,
-                    },
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: bondAmount,
-                      title: "거래",
-                      type: "WITHDRAW",
-                    },
-                  },
-                },
-              },
-            },
-          });
-        } else {
-          //해당 펀드에 투자가 처음인 유저
-          //채권 구매자(INVESTOR)
-          //context.prisma.$transaction([])
-          await context.prisma.user.update({
-            select: {
-              accountsBond: {
-                select: {
-                  id: true,
-                },
-              },
-              accountCash: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-            where: {
-              id: context.userId,
-              //id: 1,
             },
             data: {
               accountsBond: {
                 create: {
                   fundingId: id,
-                  balance,
-                  transactions: {
-                    create: {
-                      amount: bondAmount,
-                      type: "DEPOSIT",
-                      title: "거래",
-                    },
-                  },
-                },
-              },
-              accountCash: {
-                update: {
-                  balance: {
-                    decrement: balance,
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: balance,
-                      title: "거래",
-                      type: "WITHDRAW",
-                    },
-                  },
+                  balance: 0,
                 },
               },
             },
-          });
-
-          //채권 판매자(MANAGER)
-          await context.prisma.user.update({
-            select: {
+            include: {
+              accountCash: {
+                select: { id: true, balance: true },
+              },
               accountsBond: {
+                where: {
+                  fundingId: id,
+                },
                 select: {
                   id: true,
                 },
-              },
-              accountCash: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-            where: {
-              id: managedAccountBond.owner.id,
-            },
-            data: {
-              accountCash: {
-                update: {
-                  balance: {
-                    increment: balance,
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: balance,
-                      title: "거래",
-                      type: "DEPOSIT",
-                    },
-                  },
-                },
-              },
-              accountsBond: {
-                update: {
-                  where: {
-                    id: managedAccountBond.id,
-                  },
-                  data: {
-                    balance: {
-                      decrement: balance,
-                    },
-                  },
-                },
-                create: {
-                  transactions: {
-                    create: {
-                      amount: bondAmount,
-                      title: "거래",
-                      type: "WITHDRAW",
+                include: {
+                  funding: {
+                    select: {
+                      title: true,
                     },
                   },
                 },
@@ -422,7 +290,98 @@ export const FundingMutation = extendType({
           });
         }
 
-        return await getFunding(context, id);
+        if (investor.accountsBond.length !== 1) {
+          throw new Error("Invalid user");
+        }
+
+        const accountCashIdInvestor = investor.accountCash?.id;
+        const accountBondIdInvestor = investor.accountsBond[0].id;
+        const accountCashIdManager =
+          funding.accountsBond[0].owner.accountCash?.id;
+        const accountBondIdManager = funding.accountsBond[0].id;
+
+        await context.prisma.$transaction([
+          context.prisma.accountCash.update({
+            where: {
+              id: accountCashIdInvestor,
+            },
+            data: {
+              balance: {
+                decrement: investmentPrice,
+              },
+              transactions: {
+                create: {
+                  amount: investmentPrice,
+                  title: "구매",
+                  type: TransactionType.WITHDRAW,
+                },
+              },
+            },
+          }),
+          context.prisma.accountBond.update({
+            where: {
+              id: accountBondIdManager,
+            },
+            data: {
+              balance: {
+                decrement: amount,
+              },
+              transactions: {
+                create: {
+                  amount: amount,
+                  title: "매도",
+                  type: TransactionType.WITHDRAW,
+                },
+              },
+            },
+          }),
+          context.prisma.accountCash.update({
+            where: {
+              id: accountCashIdManager,
+            },
+            data: {
+              balance: {
+                increment: investmentPrice,
+              },
+              transactions: {
+                create: {
+                  amount: investmentPrice,
+                  title: "판매",
+                  type: TransactionType.DEPOSIT,
+                },
+              },
+            },
+          }),
+          context.prisma.accountBond.update({
+            where: {
+              id: accountBondIdInvestor,
+            },
+            data: {
+              balance: {
+                increment: amount,
+              },
+              transactions: {
+                create: {
+                  amount: amount,
+                  title: "매수",
+                  type: TransactionType.DEPOSIT,
+                },
+              },
+            },
+          }),
+        ]);
+
+        return context.prisma.accountBond.findUnique({
+          where: {
+            id: accountBondIdInvestor,
+          },
+          include: {
+            transactions: {
+              skip: 0,
+              take: TAKE,
+            },
+          },
+        });
       },
     });
   },
