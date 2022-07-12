@@ -13,3 +13,4 @@ export * from "./FundingStatus";
 export * from "./Artist";
 export * from "./Contract";
 export * from "./Artwork";
+export * from "./TransactionSettlement";

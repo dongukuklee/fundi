@@ -72,6 +72,7 @@ model AccountBond {
   ownerId      Int
   balance      BigInt            @default(0)
   transactions TransactionBond[]
+  settlementTransactions TransactionSettlement[]
   funding      Funding?          @relation(fields: [fundingId], references: [id])
   fundingId    Int
 }
@@ -125,6 +126,8 @@ model Contract {
   funding                Funding? @relation(fields: [fundingId], references: [id])
   fundingId              Int      @unique
   price                  BigInt   @default(100000000)
+  pricePerSize           Int
+  contractedArtworkSize  Int
   terms                  Int      @default(12)
   artworksRequiredNumber Int      @default(12)
 }
@@ -139,4 +142,15 @@ model Artwork {
   initialPrice BigInt   @default(0)
   sellingPrice BigInt   @default(0)
   isSold       Boolean  @default(false)
+}
+
+model TransactionSettlement{
+  id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  account                    AccountBond     @relation(fields: [accountId], references: [id])
+  accountId                  Int
+  round                      Int
+  settlementAmount           BigInt
+  additionalSettleMentAmount BigInt  
 }

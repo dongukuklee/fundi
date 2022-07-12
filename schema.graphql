@@ -8,6 +8,7 @@ type AccountBond {
   funding: Funding
   id: Int!
   owner: User
+  transactionSettlement: [TransactionSettlement!]!
   transactions: [TransactionBond!]!
   updatedAt: DateTime!
 }
@@ -99,6 +100,7 @@ enum FundingStatus {
 
 type Mutation {
   emailAuthentication(email: String!): String
+  fundingSettlement(amount: Int!, id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
@@ -144,6 +146,16 @@ type TransactionCash {
   id: Int!
   title: String!
   type: TransactionType!
+  updatedAt: DateTime!
+}
+
+type TransactionSettlement {
+  account: AccountBond
+  additionalSettleMentAmount: BigInt!
+  createdAt: DateTime!
+  id: Int!
+  round: Int!
+  settlementAmount: BigInt!
   updatedAt: DateTime!
 }
 
