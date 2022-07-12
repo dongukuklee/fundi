@@ -23,6 +23,16 @@ export const AccountBond = objectType({
           .transactions();
       },
     });
+    t.nonNull.list.nonNull.field("transactionSettlement", {
+      type: "TransactionSettlement",
+      resolve(parent, args, context, info) {
+        return context.prisma.accountBond
+          .findUnique({
+            where: { id: parent.id },
+          })
+          .settlementTransactions();
+      },
+    });
     t.field("funding", {
       type: "Funding",
       resolve(parent, args, context, info) {
