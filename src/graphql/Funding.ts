@@ -5,7 +5,8 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 
 const getInvestor = async (context: Context, fundingId: number) => {
-  const { userId } = context;
+  //const { userId } = context;
+  const userId = 1;
   let investor = await context.prisma.user.findUnique({
     where: {
       id: userId,
@@ -391,42 +392,136 @@ export const FundingMutation = extendType({
         });
       },
     });
-    // t.field("withdrawFunding", {
-    //   type: "AccountBond",
-    //   args: {
-    //     id: nonNull(intArg()),
-    //   },
-    //   async resolve(parent, { id }, context, info) {
-    //     const { userId } = context;
+    t.field("withdrawFunding", {
+      type: "AccountBond",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        //const { userId } = context;
+        const userId = 1;
 
-    //     if (!userId) {
-    //       throw new Error("Cannot withdraw in a funding without signing in.");
-    //     }
-    //     let investor = await getInvestor(context, id);
+        if (!userId) {
+          throw new Error("Cannot withdraw in a funding without signing in.");
+        }
+        let investor = await getInvestor(context, id);
 
-    //     if (
-    //       !investor ||
-    //       !investor.accountCash ||
-    //       investor.accountsBond.length > 1
-    //     ) {
-    //       throw new Error("Invalid user");
-    //     }
+        if (
+          !investor ||
+          !investor.accountCash ||
+          investor.accountsBond.length > 1
+        ) {
+          throw new Error("Invalid user");
+        }
 
-    //     // 펀드 조회
-    //     const funding = await getFunding(context, id);
+        // 펀드 조회
+        const funding = await getFunding(context, id);
 
-    //     if (!funding || !funding.accountsBond) {
-    //       throw new Error("Invalid funding");
-    //     }
+        if (!funding || !funding.accountsBond) {
+          throw new Error("Invalid funding");
+        }
+        const settlementedAmount =
+          await context.prisma.transactionSettlement.findMany({
+            where: {
+              AND: [
+                {
+                  accountId: investor.accountsBond[0].id,
+                  account: {
+                    fundingId: id,
+                  },
+                },
+              ],
+            },
+          });
+        const totalSettlementedAmount = settlementedAmount.reduce(
+          (acc, cur) => acc + cur.settlementAmount,
+          BigInt(0)
+        );
+        const totalAmount =
+          funding.bondPrice * investor.accountsBond[0].balance -
+          totalSettlementedAmount;
+        //(투자 원금 - 총 전산 금액
+        const fee = (totalAmount / BigInt(10)) * BigInt(3);
+        //수수료  (투자 원금 - 총 전산 금액) 의 30%
+        const totalRefundAmount = totalAmount - fee;
+        //총 환불금액 (투자 원금 - 총 전산 금액) - 수수료
 
-    //     const accountCashIdInvestor = investor.accountCash?.id;
-    //     const accountBondIdInvestor = investor.accountsBond[0].id;
-    //     const accountCashIdManager =
-    //       funding.accountsBond[0].owner.accountCash?.id;
-    //     const accountBondIdManager = funding.accountsBond[0].id;
+        const accountCashIdInvestor = investor.accountCash?.id;
+        const accountCashIdManager =
+          funding.accountsBond[0].owner.accountCash?.id;
+        const accountBondInvestor = investor.accountsBond[0];
+        const accountBondManager = funding.accountsBond[0];
 
-    //   },
-    // });
+        await context.prisma.$transaction([
+          context.prisma.accountCash.update({
+            where: {
+              id: accountCashIdInvestor,
+            },
+            data: {
+              balance: {
+                increment: totalRefundAmount,
+              },
+              transactions: {
+                create: {
+                  amount: totalRefundAmount,
+                  type: "DEPOSIT",
+                  title: `${accountBondInvestor.funding?.title} 펀드 환불 금액`,
+                },
+              },
+            },
+          }),
+          context.prisma.accountBond.update({
+            where: {
+              id: accountBondInvestor.id,
+            },
+            data: {
+              balance: {
+                decrement: accountBondInvestor.balance,
+              },
+              transactions: {
+                create: {
+                  amount: accountBondInvestor.balance,
+                  title: `${accountBondInvestor.funding?.title} 펀드 취소`,
+                  type: "WITHDRAW",
+                },
+              },
+            },
+          }),
+          context.prisma.accountCash.update({
+            where: { id: accountCashIdManager },
+            data: {
+              balance: { increment: fee },
+              transactions: {
+                create: {
+                  amount: fee,
+                  title: `${investor.name}님의 ${accountBondInvestor.funding?.title} 펀딩 취소 수수료`,
+                  type: "DEPOSIT",
+                },
+              },
+            },
+          }),
+          context.prisma.accountBond.update({
+            where: { id: accountBondManager.id },
+            data: {
+              balance: {
+                increment: accountBondInvestor.balance,
+              },
+              transactions: {
+                create: {
+                  amount: accountBondInvestor.balance,
+                  title: `${investor.name}님의 ${accountBondInvestor.funding?.title} 펀딩 취소 채권`,
+                  type: "DEPOSIT",
+                },
+              },
+            },
+          }),
+        ]);
+
+        return await context.prisma.accountCash.findUnique({
+          where: { id: userId },
+        });
+      },
+    });
     t.field("fundingSettlement", {
       type: "Funding",
       args: {
