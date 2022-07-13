@@ -5,8 +5,8 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 
 const getInvestor = async (context: Context, fundingId: number) => {
-  //const { userId } = context;
-  const userId = 1;
+  const { userId } = context;
+
   let investor = await context.prisma.user.findUnique({
     where: {
       id: userId,
@@ -404,8 +404,7 @@ export const FundingMutation = extendType({
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
-        //const { userId } = context;
-        const userId = 1;
+        const { userId } = context;
 
         if (!userId) {
           throw new Error("Cannot withdraw in a funding without signing in.");
