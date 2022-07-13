@@ -233,6 +233,7 @@ export interface NexusGenFieldTypes {
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
   Query: { // field return type
     artist: NexusGenRootTypes['Artist'] | null; // Artist
@@ -366,6 +367,7 @@ export interface NexusGenFieldTypeNames {
     participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    withdrawFunding: 'AccountBond'
   }
   Query: { // field return type name
     artist: 'Artist'
@@ -442,6 +444,9 @@ export interface NexusGenArgTypes {
     signup: { // args
       email: string; // String!
       password: string; // String!
+    }
+    withdrawFunding: { // args
+      id: number; // Int!
     }
   }
   Query: {

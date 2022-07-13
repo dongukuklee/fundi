@@ -104,6 +104,7 @@ type Mutation {
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
+  withdrawFunding(id: Int!): AccountBond
 }
 
 type Query {
