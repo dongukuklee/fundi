@@ -128,6 +128,14 @@ export interface NexusGenObjects {
     type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  TransactionSettlement: { // root type
+    additionalSettleMentAmount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    round: number; // Int!
+    settlementAmount: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   User: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
@@ -155,6 +163,7 @@ export interface NexusGenFieldTypes {
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     owner: NexusGenRootTypes['User'] | null; // User
+    transactionSettlement: NexusGenRootTypes['TransactionSettlement'][]; // [TransactionSettlement!]!
     transactions: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -220,9 +229,11 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     emailAuthentication: string | null; // String
+    fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
   Query: { // field return type
     artist: NexusGenRootTypes['Artist'] | null; // Artist
@@ -257,6 +268,15 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['TransactionType']; // TransactionType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  TransactionSettlement: { // field return type
+    account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    additionalSettleMentAmount: NexusGenScalars['BigInt']; // BigInt!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    round: number; // Int!
+    settlementAmount: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   User: { // field return type
     accountCash: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     accountsBond: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
@@ -277,6 +297,7 @@ export interface NexusGenFieldTypeNames {
     funding: 'Funding'
     id: 'Int'
     owner: 'User'
+    transactionSettlement: 'TransactionSettlement'
     transactions: 'TransactionBond'
     updatedAt: 'DateTime'
   }
@@ -342,9 +363,11 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     emailAuthentication: 'String'
+    fundingSettlement: 'Funding'
     participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    withdrawFunding: 'AccountBond'
   }
   Query: { // field return type name
     artist: 'Artist'
@@ -379,6 +402,15 @@ export interface NexusGenFieldTypeNames {
     type: 'TransactionType'
     updatedAt: 'DateTime'
   }
+  TransactionSettlement: { // field return type name
+    account: 'AccountBond'
+    additionalSettleMentAmount: 'BigInt'
+    createdAt: 'DateTime'
+    id: 'Int'
+    round: 'Int'
+    settlementAmount: 'BigInt'
+    updatedAt: 'DateTime'
+  }
   User: { // field return type name
     accountCash: 'AccountCash'
     accountsBond: 'AccountBond'
@@ -397,6 +429,10 @@ export interface NexusGenArgTypes {
     emailAuthentication: { // args
       email: string; // String!
     }
+    fundingSettlement: { // args
+      amount: number; // Int!
+      id: number; // Int!
+    }
     participateFunding: { // args
       amount: number; // Int!
       id: number; // Int!
@@ -408,6 +444,9 @@ export interface NexusGenArgTypes {
     signup: { // args
       email: string; // String!
       password: string; // String!
+    }
+    withdrawFunding: { // args
+      id: number; // Int!
     }
   }
   Query: {
