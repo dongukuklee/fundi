@@ -41,5 +41,38 @@ export const AccountBond = objectType({
           .funding();
       },
     });
+    t.field("settlementAmount", {
+      type: "BigInt",
+      async resolve(parent, args, context, info) {
+        const settlementTransactions = await context.prisma.accountBond
+          .findUnique({
+            where: { id: parent.id },
+          })
+          .settlementTransactions();
+        return settlementTransactions.reduce(
+          (acc, cur) => {
+            const { settlementAmount, additionalSettleMentAmount } = cur;
+            return [
+              acc[0] + settlementAmount,
+              acc[1] + additionalSettleMentAmount,
+              acc[2] + settlementAmount + additionalSettleMentAmount,
+            ];
+          },
+          [BigInt(0), BigInt(0), BigInt(0)]
+        );
+      },
+    });
+    t.field("investmentAmount", {
+      type: "BigInt",
+      async resolve(parent, args, context, info) {
+        const funding = await context.prisma.accountBond
+          .findFirst({
+            where: { id: parent.id },
+          })
+          .funding();
+        const bondPrice = funding?.bondPrice;
+        return bondPrice! * parent.balance;
+      },
+    });
   },
 });
