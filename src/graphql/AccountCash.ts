@@ -1,4 +1,11 @@
-import { extendType, intArg, objectType, queryType, stringArg } from "nexus";
+import {
+  extendType,
+  intArg,
+  nonNull,
+  objectType,
+  queryType,
+  stringArg,
+} from "nexus";
 
 export const AccountCash = objectType({
   name: "AccountCash",
@@ -46,6 +53,32 @@ export const AccountCashQuery = extendType({
         }
 
         return account.balance;
+      },
+    });
+  },
+});
+
+export const AccountBondMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("chargeTheDeposit", {
+      type: "AccountCash",
+      args: {
+        amount: nonNull(intArg()),
+      },
+      async resolve(parent, { amount }, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error(
+            "Cannot inquiry the balance of the account without signing in."
+          );
+        }
+        return await context.prisma.accountCash.update({
+          where: { ownerId: userId },
+          data: {
+            balance: { increment: amount },
+          },
+        });
       },
     });
   },
