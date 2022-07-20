@@ -95,8 +95,7 @@ model Funding {
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
-  artist           Artist?       @relation(fields: [artistId], references: [id])
-  artistId         Int?
+  artist           ArtistsOnFundings[]
   contract         Contract?
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
@@ -117,7 +116,7 @@ model Artist {
   updatedAt DateTime  @updatedAt
   name      String
   age       Int?
-  fundings  Funding[]
+  fundings  ArtistsOnFundings[]
 }
 
 model Contract {
@@ -154,4 +153,12 @@ model TransactionSettlement{
   round                      Int
   settlementAmount           BigInt
   additionalSettleMentAmount BigInt  
+}
+
+model ArtistsOnFundings{  
+  funding Funding @relation(fields: [fundingId], references: [id])
+  fundingId Int 
+  artist Artist @relation(fields: [artistId],references: [id])
+  artistId Int 
+  @@id([artistId,fundingId])
 }

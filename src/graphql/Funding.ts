@@ -67,12 +67,18 @@ export const Funding = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
-    t.field("artist", {
+    t.list.field("artist", {
       type: "Artist",
       resolve(parent, args, context, info) {
-        return context.prisma.funding
-          .findUnique({ where: { id: parent.id } })
-          .artist();
+        return context.prisma.artist.findMany({
+          where: {
+            fundings: {
+              every: {
+                fundingId: parent.id,
+              },
+            },
+          },
+        });
       },
     });
     t.field("contract", {
