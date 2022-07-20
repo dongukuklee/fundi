@@ -7,7 +7,9 @@ type AccountBond {
   createdAt: DateTime!
   funding: Funding
   id: Int!
+  investmentAmount: BigInt
   owner: User
+  settlementAmount: BigInt
   transactionSettlement: [TransactionSettlement!]!
   transactions: [TransactionBond!]!
   updatedAt: DateTime!
@@ -99,11 +101,14 @@ enum FundingStatus {
 }
 
 type Mutation {
+  chargeTheDeposit(amount: Int!): AccountCash
+  createPincode(pincode: String!): String
   emailAuthentication(email: String!): String
   fundingSettlement(amount: Int!, id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
+  updatePincode(beforePincode: String!, toChangePincode: String!): String
   withdrawFunding(id: Int!): AccountBond
 }
 

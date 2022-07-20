@@ -16,6 +16,7 @@ model Auth {
   email     String   @unique
   name      String?
   password  String
+  pincode   String?
   user      User?
 }
 

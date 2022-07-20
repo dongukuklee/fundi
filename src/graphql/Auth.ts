@@ -1,10 +1,24 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { send_gmail } from "../utils/auth";
 import { getString, setString } from "../utils/redis/ctrl";
+import { Context } from "../context";
 
 const APP_SECRET = process.env.APP_SECRET!;
+
+const getAuthIdByUserId = async (context: Context) => {
+  const user = await context.prisma.user.findUnique({
+    select: {
+      authId: true,
+    },
+    where: {
+      id: context.userId,
+    },
+  });
+
+  return user?.authId;
+};
 
 const getAuthByEmail = async (prisma: any, email: string) => {
   {
@@ -67,6 +81,27 @@ export const AuthQuery = extendType({
       },
       resolve: async (parent, { email, verificationCode }, { prisma }) =>
         (await getString(email)) === verificationCode,
+    });
+    t.field("checkPincode", {
+      type: "Boolean",
+      args: {
+        pincode: nonNull(stringArg()),
+      },
+      async resolve(parent, { pincode }, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error(
+            "Cannot inquiry the transactions of the account without signing in."
+          );
+        }
+        const authId = await getAuthIdByUserId(context);
+        const auth = await context.prisma.auth.findUnique({
+          where: {
+            id: authId,
+          },
+        });
+        return pincode === auth?.pincode;
+      },
     });
   },
 });
@@ -153,6 +188,83 @@ export const AuthMutation = extendType({
         }
         await setString(email, verificationCode, 300);
         return "email sent successfully";
+      },
+    });
+    t.field("createPincode", {
+      type: "String",
+      args: {
+        pincode: nonNull(stringArg()),
+      },
+      async resolve(parent, { pincode }, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error(
+            "Cannot inquiry the transactions of the account without signing in."
+          );
+        }
+        await context.prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            auth: {
+              update: {
+                pincode,
+              },
+            },
+          },
+        });
+
+        return "success";
+      },
+    });
+    t.field("updatePincode", {
+      type: "String",
+      args: {
+        beforePincode: nonNull(stringArg()),
+        toChangePincode: nonNull(stringArg()),
+      },
+      async resolve(parent, { beforePincode, toChangePincode }, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error(
+            "Cannot inquiry the transactions of the account without signing in."
+          );
+        }
+        await context.prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            auth: {
+              update: {},
+            },
+          },
+        });
+        const authId = await getAuthIdByUserId(context);
+        const pincodeValidation = await context.prisma.auth.findFirst({
+          where: {
+            AND: {
+              id: authId,
+              pincode: beforePincode,
+            },
+          },
+        });
+
+        if (!pincodeValidation) {
+          throw new Error("pincode does not matching");
+        }
+
+        await context.prisma.auth.update({
+          where: {
+            id: authId,
+          },
+          data: {
+            pincode: toChangePincode,
+          },
+        });
+
+        return "pincode has been changed successfully";
       },
     });
   },
