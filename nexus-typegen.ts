@@ -162,7 +162,9 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
+    investmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     owner: NexusGenRootTypes['User'] | null; // User
+    settlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
     transactionSettlement: NexusGenRootTypes['TransactionSettlement'][]; // [TransactionSettlement!]!
     transactions: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -228,11 +230,14 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
+    chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    createPincode: string | null; // String
     emailAuthentication: string | null; // String
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    updatePincode: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
   Query: { // field return type
@@ -241,6 +246,7 @@ export interface NexusGenFieldTypes {
     artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    checkPincode: boolean | null; // Boolean
     emailCheck: NexusGenRootTypes['Auth']; // Auth!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
@@ -296,7 +302,9 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     funding: 'Funding'
     id: 'Int'
+    investmentAmount: 'BigInt'
     owner: 'User'
+    settlementAmount: 'BigInt'
     transactionSettlement: 'TransactionSettlement'
     transactions: 'TransactionBond'
     updatedAt: 'DateTime'
@@ -362,11 +370,14 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
+    chargeTheDeposit: 'AccountCash'
+    createPincode: 'String'
     emailAuthentication: 'String'
     fundingSettlement: 'Funding'
     participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    updatePincode: 'String'
     withdrawFunding: 'AccountBond'
   }
   Query: { // field return type name
@@ -375,6 +386,7 @@ export interface NexusGenFieldTypeNames {
     artwork: 'Artwork'
     artworks: 'Artwork'
     balanceCash: 'BigInt'
+    checkPincode: 'Boolean'
     emailCheck: 'Auth'
     funding: 'Funding'
     fundings: 'Funding'
@@ -426,6 +438,12 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
+    chargeTheDeposit: { // args
+      amount: number; // Int!
+    }
+    createPincode: { // args
+      pincode: string; // String!
+    }
     emailAuthentication: { // args
       email: string; // String!
     }
@@ -445,6 +463,10 @@ export interface NexusGenArgTypes {
       email: string; // String!
       password: string; // String!
     }
+    updatePincode: { // args
+      beforePincode: string; // String!
+      toChangePincode: string; // String!
+    }
     withdrawFunding: { // args
       id: number; // Int!
     }
@@ -462,6 +484,9 @@ export interface NexusGenArgTypes {
     }
     artworks: { // args
       id: number; // Int!
+    }
+    checkPincode: { // args
+      pincode: string; // String!
     }
     emailCheck: { // args
       email: string; // String!
