@@ -118,6 +118,7 @@ type Query {
   artwork(id: Int!): Artwork
   artworks(id: Int!): [Artwork!]!
   balanceCash: BigInt
+  checkPincode(pincode: String!): Boolean
   emailCheck(email: String!): Auth!
   funding(id: Int!): Funding
   fundings(skip: Int, take: Int): [Funding!]!

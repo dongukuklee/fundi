@@ -246,6 +246,7 @@ export interface NexusGenFieldTypes {
     artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    checkPincode: boolean | null; // Boolean
     emailCheck: NexusGenRootTypes['Auth']; // Auth!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
@@ -385,6 +386,7 @@ export interface NexusGenFieldTypeNames {
     artwork: 'Artwork'
     artworks: 'Artwork'
     balanceCash: 'BigInt'
+    checkPincode: 'Boolean'
     emailCheck: 'Auth'
     funding: 'Funding'
     fundings: 'Funding'
@@ -482,6 +484,9 @@ export interface NexusGenArgTypes {
     }
     artworks: { // args
       id: number; // Int!
+    }
+    checkPincode: { // args
+      pincode: string; // String!
     }
     emailCheck: { // args
       email: string; // String!
