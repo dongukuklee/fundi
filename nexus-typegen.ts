@@ -217,7 +217,7 @@ export interface NexusGenFieldTypes {
   Funding: { // field return type
     accounstInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
-    artist: NexusGenRootTypes['Artist'] | null; // Artist
+    artist: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsRemaining: NexusGenScalars['BigInt']; // BigInt!

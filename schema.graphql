@@ -79,7 +79,7 @@ scalar DateTime
 type Funding {
   accounstInvestor: [AccountBond!]!
   accountManager: AccountBond
-  artist: Artist
+  artist: [Artist]
   artworks: [Artwork!]!
   bondPrice: BigInt!
   bondsRemaining: BigInt!
