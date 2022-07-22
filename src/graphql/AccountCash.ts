@@ -76,7 +76,14 @@ export const AccountBondMutation = extendType({
         return await context.prisma.accountCash.update({
           where: { ownerId: userId },
           data: {
-            balance: { increment: amount },
+            balance: { increment: BigInt(amount) },
+            transactions: {
+              create: {
+                amount: BigInt(amount),
+                type: "DEPOSIT",
+                title: `${context.userName}님의 예치금 충전 내역`,
+              },
+            },
           },
         });
       },
