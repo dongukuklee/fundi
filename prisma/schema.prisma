@@ -97,6 +97,7 @@ model Funding {
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
+  intro            String        @default("")
   artist           ArtistsOnFundings[]
   likedUser        FundingOnUser[]
   contract         Contract?
@@ -104,7 +105,9 @@ model Funding {
   bondsTotalNumber BigInt        @default(10000)
   accountsBond     AccountBond[]
   artworks         Artwork[]
+  
 }
+
 
 enum FundingStatus {
   PRE_CAMPAIGN
@@ -119,8 +122,29 @@ model Artist {
   updatedAt DateTime  @updatedAt
   name      String
   age       Int?
+  biography String   @default("")
+  artistInvestmentPoint artistInvestmentPoint[]
   fundings  ArtistsOnFundings[]
   likedUser ArtistOnUser[]
+}
+
+model artistInvestmentPoint {
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime     @updatedAt
+  title            String
+  status           String
+  artist           Artist     @relation(fields: [artistId], references: [id])
+  artistId         Int
+}
+
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title String
+  content String
 }
 
 model Contract {
