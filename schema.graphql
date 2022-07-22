@@ -34,6 +34,11 @@ type Artist {
   updatedAt: DateTime!
 }
 
+input ArtistInvestmentPoint {
+  status: String!
+  title: String!
+}
+
 type Artwork {
   createdAt: DateTime!
   funding: Funding
@@ -104,6 +109,7 @@ enum FundingStatus {
 
 type Mutation {
   chargeTheDeposit(amount: Int!): AccountCash
+  createArtist(age: Int!, biography: String!, investmentPoint: [ArtistInvestmentPoint!], name: String!): Artist
   createPincode(pincode: String!): String
   emailAuthentication(email: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
@@ -112,6 +118,7 @@ type Mutation {
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
+  updateArtist(age: Int, biography: String, id: Int!, investmentPoint: [ArtistInvestmentPoint!], name: String): Artist
   updatePincode(followingPincode: String!, previousPincode: String!): String
   withdrawFunding(id: Int!): AccountBond
 }

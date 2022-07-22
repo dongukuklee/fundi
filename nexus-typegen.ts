@@ -37,6 +37,10 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  ArtistInvestmentPoint: { // input type
+    status: string; // String!
+    title: string; // String!
+  }
 }
 
 export interface NexusGenEnums {
@@ -233,6 +237,7 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    createArtist: NexusGenRootTypes['Artist'] | null; // Artist
     createPincode: string | null; // String
     emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
@@ -241,6 +246,7 @@ export interface NexusGenFieldTypes {
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    updateArtist: NexusGenRootTypes['Artist'] | null; // Artist
     updatePincode: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
@@ -376,6 +382,7 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     chargeTheDeposit: 'AccountCash'
+    createArtist: 'Artist'
     createPincode: 'String'
     emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
@@ -384,6 +391,7 @@ export interface NexusGenFieldTypeNames {
     participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    updateArtist: 'Artist'
     updatePincode: 'String'
     withdrawFunding: 'AccountBond'
   }
@@ -447,6 +455,12 @@ export interface NexusGenArgTypes {
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
+    createArtist: { // args
+      age: number; // Int!
+      biography: string; // String!
+      investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
+      name: string; // String!
+    }
     createPincode: { // args
       pincode: string; // String!
     }
@@ -474,6 +488,13 @@ export interface NexusGenArgTypes {
     signup: { // args
       email: string; // String!
       password: string; // String!
+    }
+    updateArtist: { // args
+      age?: number | null; // Int
+      biography?: string | null; // String
+      id: number; // Int!
+      investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
+      name?: string | null; // String
     }
     updatePincode: { // args
       followingPincode: string; // String!
@@ -541,7 +562,7 @@ export interface NexusGenTypeInterfaces {
 
 export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = keyof NexusGenEnums;
 
