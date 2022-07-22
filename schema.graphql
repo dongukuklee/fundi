@@ -29,6 +29,7 @@ type Artist {
   createdAt: DateTime!
   fundings: [Funding!]!
   id: Int!
+  likedUser: [User]
   name: String!
   updatedAt: DateTime!
 }
@@ -87,6 +88,7 @@ type Funding {
   contract: Contract
   createdAt: DateTime!
   id: Int!
+  likedUser: [User]
   status: FundingStatus!
   title: String!
   updatedAt: DateTime!
@@ -103,12 +105,14 @@ enum FundingStatus {
 type Mutation {
   chargeTheDeposit(amount: Int!): AccountCash
   createPincode(pincode: String!): String
-  emailAuthentication(email: String!): String
+  emailAuthentication(email: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
+  likeArtist(id: Int!): Artist
+  likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
-  updatePincode(beforePincode: String!, toChangePincode: String!): String
+  updatePincode(followingPincode: String!, previousPincode: String!): String
   withdrawFunding(id: Int!): AccountBond
 }
 
@@ -119,13 +123,12 @@ type Query {
   artworks(id: Int!): [Artwork!]!
   balanceCash: BigInt
   checkPincode(pincode: String!): Boolean
-  emailCheck(email: String!): Auth!
   funding(id: Int!): Funding
   fundings(skip: Int, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
-  user(email: String, id: Int): User
+  user(email: String, id: Int!): User
   verificationCode(email: String!, verificationCode: String!): Boolean!
 }
 

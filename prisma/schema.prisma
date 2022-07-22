@@ -29,6 +29,8 @@ model User {
   role         Role          @default(INVESTOR)
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
+  likeFundings  FundingOnUser[]
+  likeArtists   ArtistOnUser[]
   accountCash  AccountCash?
   accountsBond AccountBond[]
 }
@@ -96,6 +98,7 @@ model Funding {
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
   artist           ArtistsOnFundings[]
+  likedUser        FundingOnUser[]
   contract         Contract?
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
@@ -117,6 +120,7 @@ model Artist {
   name      String
   age       Int?
   fundings  ArtistsOnFundings[]
+  likedUser ArtistOnUser[]
 }
 
 model Contract {
@@ -161,4 +165,23 @@ model ArtistsOnFundings{
   artist Artist @relation(fields: [artistId],references: [id])
   artistId Int 
   @@id([artistId,fundingId])
+}
+
+
+
+model ArtistOnUser{  
+  artist Artist @relation(fields: [artistId],references: [id])
+  artistId Int 
+  User User @relation(fields: [UserId],references: [id])
+  UserId Int 
+  @@id([artistId,UserId])
+}
+ 
+
+model FundingOnUser{
+  funding Funding @relation(fields: [fundingId], references: [id])
+  fundingId Int 
+  User User @relation(fields: [UserId],references: [id])
+  UserId Int 
+  @@id([fundingId,UserId])
 }
