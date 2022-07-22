@@ -7,6 +7,14 @@ import { Context } from "../context";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
+const isEmailExist = async (email: string, context: Context) => {
+  const auth = await getAuthByEmail(context.prisma, email);
+  if (auth) {
+    return true;
+  }
+  return false;
+};
+
 const getAuthIdByUserId = async (context: Context) => {
   const user = await context.prisma.user.findUnique({
     select: {
@@ -60,27 +68,15 @@ export const AuthPayload = objectType({
 export const AuthQuery = extendType({
   type: "Query",
   definition(t) {
-    t.nonNull.field("emailCheck", {
-      type: Auth,
-      args: {
-        email: nonNull(stringArg()),
-      },
-      resolve: async (parent, { email }, { prisma }) => {
-        const auth = await getAuthByEmail(prisma, email);
-        if (!auth) {
-          throw new Error("email already exists");
-        }
-        return auth;
-      },
-    });
     t.nonNull.field("verificationCode", {
       type: "Boolean",
       args: {
         email: nonNull(stringArg()),
         verificationCode: nonNull(stringArg()),
       },
-      resolve: async (parent, { email, verificationCode }, { prisma }) =>
-        (await getString(email)) === verificationCode,
+      resolve: async (parent, { email, verificationCode }, { prisma }) => {
+        return (await getString(email)) === verificationCode;
+      },
     });
     t.field("checkPincode", {
       type: "Boolean",
@@ -175,19 +171,24 @@ export const AuthMutation = extendType({
       },
     });
     t.field("emailAuthentication", {
-      type: "String",
+      type: "Boolean",
       args: {
         email: nonNull(stringArg()),
       },
       async resolve(parent, { email }, context, info) {
+        const EmailExist = await isEmailExist(email, context);
+        if (EmailExist) {
+          return false;
+        }
         const verificationCode = String(Math.floor(Math.random() * 1000000));
         try {
           send_gmail({ email, verificationCode });
         } catch (error) {
           console.log(error);
+          throw new Error("sending email failed");
         }
         await setString(email, verificationCode, 300);
-        return "email sent successfully";
+        return true;
       },
     });
     t.field("createPincode", {
@@ -221,10 +222,15 @@ export const AuthMutation = extendType({
     t.field("updatePincode", {
       type: "String",
       args: {
-        beforePincode: nonNull(stringArg()),
-        toChangePincode: nonNull(stringArg()),
+        previousPincode: nonNull(stringArg()),
+        followingPincode: nonNull(stringArg()),
       },
-      async resolve(parent, { beforePincode, toChangePincode }, context, info) {
+      async resolve(
+        parent,
+        { previousPincode, followingPincode },
+        context,
+        info
+      ) {
         const { userId } = context;
         if (!userId) {
           throw new Error(
@@ -246,7 +252,7 @@ export const AuthMutation = extendType({
           where: {
             AND: {
               id: authId,
-              pincode: beforePincode,
+              pincode: previousPincode,
             },
           },
         });
@@ -260,7 +266,7 @@ export const AuthMutation = extendType({
             id: authId,
           },
           data: {
-            pincode: toChangePincode,
+            pincode: followingPincode,
           },
         });
 
