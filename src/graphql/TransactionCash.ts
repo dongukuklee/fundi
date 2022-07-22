@@ -41,9 +41,7 @@ export const TransactionCashQuery = extendType({
         }
         const transactions = await context.prisma.transactionCash.findMany({
           where: {
-            account: {
-              ownerId: userId,
-            },
+            accountId: userId,
             type: args?.type as TransactionType | undefined,
           },
           skip: args?.skip as number | undefined,

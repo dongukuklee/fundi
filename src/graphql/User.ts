@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { extendType, intArg, objectType, stringArg } from "nexus";
+import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 
 export const User = objectType({
   name: "User",
@@ -43,7 +43,7 @@ export const UserQuery = extendType({
     t.field("user", {
       type: "User",
       args: {
-        id: intArg(),
+        id: nonNull(intArg()),
         email: stringArg(),
       },
       async resolve(parent, args, context, info) {
