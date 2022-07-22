@@ -4,6 +4,11 @@ import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
 
+type likeUser = {
+  user: User;
+  count: number;
+};
+
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
 
@@ -158,6 +163,28 @@ export const Funding = objectType({
               owner: {
                 role: Role.MANAGER,
               },
+            },
+          },
+        });
+      },
+    });
+    t.list.field("likedUser", {
+      type: "User",
+      async resolve(parent, args, context, info) {
+        const likedUsers = await context.prisma.funding
+          .findUnique({
+            where: {
+              id: parent.id,
+            },
+          })
+          .likedUser()
+          .then((el) => {
+            return el.map((data) => data.UserId);
+          });
+        return await context.prisma.user.findMany({
+          where: {
+            id: {
+              in: likedUsers,
             },
           },
         });
@@ -615,6 +642,29 @@ export const FundingMutation = extendType({
 
         await context.prisma.$transaction(settlementTransaction);
         return await context.prisma.funding.findUnique({ where: { id } });
+      },
+    });
+    t.field("likeFunding", {
+      type: "Funding",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        if (!context.userId) {
+          throw new Error("123");
+        }
+        return await context.prisma.funding.update({
+          where: {
+            id,
+          },
+          data: {
+            likedUser: {
+              create: {
+                UserId: context.userId,
+              },
+            },
+          },
+        });
       },
     });
   },

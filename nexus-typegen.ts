@@ -182,6 +182,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
+    likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -225,6 +226,7 @@ export interface NexusGenFieldTypes {
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -232,8 +234,10 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createPincode: string | null; // String
-    emailAuthentication: string | null; // String
+    emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
+    likeArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
@@ -247,7 +251,6 @@ export interface NexusGenFieldTypes {
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
     checkPincode: boolean | null; // Boolean
-    emailCheck: NexusGenRootTypes['Auth']; // Auth!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
@@ -322,6 +325,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     fundings: 'Funding'
     id: 'Int'
+    likedUser: 'User'
     name: 'String'
     updatedAt: 'DateTime'
   }
@@ -365,6 +369,7 @@ export interface NexusGenFieldTypeNames {
     contract: 'Contract'
     createdAt: 'DateTime'
     id: 'Int'
+    likedUser: 'User'
     status: 'FundingStatus'
     title: 'String'
     updatedAt: 'DateTime'
@@ -372,8 +377,10 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     chargeTheDeposit: 'AccountCash'
     createPincode: 'String'
-    emailAuthentication: 'String'
+    emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
+    likeArtist: 'Artist'
+    likeFunding: 'Funding'
     participateFunding: 'AccountBond'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
@@ -387,7 +394,6 @@ export interface NexusGenFieldTypeNames {
     artworks: 'Artwork'
     balanceCash: 'BigInt'
     checkPincode: 'Boolean'
-    emailCheck: 'Auth'
     funding: 'Funding'
     fundings: 'Funding'
     myFundings: 'Funding'
@@ -451,6 +457,12 @@ export interface NexusGenArgTypes {
       amount: number; // Int!
       id: number; // Int!
     }
+    likeArtist: { // args
+      id: number; // Int!
+    }
+    likeFunding: { // args
+      id: number; // Int!
+    }
     participateFunding: { // args
       amount: number; // Int!
       id: number; // Int!
@@ -464,8 +476,8 @@ export interface NexusGenArgTypes {
       password: string; // String!
     }
     updatePincode: { // args
-      beforePincode: string; // String!
-      toChangePincode: string; // String!
+      followingPincode: string; // String!
+      previousPincode: string; // String!
     }
     withdrawFunding: { // args
       id: number; // Int!
@@ -487,9 +499,6 @@ export interface NexusGenArgTypes {
     }
     checkPincode: { // args
       pincode: string; // String!
-    }
-    emailCheck: { // args
-      email: string; // String!
     }
     funding: { // args
       id: number; // Int!
@@ -515,7 +524,7 @@ export interface NexusGenArgTypes {
     }
     user: { // args
       email?: string | null; // String
-      id?: number | null; // Int
+      id: number; // Int!
     }
     verificationCode: { // args
       email: string; // String!

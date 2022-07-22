@@ -12,9 +12,37 @@ export const Artist = objectType({
     t.nonNull.list.nonNull.field("fundings", {
       type: "Funding",
       resolve(parent, args, context, info) {
-        return context.prisma.artist
-          .findUnique({ where: { id: parent.id } })
-          .fundings();
+        return context.prisma.funding.findMany({
+          where: {
+            artist: {
+              every: {
+                artistId: parent.id,
+              },
+            },
+          },
+        });
+      },
+    });
+    t.list.field("likedUser", {
+      type: "User",
+      async resolve(parent, args, context, info) {
+        const likedUsers = await context.prisma.artist
+          .findUnique({
+            where: {
+              id: parent.id,
+            },
+          })
+          .likedUser()
+          .then((el) => {
+            return el.map((data) => data.UserId);
+          });
+        return await context.prisma.user.findMany({
+          where: {
+            id: {
+              in: likedUsers,
+            },
+          },
+        });
       },
     });
   },
@@ -42,6 +70,35 @@ export const ArtistQuery = extendType({
         return await context.prisma.artist.findMany({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
+        });
+      },
+    });
+  },
+});
+
+export const AritstMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("likeArtist", {
+      type: "Artist",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        if (!context.userId) {
+          throw new Error("Cannot liked Artist without signing in.");
+        }
+        return await context.prisma.artist.update({
+          where: {
+            id,
+          },
+          data: {
+            likedUser: {
+              create: {
+                UserId: context.userId,
+              },
+            },
+          },
         });
       },
     });
