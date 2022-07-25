@@ -11,7 +11,7 @@ type likeUser = {
 
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
-  //const userId = 1;
+
   let investor = await context.prisma.user.findUnique({
     where: {
       id: userId,
@@ -444,7 +444,6 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { id }, context, info) {
         const { userId } = context;
-        //const userId = 1;
         if (!userId) {
           throw new Error("Cannot withdraw in a funding without signing in.");
         }
