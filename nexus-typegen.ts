@@ -125,6 +125,7 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TransactionCash: { // root type
+    accumulatedCash: NexusGenScalars['BigInt']; // BigInt!
     amount: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
@@ -276,6 +277,7 @@ export interface NexusGenFieldTypes {
   }
   TransactionCash: { // field return type
     account: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    accumulatedCash: NexusGenScalars['BigInt']; // BigInt!
     amount: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
@@ -421,6 +423,7 @@ export interface NexusGenFieldTypeNames {
   }
   TransactionCash: { // field return type name
     account: 'AccountCash'
+    accumulatedCash: 'BigInt'
     amount: 'BigInt'
     createdAt: 'DateTime'
     id: 'Int'

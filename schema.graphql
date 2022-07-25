@@ -158,6 +158,7 @@ type TransactionBond {
 
 type TransactionCash {
   account: AccountCash
+  accumulatedCash: BigInt!
   amount: BigInt!
   createdAt: DateTime!
   id: Int!

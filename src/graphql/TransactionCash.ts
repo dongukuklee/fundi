@@ -18,6 +18,7 @@ export const TransactionCash = objectType({
       },
     });
     t.nonNull.bigInt("amount");
+    t.nonNull.bigInt("accumulatedCash");
     t.nonNull.field("type", { type: "TransactionType" });
   },
 });
