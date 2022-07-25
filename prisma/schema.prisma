@@ -59,6 +59,7 @@ model TransactionCash {
   account   AccountCash     @relation(fields: [accountId], references: [id])
   accountId Int
   amount    BigInt
+  accumulatedCash BigInt   @default(0)
   type      TransactionType
 }
 

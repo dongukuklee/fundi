@@ -45,6 +45,7 @@ const getFunding = async (context: Context, fundingId: number) => {
       bondsTotalNumber: true,
       bondPrice: true,
       status: true,
+      title: true,
       accountsBond: {
         where: {
           owner: {
@@ -361,6 +362,8 @@ export const FundingMutation = extendType({
                   amount: investmentPrice,
                   title: "구매",
                   type: TransactionType.WITHDRAW,
+                  accumulatedCash:
+                    investor.accountCash?.balance! - investmentPrice,
                 },
               },
             },
@@ -395,6 +398,9 @@ export const FundingMutation = extendType({
                   amount: investmentPrice,
                   title: "판매",
                   type: TransactionType.DEPOSIT,
+                  accumulatedCash:
+                    funding.accountsBond[0].owner.accountCash?.balance! +
+                    investmentPrice,
                 },
               },
             },
@@ -438,7 +444,6 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { id }, context, info) {
         const { userId } = context;
-
         if (!userId) {
           throw new Error("Cannot withdraw in a funding without signing in.");
         }
@@ -513,6 +518,8 @@ export const FundingMutation = extendType({
                 amount: totalRefundAmount,
                 type: "DEPOSIT",
                 title: `${accountBondInvestor.funding?.title} 펀드 환불 금액`,
+                accumulatedCash:
+                  investor.accountCash?.balance + totalRefundAmount,
               },
             },
           },
@@ -544,6 +551,9 @@ export const FundingMutation = extendType({
                 amount: totalRefundAmount,
                 title: `${investor.name}님의 ${accountBondInvestor.funding?.title} 펀딩 취소 환불 금액`,
                 type: "WITHDRAW",
+                accumulatedCash:
+                  funding.accountsBond[0].owner.accountCash?.balance! -
+                  totalRefundAmount,
               },
             },
           },
@@ -603,9 +613,18 @@ export const FundingMutation = extendType({
         const round =
           FundingParticipantsAccountBond[0].settlementTransactions.length;
         const settlementTransaction: any = [];
-        FundingParticipantsAccountBond.forEach((participant) => {
+        FundingParticipantsAccountBond.forEach(async (participant) => {
+          const participantAccoutCash =
+            await context.prisma.accountCash.findFirst({
+              where: { ownerId: participant.ownerId },
+              select: {
+                balance: true,
+              },
+            });
           const settlementAmount = participant.balance * amountPerBalance;
           const additionalSettleMentAmount = settlementAmount / BigInt(10);
+          const totalSettlementedAmount =
+            settlementAmount + additionalSettleMentAmount;
           settlementTransaction.push(
             context.prisma.user.update({
               where: {
@@ -631,7 +650,21 @@ export const FundingMutation = extendType({
                 accountCash: {
                   update: {
                     balance: {
-                      increment: settlementAmount + additionalSettleMentAmount,
+                      increment: totalSettlementedAmount,
+                    },
+                  },
+                  create: {
+                    transactions: {
+                      create: {
+                        amount: totalSettlementedAmount,
+                        title: `${funding?.title} 펀딩 ${
+                          round + 1
+                        }회차 정산금액.`,
+                        type: "DEPOSIT",
+                        accumulatedCash:
+                          participantAccoutCash?.balance! +
+                          totalSettlementedAmount,
+                      },
                     },
                   },
                 },
@@ -651,7 +684,7 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { id }, context, info) {
         if (!context.userId) {
-          throw new Error("123");
+          throw new Error("Cannot liked Funding without signing in.");
         }
         return await context.prisma.funding.update({
           where: {
