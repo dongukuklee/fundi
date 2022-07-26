@@ -12,49 +12,6 @@ import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
 
-type fundingVariables = {
-  bondPrice: number | null;
-  bondsTotalNumber: number | null;
-  intro?: string | null;
-  title: string;
-};
-
-type ContractVariables = {
-  pricePerSize?: number;
-  contractedArtworkSize?: number;
-  terms?: number;
-  artworksRequiredNumber?: number;
-};
-
-const makeFundigVariables = (args: fundingVariables) => {
-  const fundingVariables = {
-    title: args.title!,
-    intro: args.intro!,
-    bondPrice: args.bondPrice!,
-    bondsTotalNumber: args.bondsTotalNumber!,
-  };
-
-  return fundingVariables;
-};
-
-const makeContractVariables = (args: ContractVariables) => {
-  const contractVariables: ContractVariables = {};
-  const { pricePerSize, contractedArtworkSize, terms, artworksRequiredNumber } =
-    args;
-  if (pricePerSize) {
-    contractVariables.pricePerSize = pricePerSize;
-  }
-  if (contractedArtworkSize) {
-    contractVariables.contractedArtworkSize = contractedArtworkSize;
-  }
-  if (terms) {
-    contractVariables.terms = terms;
-  }
-  if (artworksRequiredNumber) {
-    contractVariables.artworksRequiredNumber = artworksRequiredNumber;
-  }
-};
-
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
 
@@ -782,7 +739,13 @@ export const FundingMutation = extendType({
         bondsTotalNumber: intArg({ default: 10000 }),
       },
       async resolve(parent, args, context, info) {
-        const fundingVariables = makeFundigVariables(args);
+        const fundingVariables = {
+          title: args.title!,
+          intro: args.intro!,
+          bondPrice: args.bondPrice!,
+          bondsTotalNumber: args.bondsTotalNumber!,
+        };
+
         return await context.prisma.funding.create({
           data: {
             ...fundingVariables,
