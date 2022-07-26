@@ -239,6 +239,7 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createPincode: string | null; // String
     emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
@@ -248,6 +249,7 @@ export interface NexusGenFieldTypes {
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     updateArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updatePincode: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
@@ -385,6 +387,7 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     chargeTheDeposit: 'AccountCash'
     createArtist: 'Artist'
+    createFunding: 'Funding'
     createPincode: 'String'
     emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
@@ -394,6 +397,7 @@ export interface NexusGenFieldTypeNames {
     signin: 'AuthPayload'
     signup: 'AuthPayload'
     updateArtist: 'Artist'
+    updateFunding: 'Funding'
     updatePincode: 'String'
     withdrawFunding: 'AccountBond'
   }
@@ -464,6 +468,12 @@ export interface NexusGenArgTypes {
       investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
       name: string; // String!
     }
+    createFunding: { // args
+      bondPrice: number | null; // Int
+      bondsTotalNumber: number | null; // Int
+      intro?: string | null; // String
+      title: string; // String!
+    }
     createPincode: { // args
       pincode: string; // String!
     }
@@ -498,6 +508,14 @@ export interface NexusGenArgTypes {
       id: number; // Int!
       investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
       name?: string | null; // String
+    }
+    updateFunding: { // args
+      bondPrice: number | null; // Int
+      bondsTotalNumber: number | null; // Int
+      id: number; // Int!
+      intro?: string | null; // String
+      status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
+      title?: string | null; // String
     }
     updatePincode: { // args
       followingPincode: string; // String!

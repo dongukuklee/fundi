@@ -105,8 +105,7 @@ model Funding {
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
   accountsBond     AccountBond[]
-  artworks         Artwork[]
-  
+  artworks         Artwork[]  
 }
 
 
@@ -122,14 +121,15 @@ model Artist {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String
+  description String @default("")
   age       Int?
   biography String   @default("")
-  artistInvestmentPoint artistInvestmentPoint[]
+  artistInvestmentPoint ArtistInvestmentPoint[]
   fundings  ArtistsOnFundings[]
   likedUser ArtistOnUser[]
 }
 
-model artistInvestmentPoint {
+model ArtistInvestmentPoint {
   id               Int           @id @default(autoincrement())
   createdAt        DateTime      @default(now())
   updatedAt        DateTime     @updatedAt
@@ -153,8 +153,7 @@ model Contract {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   funding                Funding? @relation(fields: [fundingId], references: [id])
-  fundingId              Int      @unique
-  price                  BigInt   @default(100000000)
+  fundingId              Int      @unique 
   pricePerSize           Int
   contractedArtworkSize  Int
   terms                  Int      @default(12)

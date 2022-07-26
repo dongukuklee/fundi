@@ -110,6 +110,7 @@ enum FundingStatus {
 type Mutation {
   chargeTheDeposit(amount: Int!): AccountCash
   createArtist(age: Int!, biography: String!, investmentPoint: [ArtistInvestmentPoint!], name: String!): Artist
+  createFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, intro: String = "", title: String!): Funding
   createPincode(pincode: String!): String
   emailAuthentication(email: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
@@ -119,6 +120,7 @@ type Mutation {
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
   updateArtist(age: Int, biography: String, id: Int!, investmentPoint: [ArtistInvestmentPoint!], name: String): Artist
+  updateFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, id: Int!, intro: String, status: FundingStatus, title: String): Funding
   updatePincode(followingPincode: String!, previousPincode: String!): String
   withdrawFunding(id: Int!): AccountBond
 }
