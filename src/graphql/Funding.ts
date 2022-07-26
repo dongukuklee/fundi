@@ -1,13 +1,16 @@
-import { AccountBond, Role, User } from "@prisma/client";
-import { extendType, intArg, nonNull, objectType } from "nexus";
+import { AccountBond, FundingStatus, Role, User } from "@prisma/client";
+import {
+  arg,
+  extendType,
+  intArg,
+  list,
+  nonNull,
+  objectType,
+  stringArg,
+} from "nexus";
 import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
-
-type likeUser = {
-  user: User;
-  count: number;
-};
 
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
@@ -683,8 +686,35 @@ export const FundingMutation = extendType({
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
-        if (!context.userId) {
+        const { userId } = context;
+        if (!userId) {
           throw new Error("Cannot liked Funding without signing in.");
+        }
+        const userLikedInFunding = await context.prisma.funding.findUnique({
+          where: {
+            id,
+          },
+          select: {
+            likedUser: true,
+          },
+        });
+        const isExist = userLikedInFunding?.likedUser.every((el) => {
+          return el.UserId !== userId;
+        });
+
+        if (isExist) {
+          await context.prisma.funding.update({
+            where: {
+              id,
+            },
+            data: {
+              likedUser: {
+                create: {
+                  UserId: userId,
+                },
+              },
+            },
+          });
         }
         return await context.prisma.funding.update({
           where: {
@@ -693,9 +723,70 @@ export const FundingMutation = extendType({
           data: {
             likedUser: {
               create: {
-                UserId: context.userId,
+                UserId: userId,
               },
             },
+          },
+        });
+      },
+    });
+    t.field("createFunding", {
+      type: "Funding",
+      args: {
+        title: nonNull(stringArg()),
+        intro: stringArg({ default: "" }),
+        bondPrice: intArg({ default: 10000 }),
+        bondsTotalNumber: intArg({ default: 10000 }),
+      },
+      async resolve(parent, args, context, info) {
+        const fundingVariables = {
+          title: args.title!,
+          intro: args.intro!,
+          bondPrice: args.bondPrice!,
+          bondsTotalNumber: args.bondsTotalNumber!,
+        };
+
+        return await context.prisma.funding.create({
+          data: {
+            ...fundingVariables,
+          },
+        });
+      },
+    });
+    t.field("updateFunding", {
+      type: "Funding",
+      args: {
+        id: nonNull(intArg()),
+        title: stringArg(),
+        intro: stringArg(),
+        status: arg({ type: "FundingStatus" }),
+        bondPrice: intArg({ default: 10000 }),
+        bondsTotalNumber: intArg({ default: 10000 }),
+      },
+      async resolve(parent, { id, ...arg }, context) {
+        const variables = {} as any;
+        if (arg.title) {
+          variables.title = arg.title;
+        }
+        if (arg.bondPrice) {
+          variables.bondPrice = arg.bondPrice;
+        }
+        if (arg.bondsTotalNumber) {
+          variables.bondsTotalNumber = arg.bondsTotalNumber;
+        }
+        if (arg.intro) {
+          variables.intro = arg.intro;
+        }
+
+        if (arg.status) {
+          variables.status = arg.status;
+        }
+        return await context.prisma.funding.update({
+          where: {
+            id,
+          },
+          data: {
+            ...variables,
           },
         });
       },
