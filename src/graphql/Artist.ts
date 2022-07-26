@@ -122,8 +122,7 @@ export const AritstMutation = extendType({
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
-        // const { userId } = context;
-        const userId = 5;
+        const { userId } = context;
         const where = { id };
         const updateLikedArtist = async (likedUser: any) => {
           return await context.prisma.artist.update({
@@ -134,9 +133,9 @@ export const AritstMutation = extendType({
           });
         };
 
-        // if (!userId) {
-        //   throw new Error("Cannot liked Artist without signing in.");
-        // }
+        if (!userId) {
+          throw new Error("Cannot liked Artist without signing in.");
+        }
 
         const userLikedInFunding = await context.prisma.artist.findUnique({
           where,
