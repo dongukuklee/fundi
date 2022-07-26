@@ -122,21 +122,48 @@ export const AritstMutation = extendType({
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
-        if (!context.userId) {
+        const { userId } = context;
+        const where = { id };
+        const updateLikedArtist = async (likedUser: any) => {
+          return await context.prisma.artist.update({
+            where,
+            data: {
+              likedUser,
+            },
+          });
+        };
+
+        if (!userId) {
           throw new Error("Cannot liked Artist without signing in.");
         }
-        return await context.prisma.artist.update({
-          where: {
-            id,
-          },
-          data: {
-            likedUser: {
-              create: {
-                UserId: context.userId,
-              },
-            },
+
+        const userLikedInFunding = await context.prisma.artist.findUnique({
+          where,
+          select: {
+            likedUser: true,
           },
         });
+
+        const isExist = userLikedInFunding?.likedUser.every((el) => {
+          return el.UserId !== userId;
+        });
+
+        let likedUser: any = {
+          delete: {
+            artistId_UserId: {
+              artistId: id,
+              UserId: userId,
+            },
+          },
+        };
+        if (isExist) {
+          likedUser = {
+            create: {
+              UserId: userId,
+            },
+          };
+        }
+        return await updateLikedArtist(likedUser);
       },
     });
     t.field("createArtist", {
