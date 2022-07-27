@@ -48,6 +48,9 @@ export const TransactionBondQuery = extendType({
             },
             type: args?.type as TransactionType | undefined,
           },
+          orderBy: {
+            updatedAt: "asc",
+          },
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });
