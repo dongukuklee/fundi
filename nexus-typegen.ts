@@ -563,6 +563,7 @@ export interface NexusGenArgTypes {
     }
     fundings: { // args
       skip?: number | null; // Int
+      status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
       take?: number | null; // Int
     }
     myFundings: { // args
