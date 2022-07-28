@@ -37,7 +37,6 @@ const getInvestor = async (context: Context, fundingId: number) => {
       },
     },
   });
-
   return investor;
 };
 
@@ -92,8 +91,8 @@ export const Funding = objectType({
     });
     t.field("contract", {
       type: "Contract",
-      resolve(parent, args, context, info) {
-        return context.prisma.funding
+      async resolve(parent, args, context, info) {
+        return await context.prisma.funding
           .findUnique({ where: { id: parent.id } })
           .contract();
       },
@@ -235,18 +234,22 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
+
         if (!userId) {
           throw new Error("Cannot inquiry my funding list without signing in.");
         }
-        return await context.prisma.funding.findMany({
+        const myFunding = await context.prisma.funding.findMany({
           where: {
             accountsBond: {
-              every: {
-                ownerId: userId,
+              some: {
+                ownerId: {
+                  equals: userId,
+                },
               },
             },
           },
         });
+        return myFunding;
       },
     });
   },
@@ -274,11 +277,7 @@ export const FundingMutation = extendType({
         //유저 계좌 조회
         let investor = await getInvestor(context, id);
 
-        if (
-          !investor ||
-          !investor.accountCash ||
-          investor.accountsBond.length > 1
-        ) {
+        if (!investor || !investor.accountCash) {
           throw new Error("Invalid user");
         }
 
@@ -306,7 +305,8 @@ export const FundingMutation = extendType({
 
         // 해당 채권 계좌가 없는 경우에 채권 계좌 개설
         if (investor.accountsBond.length === 0) {
-          investor = await context.prisma.user.update({
+          console.log(1);
+          await context.prisma.user.update({
             where: {
               id: userId,
             },
@@ -318,33 +318,14 @@ export const FundingMutation = extendType({
                 },
               },
             },
-            include: {
-              accountCash: {
-                select: { id: true, balance: true },
-              },
-              accountsBond: {
-                where: {
-                  fundingId: id,
-                },
-                select: {
-                  id: true,
-                },
-                include: {
-                  funding: {
-                    select: {
-                      title: true,
-                    },
-                  },
-                },
-              },
-            },
           });
+          investor = await getInvestor(context, id);
         }
 
-        if (investor.accountsBond.length !== 1) {
+        if (!investor || investor.accountsBond.length !== 1) {
           throw new Error("Invalid user");
         }
-
+        console.log(2);
         const accountCashIdInvestor = investor.accountCash?.id;
         const accountBondIdInvestor = investor.accountsBond[0].id;
         const accountCashIdManager =

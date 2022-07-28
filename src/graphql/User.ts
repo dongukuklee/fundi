@@ -42,22 +42,21 @@ export const UserQuery = extendType({
   definition(t) {
     t.field("user", {
       type: "User",
-      args: {
-        id: nonNull(intArg()),
-        email: stringArg(),
-      },
       async resolve(parent, args, context, info) {
         const { userId, userRole } = context;
-        const id = args?.id as number | undefined;
         if (!userId) {
           throw new Error(
             "Cannot inquiry user information without signing in."
           );
         }
-        if (id !== userId && userRole !== Role.ADMIN) {
+        if (userRole === Role.ADMIN) {
           throw new Error("Only the owner can inquiry user information.");
         }
-        return context.prisma.user.findUnique({ where: { id } });
+        return await context.prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+        });
       },
     });
   },

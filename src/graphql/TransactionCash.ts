@@ -45,6 +45,9 @@ export const TransactionCashQuery = extendType({
             accountId: userId,
             type: args?.type as TransactionType | undefined,
           },
+          orderBy: {
+            createdAt: "desc",
+          },
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });

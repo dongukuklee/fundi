@@ -73,6 +73,15 @@ export const AccountBondMutation = extendType({
             "Cannot inquiry the balance of the account without signing in."
           );
         }
+        const accountCash = await context.prisma.accountCash.findFirst({
+          where: {
+            ownerId: context.userId,
+          },
+          select: {
+            balance: true,
+          },
+        });
+
         return await context.prisma.accountCash.update({
           where: { ownerId: userId },
           data: {
@@ -82,6 +91,7 @@ export const AccountBondMutation = extendType({
                 amount: BigInt(amount),
                 type: "DEPOSIT",
                 title: `${context.userName}님의 예치금 충전 내역`,
+                accumulatedCash: accountCash?.balance! + BigInt(amount),
               },
             },
           },
