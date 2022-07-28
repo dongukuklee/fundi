@@ -136,7 +136,7 @@ type Query {
   balanceCash: BigInt
   checkPincode(pincode: String!): Boolean
   funding(id: Int!): Funding
-  fundings(skip: Int, take: Int): [Funding!]!
+  fundings(skip: Int, status: FundingStatus, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!

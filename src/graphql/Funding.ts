@@ -217,9 +217,16 @@ export const FundingQuery = extendType({
       args: {
         skip: intArg(),
         take: intArg(),
+        status: arg({ type: "FundingStatus" }),
       },
       async resolve(parent, args, context, info) {
         const funding = await context.prisma.funding.findMany({
+          where: {
+            status: args?.status as FundingStatus | undefined,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });
@@ -305,7 +312,6 @@ export const FundingMutation = extendType({
 
         // 해당 채권 계좌가 없는 경우에 채권 계좌 개설
         if (investor.accountsBond.length === 0) {
-          console.log(1);
           await context.prisma.user.update({
             where: {
               id: userId,
@@ -325,7 +331,7 @@ export const FundingMutation = extendType({
         if (!investor || investor.accountsBond.length !== 1) {
           throw new Error("Invalid user");
         }
-        console.log(2);
+
         const accountCashIdInvestor = investor.accountCash?.id;
         const accountBondIdInvestor = investor.accountsBond[0].id;
         const accountCashIdManager =
