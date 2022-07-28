@@ -41,7 +41,7 @@ export const AccountBond = objectType({
           .funding();
       },
     });
-    t.field("settlementAmount", {
+    t.list.field("settlementAmount", {
       type: "BigInt",
       async resolve(parent, args, context, info) {
         const settlementTransactions = await context.prisma.accountBond
@@ -49,17 +49,18 @@ export const AccountBond = objectType({
             where: { id: parent.id },
           })
           .settlementTransactions();
-        return settlementTransactions.reduce(
-          (acc, cur) => {
-            const { settlementAmount, additionalSettleMentAmount } = cur;
-            return [
-              acc[0] + settlementAmount,
-              acc[1] + additionalSettleMentAmount,
-              acc[2] + settlementAmount + additionalSettleMentAmount,
-            ];
-          },
-          [BigInt(0), BigInt(0), BigInt(0)]
-        );
+        const defaultAmount = [BigInt(0), BigInt(0), BigInt(0)];
+        if (!settlementTransactions.length) {
+          return defaultAmount;
+        }
+        return settlementTransactions.reduce((acc, cur) => {
+          const { settlementAmount, additionalSettleMentAmount } = cur;
+          return [
+            acc[0] + settlementAmount,
+            acc[1] + additionalSettleMentAmount,
+            acc[2] + settlementAmount + additionalSettleMentAmount,
+          ];
+        }, defaultAmount);
       },
     });
     t.field("investmentAmount", {

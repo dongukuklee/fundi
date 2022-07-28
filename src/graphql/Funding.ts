@@ -234,18 +234,22 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
+
         if (!userId) {
           throw new Error("Cannot inquiry my funding list without signing in.");
         }
-        return await context.prisma.funding.findMany({
+        const myFunding = await context.prisma.funding.findMany({
           where: {
             accountsBond: {
-              every: {
-                ownerId: userId,
+              some: {
+                ownerId: {
+                  equals: userId,
+                },
               },
             },
           },
         });
+        return myFunding;
       },
     });
   },
