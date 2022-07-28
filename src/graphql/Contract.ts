@@ -14,7 +14,8 @@ export const Contract = objectType({
           .funding();
       },
     });
-    t.nonNull.bigInt("price");
+    t.nonNull.int("pricePerSize");
+    t.nonNull.int("contractedArtworkSize");
     t.nonNull.int("terms");
     t.nonNull.int("artworksRequiredNumber");
   },
