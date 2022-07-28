@@ -15,9 +15,29 @@ model Auth {
   updatedAt DateTime @updatedAt
   email     String   @unique
   name      String?
-  password  String
-  pincode   String?
+  password  String   
+  pincode   String? 
   user      User?
+  IDVerification IDVerification?
+  withdrawalAccount withdrawalAccount?
+}
+
+model IDVerification {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  phoneNumber String?
+  auth         Auth          @relation(fields: [authId], references: [id])
+  authId       Int           @unique
+}
+model withdrawalAccount {
+   id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bankCode Int
+  accountNumber String
+  auth         Auth          @relation(fields: [authId], references: [id])
+  authId       Int           @unique
 }
 
 model User {

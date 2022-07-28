@@ -169,7 +169,7 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     investmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     owner: NexusGenRootTypes['User'] | null; // User
-    settlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
+    settlementAmount: Array<NexusGenScalars['BigInt'] | null> | null; // [BigInt]
     transactionSettlement: NexusGenRootTypes['TransactionSettlement'][]; // [TransactionSettlement!]!
     transactions: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -237,6 +237,7 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
+    IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createArtist: NexusGenRootTypes['Artist'] | null; // Artist
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -246,11 +247,13 @@ export interface NexusGenFieldTypes {
     likeArtist: NexusGenRootTypes['Artist'] | null; // Artist
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    registerWithdrawalAccount: NexusGenRootTypes['Auth'] | null; // Auth
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     updateArtist: NexusGenRootTypes['Artist'] | null; // Artist
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updatePincode: string | null; // String
+    updateUserPassword: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
   Query: { // field return type
@@ -385,6 +388,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
+    IDVerification: 'Auth'
     chargeTheDeposit: 'AccountCash'
     createArtist: 'Artist'
     createFunding: 'Funding'
@@ -394,11 +398,13 @@ export interface NexusGenFieldTypeNames {
     likeArtist: 'Artist'
     likeFunding: 'Funding'
     participateFunding: 'AccountBond'
+    registerWithdrawalAccount: 'Auth'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
     updateArtist: 'Artist'
     updateFunding: 'Funding'
     updatePincode: 'String'
+    updateUserPassword: 'String'
     withdrawFunding: 'AccountBond'
   }
   Query: { // field return type name
@@ -459,6 +465,9 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
+    IDVerification: { // args
+      phoneNumber: string; // String!
+    }
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
@@ -494,6 +503,10 @@ export interface NexusGenArgTypes {
       amount: number; // Int!
       id: number; // Int!
     }
+    registerWithdrawalAccount: { // args
+      accountNumber: string; // String!
+      bankCode: number; // Int!
+    }
     signin: { // args
       email: string; // String!
       password: string; // String!
@@ -520,6 +533,9 @@ export interface NexusGenArgTypes {
     updatePincode: { // args
       followingPincode: string; // String!
       previousPincode: string; // String!
+    }
+    updateUserPassword: { // args
+      password: string; // String!
     }
     withdrawFunding: { // args
       id: number; // Int!
@@ -563,10 +579,6 @@ export interface NexusGenArgTypes {
       skip?: number | null; // Int
       take?: number | null; // Int
       type?: NexusGenEnums['TransactionType'] | null; // TransactionType
-    }
-    user: { // args
-      email?: string | null; // String
-      id: number; // Int!
     }
     verificationCode: { // args
       email: string; // String!
