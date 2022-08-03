@@ -90,7 +90,7 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTime
 
 type Funding {
-  accounstInvestor: [AccountBond!]!
+  accountInvestor: [AccountBond!]!
   accountManager: AccountBond
   artist: [Artist]
   artworks: [Artwork!]!
@@ -99,9 +99,11 @@ type Funding {
   bondsTotalNumber: BigInt!
   contract: Contract
   createdAt: DateTime!
+  endDate: DateTime
   id: Int!
   isLikedUser: Boolean
   likedUser: [User]
+  startDate: DateTime
   status: FundingStatus!
   title: String!
   updatedAt: DateTime!
@@ -145,13 +147,13 @@ type Mutation {
 
 type Query {
   artist(id: Int!): Artist
-  artists(skip: Int, take: Int): [Artist!]!
+  artists(skip: Int, sort: String, take: Int): [Artist!]!
   artwork(id: Int!): Artwork
   artworks(id: Int!): [Artwork!]!
   balanceCash: BigInt
   checkPincode(pincode: String!): Boolean
   funding(id: Int!): Funding
-  fundings(skip: Int, status: FundingStatus, take: Int): [Funding!]!
+  fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
@@ -209,6 +211,8 @@ type User {
   auth: Auth
   createdAt: DateTime!
   email: String!
+  favoriteArtists: [Artist]
+  favoriteFundings: [Funding]
   id: Int!
   name: String
   role: Role!

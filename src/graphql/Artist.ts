@@ -9,7 +9,7 @@ import {
 } from "nexus";
 import { TAKE } from "../common/const";
 import { ArtistInvestmentPoint } from "./ArtistInvestmentPoint";
-
+import { sortOptionCreator } from "../utils/sortOptionCreator";
 type updateArtistVariables = {
   name?: string;
   age?: number;
@@ -122,11 +122,14 @@ export const ArtistQuery = extendType({
       args: {
         skip: intArg(),
         take: intArg(),
+        sort: stringArg(),
       },
       async resolve(parent, args, context, info) {
+        const orderBy: any = sortOptionCreator(args.sort);
         return await context.prisma.artist.findMany({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
+          orderBy,
         });
       },
     });
