@@ -118,10 +118,12 @@ model Funding {
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
-  intro            String        @default("")
+  intro            String        @default("")       
   artist           ArtistsOnFundings[]
   likedUser        FundingOnUser[]
   contract         Contract?
+  startDate        DateTime?
+  endDate          DateTime?
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
   accountsBond     AccountBond[]

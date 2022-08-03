@@ -113,7 +113,9 @@ export interface NexusGenObjects {
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    endDate?: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
+    startDate?: NexusGenScalars['DateTime'] | null; // DateTime
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -245,7 +247,7 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // field return type
-    accounstInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
+    accountInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     artist: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
     artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
@@ -254,9 +256,11 @@ export interface NexusGenFieldTypes {
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    endDate: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
+    startDate: NexusGenScalars['DateTime'] | null; // DateTime
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -336,6 +340,8 @@ export interface NexusGenFieldTypes {
     auth: NexusGenRootTypes['Auth'] | null; // Auth
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
+    favoriteArtists: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
+    favoriteFundings: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     id: number; // Int!
     name: string | null; // String
     role: NexusGenEnums['Role']; // Role!
@@ -417,7 +423,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Funding: { // field return type name
-    accounstInvestor: 'AccountBond'
+    accountInvestor: 'AccountBond'
     accountManager: 'AccountBond'
     artist: 'Artist'
     artworks: 'Artwork'
@@ -426,9 +432,11 @@ export interface NexusGenFieldTypeNames {
     bondsTotalNumber: 'BigInt'
     contract: 'Contract'
     createdAt: 'DateTime'
+    endDate: 'DateTime'
     id: 'Int'
     isLikedUser: 'Boolean'
     likedUser: 'User'
+    startDate: 'DateTime'
     status: 'FundingStatus'
     title: 'String'
     updatedAt: 'DateTime'
@@ -508,6 +516,8 @@ export interface NexusGenFieldTypeNames {
     auth: 'Auth'
     createdAt: 'DateTime'
     email: 'String'
+    favoriteArtists: 'Artist'
+    favoriteFundings: 'Funding'
     id: 'Int'
     name: 'String'
     role: 'Role'
@@ -606,6 +616,7 @@ export interface NexusGenArgTypes {
     }
     artists: { // args
       skip?: number | null; // Int
+      sort?: string | null; // String
       take?: number | null; // Int
     }
     artwork: { // args
@@ -622,6 +633,7 @@ export interface NexusGenArgTypes {
     }
     fundings: { // args
       skip?: number | null; // Int
+      sort?: string | null; // String
       status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
       take?: number | null; // Int
     }
