@@ -90,7 +90,10 @@ export interface NexusGenObjects {
   }
   Auth: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    email: string; // String!
     id: number; // Int!
+    name?: string | null; // String
+    pincode?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   AuthPayload: { // root type
@@ -99,9 +102,10 @@ export interface NexusGenObjects {
   }
   Contract: { // root type
     artworksRequiredNumber: number; // Int!
+    contractedArtworkSize: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    price: NexusGenScalars['BigInt']; // BigInt!
+    pricePerSize: number; // Int!
     terms: number; // Int!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -112,6 +116,12 @@ export interface NexusGenObjects {
     id: number; // Int!
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  IDVerification: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    phoneNumber?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: {};
@@ -147,6 +157,13 @@ export interface NexusGenObjects {
     id: number; // Int!
     name?: string | null; // String
     role: NexusGenEnums['Role']; // Role!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  WithdrawalAccount: { // root type
+    accountNumber: string; // String!
+    bankCode: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
 }
@@ -187,6 +204,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
+    isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -202,10 +220,15 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Auth: { // field return type
+    IDVerification: NexusGenRootTypes['IDVerification'] | null; // IDVerification
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    email: string; // String!
     id: number; // Int!
+    name: string | null; // String
+    pincode: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     user: NexusGenRootTypes['User'] | null; // User
+    withdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
   }
   AuthPayload: { // field return type
     token: string; // String!
@@ -213,10 +236,11 @@ export interface NexusGenFieldTypes {
   }
   Contract: { // field return type
     artworksRequiredNumber: number; // Int!
+    contractedArtworkSize: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
-    price: NexusGenScalars['BigInt']; // BigInt!
+    pricePerSize: number; // Int!
     terms: number; // Int!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -231,9 +255,16 @@ export interface NexusGenFieldTypes {
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  IDVerification: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    phoneNumber: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
@@ -310,6 +341,13 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  WithdrawalAccount: { // field return type
+    accountNumber: string; // String!
+    bankCode: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
 }
 
 export interface NexusGenFieldTypeNames {
@@ -338,6 +376,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     fundings: 'Funding'
     id: 'Int'
+    isLikedUser: 'Boolean'
     likedUser: 'User'
     name: 'String'
     updatedAt: 'DateTime'
@@ -353,10 +392,15 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Auth: { // field return type name
+    IDVerification: 'IDVerification'
     createdAt: 'DateTime'
+    email: 'String'
     id: 'Int'
+    name: 'String'
+    pincode: 'String'
     updatedAt: 'DateTime'
     user: 'User'
+    withdrawalAccount: 'WithdrawalAccount'
   }
   AuthPayload: { // field return type name
     token: 'String'
@@ -364,10 +408,11 @@ export interface NexusGenFieldTypeNames {
   }
   Contract: { // field return type name
     artworksRequiredNumber: 'Int'
+    contractedArtworkSize: 'Int'
     createdAt: 'DateTime'
     funding: 'Funding'
     id: 'Int'
-    price: 'BigInt'
+    pricePerSize: 'Int'
     terms: 'Int'
     updatedAt: 'DateTime'
   }
@@ -382,9 +427,16 @@ export interface NexusGenFieldTypeNames {
     contract: 'Contract'
     createdAt: 'DateTime'
     id: 'Int'
+    isLikedUser: 'Boolean'
     likedUser: 'User'
     status: 'FundingStatus'
     title: 'String'
+    updatedAt: 'DateTime'
+  }
+  IDVerification: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    phoneNumber: 'String'
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
@@ -459,6 +511,13 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     name: 'String'
     role: 'Role'
+    updatedAt: 'DateTime'
+  }
+  WithdrawalAccount: { // field return type name
+    accountNumber: 'String'
+    bankCode: 'Int'
+    createdAt: 'DateTime'
+    id: 'Int'
     updatedAt: 'DateTime'
   }
 }

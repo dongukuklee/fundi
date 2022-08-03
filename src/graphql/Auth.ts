@@ -44,12 +44,31 @@ export const Auth = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
+    t.nonNull.string("email");
+    t.string("name");
+    t.string("pincode");
     t.field("user", {
       type: "User",
       resolve(parent, args, context, info) {
         return context.prisma.auth
           .findUnique({ where: { id: parent.id } })
           .user();
+      },
+    });
+    t.field("IDVerification", {
+      type: "IDVerification",
+      resolve(parent, args, context, info) {
+        return context.prisma.auth
+          .findUnique({ where: { id: parent.id } })
+          .IDVerification();
+      },
+    });
+    t.field("withdrawalAccount", {
+      type: "WithdrawalAccount",
+      resolve(parent, args, context, info) {
+        return context.prisma.auth
+          .findUnique({ where: { id: parent.id } })
+          .withdrawalAccount();
       },
     });
   },
