@@ -38,6 +38,23 @@ const makeVariables = ({
   return variables;
 };
 
+const sortOptionCreator = (key: string) => {
+  switch (key) {
+    case "popularity":
+      return {
+        likedUser: {
+          _count: "desc",
+        },
+      };
+    case "latest":
+      return {
+        createdAt: "desc",
+      };
+    default:
+      return {};
+  }
+};
+
 export const Artist = objectType({
   name: "Artist",
   definition(t) {
@@ -122,11 +139,14 @@ export const ArtistQuery = extendType({
       args: {
         skip: intArg(),
         take: intArg(),
+        sort: nonNull(stringArg()),
       },
       async resolve(parent, args, context, info) {
+        const orderBy: any = sortOptionCreator(args.sort!);
         return await context.prisma.artist.findMany({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
+          orderBy,
         });
       },
     });
