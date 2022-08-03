@@ -11,6 +11,7 @@ import {
 import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
+import { sortOptionCreator } from "../utils/sortOptionCreator";
 
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
@@ -97,6 +98,8 @@ export const Funding = objectType({
           .contract();
       },
     });
+    t.dateTime("startDate");
+    t.dateTime("endDate");
     t.nonNull.bigInt("bondPrice");
     t.nonNull.bigInt("bondsTotalNumber");
     t.nonNull.list.nonNull.field("artworks", {
@@ -129,15 +132,15 @@ export const Funding = objectType({
         return accountManager.balance;
       },
     });
-    t.nonNull.list.nonNull.field("accounstInvestor", {
+    t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
       async resolve(parent, args, context, info) {
-        const { userRole } = context;
-        if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
-          throw new Error(
-            "Only the manager and administrator can inquiry accounts of fundings."
-          );
-        }
+        // const { userRole } = context;
+        // if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
+        //   throw new Error(
+        //     "Only the manager and administrator can inquiry accounts of fundings."
+        //   );
+        // }
         return await context.prisma.accountBond.findMany({
           where: {
             AND: {
@@ -238,15 +241,15 @@ export const FundingQuery = extendType({
         skip: intArg(),
         take: intArg(),
         status: arg({ type: "FundingStatus" }),
+        sort: stringArg(),
       },
       async resolve(parent, args, context, info) {
+        const orderBy: any = sortOptionCreator(args.sort);
         const funding = await context.prisma.funding.findMany({
           where: {
             status: args?.status as FundingStatus | undefined,
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy,
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });
