@@ -14,3 +14,5 @@ export * from "./Artist";
 export * from "./Contract";
 export * from "./Artwork";
 export * from "./TransactionSettlement";
+export * from "./IDVerification";
+export * from "./WithdrawalAccount";

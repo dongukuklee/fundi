@@ -29,6 +29,7 @@ type Artist {
   createdAt: DateTime!
   fundings: [Funding!]!
   id: Int!
+  isLikedUser: Boolean
   likedUser: [User]
   name: String!
   updatedAt: DateTime!
@@ -51,10 +52,15 @@ type Artwork {
 }
 
 type Auth {
+  IDVerification: IDVerification
   createdAt: DateTime!
+  email: String!
   id: Int!
+  name: String
+  pincode: String
   updatedAt: DateTime!
   user: User
+  withdrawalAccount: WithdrawalAccount
 }
 
 type AuthPayload {
@@ -69,10 +75,11 @@ scalar BigInt
 
 type Contract {
   artworksRequiredNumber: Int!
+  contractedArtworkSize: Int!
   createdAt: DateTime!
   funding: Funding
   id: Int!
-  price: BigInt!
+  pricePerSize: Int!
   terms: Int!
   updatedAt: DateTime!
 }
@@ -93,6 +100,7 @@ type Funding {
   contract: Contract
   createdAt: DateTime!
   id: Int!
+  isLikedUser: Boolean
   likedUser: [User]
   status: FundingStatus!
   title: String!
@@ -105,6 +113,13 @@ enum FundingStatus {
   END
   POST_CAMPAIGN
   PRE_CAMPAIGN
+}
+
+type IDVerification {
+  createdAt: DateTime!
+  id: Int!
+  phoneNumber: String
+  updatedAt: DateTime!
 }
 
 type Mutation {
@@ -197,5 +212,13 @@ type User {
   id: Int!
   name: String
   role: Role!
+  updatedAt: DateTime!
+}
+
+type WithdrawalAccount {
+  accountNumber: String!
+  bankCode: Int!
+  createdAt: DateTime!
+  id: Int!
   updatedAt: DateTime!
 }
