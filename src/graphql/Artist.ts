@@ -82,6 +82,26 @@ export const Artist = objectType({
         });
       },
     });
+    t.field("isLikedUser", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          return false;
+        }
+        const likedUsers = await context.prisma.artist
+          .findUnique({
+            where: {
+              id: parent.id,
+            },
+          })
+          .likedUser()
+          .then((el) => {
+            return el.map((data) => data.UserId);
+          });
+        return likedUsers.includes(userId!);
+      },
+    });
   },
 });
 
