@@ -81,7 +81,7 @@ export const Funding = objectType({
         return context.prisma.artist.findMany({
           where: {
             fundings: {
-              every: {
+              some: {
                 fundingId: parent.id,
               },
             },
@@ -191,6 +191,26 @@ export const Funding = objectType({
             },
           },
         });
+      },
+    });
+    t.field("isLikedUser", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          return false;
+        }
+        const likedUsers = await context.prisma.funding
+          .findUnique({
+            where: {
+              id: parent.id,
+            },
+          })
+          .likedUser()
+          .then((el) => {
+            return el.map((data) => data.UserId);
+          });
+        return likedUsers.includes(userId!);
       },
     });
   },
@@ -674,9 +694,19 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { id }, context, info) {
         const { userId } = context;
+
         if (!userId) {
           throw new Error("Cannot liked Funding without signing in.");
         }
+        const where = { id };
+        const updateLikedFunding = async (likedUser: any) => {
+          return await context.prisma.funding.update({
+            where,
+            data: {
+              likedUser,
+            },
+          });
+        };
         const userLikedInFunding = await context.prisma.funding.findUnique({
           where: {
             id,
@@ -685,36 +715,26 @@ export const FundingMutation = extendType({
             likedUser: true,
           },
         });
+
+        let likedUser: any = {
+          delete: {
+            fundingId_UserId: {
+              UserId: userId,
+              fundingId: id,
+            },
+          },
+        };
         const isExist = userLikedInFunding?.likedUser.every((el) => {
           return el.UserId !== userId;
         });
-
         if (isExist) {
-          await context.prisma.funding.update({
-            where: {
-              id,
+          likedUser = {
+            create: {
+              UserId: userId,
             },
-            data: {
-              likedUser: {
-                create: {
-                  UserId: userId,
-                },
-              },
-            },
-          });
+          };
         }
-        return await context.prisma.funding.update({
-          where: {
-            id,
-          },
-          data: {
-            likedUser: {
-              create: {
-                UserId: userId,
-              },
-            },
-          },
-        });
+        return await updateLikedFunding(likedUser);
       },
     });
     t.field("createFunding", {
