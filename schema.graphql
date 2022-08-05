@@ -112,7 +112,9 @@ type Funding {
 """Define funding status"""
 enum FundingStatus {
   CAMPAIGNING
+  EARLY_CLOSING
   END
+  FAILED_CAMPAIGN
   POST_CAMPAIGN
   PRE_CAMPAIGN
 }
@@ -129,23 +131,61 @@ type Mutation {
   chargeTheDeposit(amount: Int!): AccountCash
   createArtist(age: Int!, biography: String!, investmentPoint: [ArtistInvestmentPoint!], name: String!): Artist
   createFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, intro: String = "", title: String!): Funding
+  createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String
+  createQnA(content: String!, title: String!, type: QnATypes!): QnA
   emailAuthentication(email: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeArtist(id: Int!): Artist
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
   registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
+  replyQueation(id: Int!, reply: String!): QnA
   signin(email: String!, password: String!): AuthPayload!
   signup(email: String!, password: String!): AuthPayload!
   updateArtist(age: Int, biography: String, id: Int!, investmentPoint: [ArtistInvestmentPoint!], name: String): Artist
   updateFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, id: Int!, intro: String, status: FundingStatus, title: String): Funding
+  updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!, previousPincode: String!): String
+  updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
   updateUserPassword(password: String!): String
   withdrawFunding(id: Int!): AccountBond
 }
 
+type Notice {
+  content: String
+  createdAt: DateTime!
+  id: Int!
+  title: String
+  updatedAt: DateTime!
+}
+
+type QnA {
+  content: String
+  createdAt: DateTime!
+  id: Int!
+  reply: String
+  title: String
+  type: QnATypes!
+  updatedAt: DateTime!
+  user: User
+}
+
+"""Define QnA Status"""
+enum QnAStatus {
+  AWAITING_RESPONSE
+  RESPONDED
+}
+
+"""Define QnA Types"""
+enum QnATypes {
+  ETC
+  INVESTMENT
+  SETTLEMENT
+}
+
 type Query {
+  QnAs: [QnA]
   artist(id: Int!): Artist
   artists(skip: Int, sort: String, take: Int): [Artist!]!
   artwork(id: Int!): Artwork
@@ -155,6 +195,9 @@ type Query {
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
+  myQnA: [QnA]
+  notice(id: Int!): Notice
+  notices(skip: Int, take: Int): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user: User
