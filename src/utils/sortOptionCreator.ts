@@ -1,4 +1,4 @@
-export const sortOptionCreator = (key: string | undefined | null) => {
+export const sortOptionCreator = (key?: string | undefined | null) => {
   switch (key) {
     case "popularity":
       return {
