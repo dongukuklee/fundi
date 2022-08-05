@@ -16,3 +16,7 @@ export * from "./Artwork";
 export * from "./TransactionSettlement";
 export * from "./IDVerification";
 export * from "./WithdrawalAccount";
+export * from "./QnATypes";
+export * from "./QnAStatus";
+export * from "./QnA";
+export * from "./Notice";

@@ -67,9 +67,7 @@ export const AccountBond = objectType({
       type: "BigInt",
       async resolve(parent, args, context, info) {
         const funding = await context.prisma.accountBond
-          .findFirst({
-            where: { id: parent.id },
-          })
+          .findFirst({ where: { id: parent.id } })
           .funding();
         const bondPrice = funding?.bondPrice;
         return bondPrice! * parent.balance;

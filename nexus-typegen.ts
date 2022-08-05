@@ -44,7 +44,9 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
-  FundingStatus: "CAMPAIGNING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
+  FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
+  QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
+  QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
   TransactionType: "DEPOSIT" | "WITHDRAW"
 }
@@ -127,6 +129,22 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: {};
+  Notice: { // root type
+    content?: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    title?: string | null; // String
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  QnA: { // root type
+    content?: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    reply?: string | null; // String
+    title?: string | null; // String
+    type: NexusGenEnums['QnATypes']; // QnATypes!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   Query: {};
   TransactionBond: { // root type
     amount: NexusGenScalars['BigInt']; // BigInt!
@@ -276,22 +294,45 @@ export interface NexusGenFieldTypes {
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createArtist: NexusGenRootTypes['Artist'] | null; // Artist
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
+    createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
+    createQnA: NexusGenRootTypes['QnA'] | null; // QnA
     emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeArtist: NexusGenRootTypes['Artist'] | null; // Artist
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     registerWithdrawalAccount: NexusGenRootTypes['Auth'] | null; // Auth
+    replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     updateArtist: NexusGenRootTypes['Artist'] | null; // Artist
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
+    updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
     updatePincode: string | null; // String
+    updateQuestion: NexusGenRootTypes['QnA'] | null; // QnA
     updateUserPassword: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
+  Notice: { // field return type
+    content: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    title: string | null; // String
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  QnA: { // field return type
+    content: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    reply: string | null; // String
+    title: string | null; // String
+    type: NexusGenEnums['QnATypes']; // QnATypes!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    user: NexusGenRootTypes['User'] | null; // User
+  }
   Query: { // field return type
+    QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     artist: NexusGenRootTypes['Artist'] | null; // Artist
     artists: NexusGenRootTypes['Artist'][]; // [Artist!]!
     artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
@@ -301,6 +342,9 @@ export interface NexusGenFieldTypes {
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    myQnA: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
+    notice: NexusGenRootTypes['Notice'] | null; // Notice
+    notices: Array<NexusGenRootTypes['Notice'] | null> | null; // [Notice]
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     user: NexusGenRootTypes['User'] | null; // User
@@ -452,22 +496,45 @@ export interface NexusGenFieldTypeNames {
     chargeTheDeposit: 'AccountCash'
     createArtist: 'Artist'
     createFunding: 'Funding'
+    createNotice: 'Notice'
     createPincode: 'String'
+    createQnA: 'QnA'
     emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
     likeArtist: 'Artist'
     likeFunding: 'Funding'
     participateFunding: 'AccountBond'
     registerWithdrawalAccount: 'Auth'
+    replyQueation: 'QnA'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
     updateArtist: 'Artist'
     updateFunding: 'Funding'
+    updateNotice: 'Notice'
     updatePincode: 'String'
+    updateQuestion: 'QnA'
     updateUserPassword: 'String'
     withdrawFunding: 'AccountBond'
   }
+  Notice: { // field return type name
+    content: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    title: 'String'
+    updatedAt: 'DateTime'
+  }
+  QnA: { // field return type name
+    content: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    reply: 'String'
+    title: 'String'
+    type: 'QnATypes'
+    updatedAt: 'DateTime'
+    user: 'User'
+  }
   Query: { // field return type name
+    QnAs: 'QnA'
     artist: 'Artist'
     artists: 'Artist'
     artwork: 'Artwork'
@@ -477,6 +544,9 @@ export interface NexusGenFieldTypeNames {
     funding: 'Funding'
     fundings: 'Funding'
     myFundings: 'Funding'
+    myQnA: 'QnA'
+    notice: 'Notice'
+    notices: 'Notice'
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
     user: 'User'
@@ -552,8 +622,17 @@ export interface NexusGenArgTypes {
       intro?: string | null; // String
       title: string; // String!
     }
+    createNotice: { // args
+      content: string; // String!
+      title: string; // String!
+    }
     createPincode: { // args
       pincode: string; // String!
+    }
+    createQnA: { // args
+      content: string; // String!
+      title: string; // String!
+      type: NexusGenEnums['QnATypes']; // QnATypes!
     }
     emailAuthentication: { // args
       email: string; // String!
@@ -575,6 +654,10 @@ export interface NexusGenArgTypes {
     registerWithdrawalAccount: { // args
       accountNumber: string; // String!
       bankCode: number; // Int!
+    }
+    replyQueation: { // args
+      id: number; // Int!
+      reply: string; // String!
     }
     signin: { // args
       email: string; // String!
@@ -599,9 +682,20 @@ export interface NexusGenArgTypes {
       status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
       title?: string | null; // String
     }
+    updateNotice: { // args
+      content?: string | null; // String
+      id: number; // Int!
+      title?: string | null; // String
+    }
     updatePincode: { // args
       followingPincode: string; // String!
       previousPincode: string; // String!
+    }
+    updateQuestion: { // args
+      content?: string | null; // String
+      id: number; // Int!
+      title?: string | null; // String
+      type?: NexusGenEnums['QnATypes'] | null; // QnATypes
     }
     updateUserPassword: { // args
       password: string; // String!
@@ -638,6 +732,13 @@ export interface NexusGenArgTypes {
       take?: number | null; // Int
     }
     myFundings: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
+    }
+    notice: { // args
+      id: number; // Int!
+    }
+    notices: { // args
       skip?: number | null; // Int
       take?: number | null; // Int
     }

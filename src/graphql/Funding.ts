@@ -611,6 +611,7 @@ export const FundingMutation = extendType({
         const amountPerBalance = BigInt(
           amount / Number(funding?.bondsTotalNumber)
         );
+
         const FundingParticipantsAccountBond =
           await context.prisma.accountBond.findMany({
             select: {
@@ -623,10 +624,12 @@ export const FundingMutation = extendType({
               fundingId: id,
             },
           });
+
         const round =
           FundingParticipantsAccountBond[0].settlementTransactions.length;
         const settlementTransaction: any = [];
-        FundingParticipantsAccountBond.forEach(async (participant) => {
+
+        for (const participant of FundingParticipantsAccountBond) {
           const participantAccoutCash =
             await context.prisma.accountCash.findFirst({
               where: { ownerId: participant.ownerId },
@@ -634,10 +637,12 @@ export const FundingMutation = extendType({
                 balance: true,
               },
             });
+
           const settlementAmount = participant.balance * amountPerBalance;
           const additionalSettleMentAmount = settlementAmount / BigInt(10);
           const totalSettlementedAmount =
             settlementAmount + additionalSettleMentAmount;
+
           settlementTransaction.push(
             context.prisma.user.update({
               where: {
@@ -665,8 +670,6 @@ export const FundingMutation = extendType({
                     balance: {
                       increment: totalSettlementedAmount,
                     },
-                  },
-                  create: {
                     transactions: {
                       create: {
                         amount: totalSettlementedAmount,
@@ -684,7 +687,7 @@ export const FundingMutation = extendType({
               },
             })
           );
-        });
+        }
 
         await context.prisma.$transaction(settlementTransaction);
         return await context.prisma.funding.findUnique({ where: { id } });

@@ -53,6 +53,7 @@ model User {
   likeArtists   ArtistOnUser[]
   accountCash  AccountCash?
   accountsBond AccountBond[]
+  qna              QnA[]
 }
 
 enum Role {
@@ -135,6 +136,8 @@ enum FundingStatus {
   PRE_CAMPAIGN
   CAMPAIGNING
   POST_CAMPAIGN
+  EARLY_CLOSING
+  FAILED_CAMPAIGN
   END
 }
 
@@ -159,15 +162,6 @@ model ArtistInvestmentPoint {
   status           String
   artist           Artist     @relation(fields: [artistId], references: [id])
   artistId         Int
-}
-
-
-model Post {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  title String
-  content String
 }
 
 model Contract {
@@ -230,4 +224,36 @@ model FundingOnUser{
   User User @relation(fields: [UserId],references: [id])
   UserId Int 
   @@id([fundingId,UserId])
+}
+
+model Notice{
+  id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  title                      String
+  content                    String
+}
+
+model QnA {
+  id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  User                       User @relation(fields: [UserId],references: [id])
+  UserId                     Int 
+  type                       QnATypes @default(INVESTMENT)
+  status                     QnAStatus @default(AWAITING_RESPONSE)
+  title                      String
+  content                    String
+  reply                      String?
+}
+
+enum QnATypes {
+  INVESTMENT
+  ETC
+  SETTLEMENT
+}
+
+enum QnAStatus {
+  AWAITING_RESPONSE
+  RESPONDED  
 }
