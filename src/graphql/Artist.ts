@@ -9,7 +9,7 @@ import {
 } from "nexus";
 import { TAKE } from "../common/const";
 import { ArtistInvestmentPoint } from "./ArtistInvestmentPoint";
-import { sortOptionCreator } from "../utils/sortOptionCreator";
+import { sortOptionCreator } from "../../utils/sortOptionCreator";
 type updateArtistVariables = {
   name?: string;
   age?: number;
