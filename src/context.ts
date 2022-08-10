@@ -1,5 +1,5 @@
 import { PrismaClient, Role } from "@prisma/client";
-import { decodeAuthHeader, AuthTokenPayload } from "./utils/auth";
+import { decodeAuthHeader, AuthTokenPayload } from "../utils/auth";
 import { Request } from "express";
 
 declare global {

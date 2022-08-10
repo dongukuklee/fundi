@@ -11,7 +11,7 @@ import {
 import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
-import { sortOptionCreator } from "../utils/sortOptionCreator";
+import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;

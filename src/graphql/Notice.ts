@@ -1,6 +1,6 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TAKE } from "../common/const";
-import { sortOptionCreator } from "../utils/sortOptionCreator";
+import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
 export const Notice = objectType({
   name: "Notice",

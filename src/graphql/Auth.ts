@@ -1,8 +1,8 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import { send_gmail } from "../utils/auth";
-import { getString, setString } from "../utils/redis/ctrl";
+import { send_gmail } from "../../utils/auth";
+import { getString, setString } from "../../utils/redis/ctrl";
 import { Context } from "../context";
 
 const APP_SECRET = process.env.APP_SECRET!;
