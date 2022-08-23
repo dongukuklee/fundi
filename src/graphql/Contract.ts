@@ -14,9 +14,10 @@ export const Contract = objectType({
           .funding();
       },
     });
-    t.nonNull.int("pricePerSize");
-    t.nonNull.int("contractedArtworkSize");
+    t.nonNull.bigInt("lastYearEarning");
+    t.nonNull.bigInt("loan");
     t.nonNull.int("terms");
-    t.nonNull.int("artworksRequiredNumber");
+    t.nonNull.dateTime("startDate");
+    t.nonNull.dateTime("endDate");
   },
 });

@@ -15,7 +15,7 @@ const isEmailExist = async (email: string, context: Context) => {
   return false;
 };
 
-const getAuthIdByUserId = async (context: Context) => {
+const getAuthIdByuserId = async (context: Context) => {
   const user = await context.prisma.user.findUnique({
     select: {
       authId: true,
@@ -109,7 +109,7 @@ export const AuthQuery = extendType({
             "Cannot inquiry the transactions of the account without signing in."
           );
         }
-        const authId = await getAuthIdByUserId(context);
+        const authId = await getAuthIdByuserId(context);
         const auth = await context.prisma.auth.findUnique({
           where: {
             id: authId,
@@ -267,7 +267,7 @@ export const AuthMutation = extendType({
             },
           },
         });
-        const authId = await getAuthIdByUserId(context);
+        const authId = await getAuthIdByuserId(context);
         const pincodeValidation = await context.prisma.auth.findFirst({
           where: {
             AND: {

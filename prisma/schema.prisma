@@ -50,7 +50,8 @@ model User {
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
   likeFundings  FundingOnUser[]
-  likeArtists   ArtistOnUser[]
+
+  likedCreator  CreatorOnUser[]
   accountCash  AccountCash?
   accountsBond AccountBond[]
   qna              QnA[]
@@ -120,15 +121,14 @@ model Funding {
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
   intro            String        @default("")       
-  artist           ArtistsOnFundings[]
+  creator CreatorOnFundings[]
   likedUser        FundingOnUser[]
   contract         Contract?
   startDate        DateTime?
   endDate          DateTime?
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
-  accountsBond     AccountBond[]
-  artworks         Artwork[]  
+  accountsBond     AccountBond[]  
 }
 
 
@@ -141,28 +141,31 @@ enum FundingStatus {
   END
 }
 
-model Artist {
+
+model Creator{
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String
   description String @default("")
-  age       Int?
-  biography String   @default("")
-  artistInvestmentPoint ArtistInvestmentPoint[]
-  fundings  ArtistsOnFundings[]
-  likedUser ArtistOnUser[]
+  age       Int?  
+  biography Biography[]
+  fundings CreatorOnFundings[]
+  likedUser    CreatorOnUser[]
 }
 
-model ArtistInvestmentPoint {
-  id               Int           @id @default(autoincrement())
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime     @updatedAt
-  title            String
-  status           String
-  artist           Artist     @relation(fields: [artistId], references: [id])
-  artistId         Int
+
+model Biography{
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  year      String
+  description String
+  creator           Creator     @relation(fields: [creatorId], references: [id])
+  creatorId         Int
 }
+
+
 
 model Contract {
   id                     Int      @id @default(autoincrement())
@@ -170,18 +173,18 @@ model Contract {
   updatedAt              DateTime @updatedAt
   funding                Funding? @relation(fields: [fundingId], references: [id])
   fundingId              Int      @unique 
-  pricePerSize           Int
-  contractedArtworkSize  Int
+  lastYearEarning        BigInt
+  loan                   BigInt
   terms                  Int      @default(12)
-  artworksRequiredNumber Int      @default(12)
+  startDate              DateTime
+  endDate                DateTime
 }
 
 model Artwork {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  title        String
-  funding      Funding? @relation(fields: [fundingId], references: [id])
+  title        String  
   fundingId    Int?
   initialPrice BigInt   @default(0)
   sellingPrice BigInt   @default(0)
@@ -194,36 +197,40 @@ model TransactionSettlement{
   updatedAt                  DateTime @updatedAt
   account                    AccountBond     @relation(fields: [accountId], references: [id])
   accountId                  Int
-  round                      Int
-  settlementAmount           BigInt
+  round                      Int  
+  settlementAmount           BigInt  
   additionalSettleMentAmount BigInt  
 }
 
-model ArtistsOnFundings{  
+
+
+model CreatorOnFundings{  
+  creator Creator @relation(fields: [creatorId], references: [id])
+  creatorId Int 
   funding Funding @relation(fields: [fundingId], references: [id])
-  fundingId Int 
-  artist Artist @relation(fields: [artistId],references: [id])
-  artistId Int 
-  @@id([artistId,fundingId])
+  fundingId Int
+  @@id([creatorId,fundingId])
 }
 
 
 
-model ArtistOnUser{  
-  artist Artist @relation(fields: [artistId],references: [id])
-  artistId Int 
-  User User @relation(fields: [UserId],references: [id])
-  UserId Int 
-  @@id([artistId,UserId])
+
+ 
+model CreatorOnUser{  
+  creator Creator @relation(fields: [creatorId],references: [id])
+  creatorId Int 
+  user User @relation(fields: [userId],references: [id])
+  userId Int 
+  @@id([creatorId,userId])
 }
  
 
 model FundingOnUser{
   funding Funding @relation(fields: [fundingId], references: [id])
   fundingId Int 
-  User User @relation(fields: [UserId],references: [id])
-  UserId Int 
-  @@id([fundingId,UserId])
+  user User @relation(fields: [userId],references: [id])
+  userId Int 
+  @@id([fundingId,userId])
 }
 
 model Notice{
@@ -238,8 +245,8 @@ model QnA {
   id                         Int      @id @default(autoincrement())
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
-  User                       User @relation(fields: [UserId],references: [id])
-  UserId                     Int 
+  user                       User @relation(fields: [userId],references: [id])
+  userId                     Int 
   type                       QnATypes @default(INVESTMENT)
   status                     QnAStatus @default(AWAITING_RESPONSE)
   title                      String

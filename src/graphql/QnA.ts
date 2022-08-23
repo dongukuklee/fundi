@@ -13,7 +13,7 @@ export const QnA = objectType({
       resolve(parent, args, context, info) {
         return context.prisma.qnA
           .findUnique({ where: { id: parent.id } })
-          .User();
+          .user();
       },
     });
     t.string("title");
@@ -35,7 +35,7 @@ export const QnAQuery = extendType({
           );
         }
         return await context.prisma.qnA.findMany({
-          where: { UserId: userId },
+          where: { userId: userId },
         });
       },
     });
@@ -72,7 +72,7 @@ export const QnAMutation = extendType({
             title,
             content,
             type,
-            UserId: userId,
+            userId: userId,
           },
         });
       },

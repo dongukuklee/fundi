@@ -34,21 +34,6 @@ export const User = objectType({
           .accountsBond();
       },
     });
-    t.list.field("favoriteArtists", {
-      type: "Artist",
-      async resolve(parent, args, context, info) {
-        const likeArtists = await context.prisma.user
-          .findUnique({ where: { id: parent.id } })
-          .likeArtists();
-
-        const artistIds = likeArtists.map((el) => el.artistId);
-        return await Promise.all(
-          artistIds.map(async (id) => {
-            return await context.prisma.artist.findFirst({ where: { id } });
-          })
-        );
-      },
-    });
     t.list.field("favoriteFundings", {
       type: "Funding",
       async resolve(parent, args, context, info) {
