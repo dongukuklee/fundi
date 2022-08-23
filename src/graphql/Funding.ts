@@ -63,6 +63,9 @@ const getFunding = async (context: Context, fundingId: number) => {
           },
         },
       },
+      contract: {
+        select: { lastYearEarning: true },
+      },
     },
   });
   return funding;
@@ -76,10 +79,10 @@ export const Funding = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
-    t.list.field("artist", {
-      type: "Artist",
+    t.list.field("creator", {
+      type: "Creator",
       resolve(parent, args, context, info) {
-        return context.prisma.artist.findMany({
+        return context.prisma.creator.findMany({
           where: {
             fundings: {
               some: {
@@ -102,14 +105,6 @@ export const Funding = objectType({
     t.dateTime("endDate");
     t.nonNull.bigInt("bondPrice");
     t.nonNull.bigInt("bondsTotalNumber");
-    t.nonNull.list.nonNull.field("artworks", {
-      type: "Artwork",
-      resolve(parent, args, context, info) {
-        return context.prisma.funding
-          .findUnique({ where: { id: parent.id } })
-          .artworks();
-      },
-    });
     t.nonNull.field("bondsRemaining", {
       type: "BigInt",
       async resolve(parent, args, context, info) {
@@ -185,7 +180,7 @@ export const Funding = objectType({
           })
           .likedUser()
           .then((el) => {
-            return el.map((data) => data.UserId);
+            return el.map((data) => data.userId);
           });
         return await context.prisma.user.findMany({
           where: {
@@ -211,7 +206,7 @@ export const Funding = objectType({
           })
           .likedUser()
           .then((el) => {
-            return el.map((data) => data.UserId);
+            return el.map((data) => data.userId);
           });
         return likedUsers.includes(userId!);
       },
@@ -312,6 +307,7 @@ export const FundingMutation = extendType({
         }
 
         // 펀드 조회
+        // 매니저의 채권 정보로 조회한다.
         const funding = await getFunding(context, id);
 
         if (!funding || !funding.accountsBond) {
@@ -608,8 +604,12 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { amount, id }, context, info) {
         const funding = await getFunding(context, id);
+        const additionalIncome =
+          BigInt(amount) - funding?.contract?.lastYearEarning!;
+        const totalAdditionalSettleMentAmount =
+          additionalIncome > 0 ? additionalIncome * BigInt(0.24) : 0;
         const amountPerBalance = BigInt(
-          amount / Number(funding?.bondsTotalNumber)
+          Math.ceil(amount / Number(funding?.bondsTotalNumber))
         );
 
         const FundingParticipantsAccountBond =
@@ -724,19 +724,19 @@ export const FundingMutation = extendType({
 
         let likedUser: any = {
           delete: {
-            fundingId_UserId: {
-              UserId: userId,
+            fundingId_userId: {
+              userId: userId,
               fundingId: id,
             },
           },
         };
         const isExist = userLikedInFunding?.likedUser.every((el) => {
-          return el.UserId !== userId;
+          return el.userId !== userId;
         });
         if (isExist) {
           likedUser = {
             create: {
-              UserId: userId,
+              userId: userId,
             },
           };
         }

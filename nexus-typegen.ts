@@ -37,7 +37,7 @@ declare global {
 }
 
 export interface NexusGenInputs {
-  ArtistInvestmentPoint: { // input type
+  CreatorInvestmentPoint: { // input type
     status: string; // String!
     title: string; // String!
   }
@@ -74,22 +74,6 @@ export interface NexusGenObjects {
     id: number; // Int!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
-  Artist: { // root type
-    age?: number | null; // Int
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    id: number; // Int!
-    name: string; // String!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-  }
-  Artwork: { // root type
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    id: number; // Int!
-    initialPrice: NexusGenScalars['BigInt']; // BigInt!
-    isSold: boolean; // Boolean!
-    sellingPrice: NexusGenScalars['BigInt']; // BigInt!
-    title: string; // String!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-  }
   Auth: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
@@ -102,13 +86,29 @@ export interface NexusGenObjects {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
-  Contract: { // root type
-    artworksRequiredNumber: number; // Int!
-    contractedArtworkSize: number; // Int!
+  Biography: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
     id: number; // Int!
-    pricePerSize: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    year: number; // Int!
+  }
+  Contract: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    endDate: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
+    loan: NexusGenScalars['BigInt']; // BigInt!
+    startDate: NexusGenScalars['DateTime']; // DateTime!
     terms: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Creator: { // root type
+    age?: number | null; // Int
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
+    id: number; // Int!
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // root type
@@ -219,26 +219,6 @@ export interface NexusGenFieldTypes {
     transactions: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
-  Artist: { // field return type
-    age: number | null; // Int
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
-    id: number; // Int!
-    isLikedUser: boolean | null; // Boolean
-    likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
-    name: string; // String!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-  }
-  Artwork: { // field return type
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    funding: NexusGenRootTypes['Funding'] | null; // Funding
-    id: number; // Int!
-    initialPrice: NexusGenScalars['BigInt']; // BigInt!
-    isSold: boolean; // Boolean!
-    sellingPrice: NexusGenScalars['BigInt']; // BigInt!
-    title: string; // String!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-  }
   Auth: { // field return type
     IDVerification: NexusGenRootTypes['IDVerification'] | null; // IDVerification
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -254,26 +234,44 @@ export interface NexusGenFieldTypes {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
-  Contract: { // field return type
-    artworksRequiredNumber: number; // Int!
-    contractedArtworkSize: number; // Int!
+  Biography: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
+    id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    year: number; // Int!
+  }
+  Contract: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    endDate: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
-    pricePerSize: number; // Int!
+    lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
+    loan: NexusGenScalars['BigInt']; // BigInt!
+    startDate: NexusGenScalars['DateTime']; // DateTime!
     terms: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Creator: { // field return type
+    age: number | null; // Int
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
+    fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    id: number; // Int!
+    isLikedUser: boolean | null; // Boolean
+    likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // field return type
     accountInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
-    artist: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
-    artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsRemaining: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    creator: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
@@ -292,21 +290,21 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
-    createArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    createCreator: NexusGenRootTypes['Creator'] | null; // Creator
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
     emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
-    likeArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     registerWithdrawalAccount: NexusGenRootTypes['Auth'] | null; // Auth
     replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
-    updateArtist: NexusGenRootTypes['Artist'] | null; // Artist
+    updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
     updatePincode: string | null; // String
@@ -333,12 +331,10 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
-    artist: NexusGenRootTypes['Artist'] | null; // Artist
-    artists: NexusGenRootTypes['Artist'][]; // [Artist!]!
-    artwork: NexusGenRootTypes['Artwork'] | null; // Artwork
-    artworks: NexusGenRootTypes['Artwork'][]; // [Artwork!]!
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
     checkPincode: boolean | null; // Boolean
+    creator: NexusGenRootTypes['Creator'] | null; // Creator
+    creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
@@ -384,7 +380,6 @@ export interface NexusGenFieldTypes {
     auth: NexusGenRootTypes['Auth'] | null; // Auth
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
-    favoriteArtists: Array<NexusGenRootTypes['Artist'] | null> | null; // [Artist]
     favoriteFundings: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     id: number; // Int!
     name: string | null; // String
@@ -421,26 +416,6 @@ export interface NexusGenFieldTypeNames {
     transactions: 'TransactionCash'
     updatedAt: 'DateTime'
   }
-  Artist: { // field return type name
-    age: 'Int'
-    createdAt: 'DateTime'
-    fundings: 'Funding'
-    id: 'Int'
-    isLikedUser: 'Boolean'
-    likedUser: 'User'
-    name: 'String'
-    updatedAt: 'DateTime'
-  }
-  Artwork: { // field return type name
-    createdAt: 'DateTime'
-    funding: 'Funding'
-    id: 'Int'
-    initialPrice: 'BigInt'
-    isSold: 'Boolean'
-    sellingPrice: 'BigInt'
-    title: 'String'
-    updatedAt: 'DateTime'
-  }
   Auth: { // field return type name
     IDVerification: 'IDVerification'
     createdAt: 'DateTime'
@@ -456,26 +431,44 @@ export interface NexusGenFieldTypeNames {
     token: 'String'
     user: 'User'
   }
-  Contract: { // field return type name
-    artworksRequiredNumber: 'Int'
-    contractedArtworkSize: 'Int'
+  Biography: { // field return type name
     createdAt: 'DateTime'
+    description: 'String'
+    id: 'Int'
+    updatedAt: 'DateTime'
+    year: 'Int'
+  }
+  Contract: { // field return type name
+    createdAt: 'DateTime'
+    endDate: 'DateTime'
     funding: 'Funding'
     id: 'Int'
-    pricePerSize: 'Int'
+    lastYearEarning: 'BigInt'
+    loan: 'BigInt'
+    startDate: 'DateTime'
     terms: 'Int'
+    updatedAt: 'DateTime'
+  }
+  Creator: { // field return type name
+    age: 'Int'
+    createdAt: 'DateTime'
+    description: 'String'
+    fundings: 'Funding'
+    id: 'Int'
+    isLikedUser: 'Boolean'
+    likedUser: 'User'
+    name: 'String'
     updatedAt: 'DateTime'
   }
   Funding: { // field return type name
     accountInvestor: 'AccountBond'
     accountManager: 'AccountBond'
-    artist: 'Artist'
-    artworks: 'Artwork'
     bondPrice: 'BigInt'
     bondsRemaining: 'BigInt'
     bondsTotalNumber: 'BigInt'
     contract: 'Contract'
     createdAt: 'DateTime'
+    creator: 'Creator'
     endDate: 'DateTime'
     id: 'Int'
     isLikedUser: 'Boolean'
@@ -494,21 +487,21 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     IDVerification: 'Auth'
     chargeTheDeposit: 'AccountCash'
-    createArtist: 'Artist'
+    createCreator: 'Creator'
     createFunding: 'Funding'
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
     emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
-    likeArtist: 'Artist'
+    likeCreator: 'Creator'
     likeFunding: 'Funding'
     participateFunding: 'AccountBond'
     registerWithdrawalAccount: 'Auth'
     replyQueation: 'QnA'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
-    updateArtist: 'Artist'
+    updateCreator: 'Creator'
     updateFunding: 'Funding'
     updateNotice: 'Notice'
     updatePincode: 'String'
@@ -535,12 +528,10 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     QnAs: 'QnA'
-    artist: 'Artist'
-    artists: 'Artist'
-    artwork: 'Artwork'
-    artworks: 'Artwork'
     balanceCash: 'BigInt'
     checkPincode: 'Boolean'
+    creator: 'Creator'
+    creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
     myFundings: 'Funding'
@@ -586,7 +577,6 @@ export interface NexusGenFieldTypeNames {
     auth: 'Auth'
     createdAt: 'DateTime'
     email: 'String'
-    favoriteArtists: 'Artist'
     favoriteFundings: 'Funding'
     id: 'Int'
     name: 'String'
@@ -610,10 +600,8 @@ export interface NexusGenArgTypes {
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
-    createArtist: { // args
+    createCreator: { // args
       age: number; // Int!
-      biography: string; // String!
-      investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
       name: string; // String!
     }
     createFunding: { // args
@@ -641,7 +629,7 @@ export interface NexusGenArgTypes {
       amount: number; // Int!
       id: number; // Int!
     }
-    likeArtist: { // args
+    likeCreator: { // args
       id: number; // Int!
     }
     likeFunding: { // args
@@ -667,11 +655,11 @@ export interface NexusGenArgTypes {
       email: string; // String!
       password: string; // String!
     }
-    updateArtist: { // args
+    updateCreator: { // args
       age?: number | null; // Int
       biography?: string | null; // String
       id: number; // Int!
-      investmentPoint?: NexusGenInputs['ArtistInvestmentPoint'][] | null; // [ArtistInvestmentPoint!]
+      investmentPoint?: NexusGenInputs['CreatorInvestmentPoint'][] | null; // [CreatorInvestmentPoint!]
       name?: string | null; // String
     }
     updateFunding: { // args
@@ -705,22 +693,16 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
-    artist: { // args
+    checkPincode: { // args
+      pincode: string; // String!
+    }
+    creator: { // args
       id: number; // Int!
     }
-    artists: { // args
+    creators: { // args
       skip?: number | null; // Int
       sort?: string | null; // String
       take?: number | null; // Int
-    }
-    artwork: { // args
-      id: number; // Int!
-    }
-    artworks: { // args
-      id: number; // Int!
-    }
-    checkPincode: { // args
-      pincode: string; // String!
     }
     funding: { // args
       id: number; // Int!

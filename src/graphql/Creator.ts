@@ -8,9 +8,11 @@ import {
   stringArg,
 } from "nexus";
 import { TAKE } from "../common/const";
-import { ArtistInvestmentPoint } from "./ArtistInvestmentPoint";
+import { CreatorInvestmentPoint } from "./CreatorInvestmentPoint";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
-type updateArtistVariables = {
+import { Biography } from "./Biography";
+
+type updateCreatorVariables = {
   name?: string;
   age?: number;
   biography?: string;
@@ -25,7 +27,7 @@ const makeVariables = ({
   age: number | null | undefined;
   biography: string | null | undefined;
 }) => {
-  const variables: updateArtistVariables = {};
+  const variables: updateCreatorVariables = {};
   if (name) {
     variables.name = name;
   }
@@ -38,22 +40,23 @@ const makeVariables = ({
   return variables;
 };
 
-export const Artist = objectType({
-  name: "Artist",
+export const Creator = objectType({
+  name: "Creator",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("name");
+    t.nonNull.string("description");
     t.int("age");
     t.nonNull.list.nonNull.field("fundings", {
       type: "Funding",
       resolve(parent, args, context, info) {
         return context.prisma.funding.findMany({
           where: {
-            artist: {
+            creator: {
               every: {
-                artistId: parent.id,
+                creatorId: parent.id,
               },
             },
           },
@@ -63,7 +66,7 @@ export const Artist = objectType({
     t.list.field("likedUser", {
       type: "User",
       async resolve(parent, args, context, info) {
-        const likedUsers = await context.prisma.artist
+        const likedUsers = await context.prisma.creator
           .findUnique({
             where: {
               id: parent.id,
@@ -71,7 +74,7 @@ export const Artist = objectType({
           })
           .likedUser()
           .then((el) => {
-            return el.map((data) => data.UserId);
+            return el.map((data) => data.userId);
           });
         return await context.prisma.user.findMany({
           where: {
@@ -89,7 +92,7 @@ export const Artist = objectType({
         if (!userId) {
           return false;
         }
-        const likedUsers = await context.prisma.artist
+        const likedUsers = await context.prisma.creator
           .findUnique({
             where: {
               id: parent.id,
@@ -97,7 +100,7 @@ export const Artist = objectType({
           })
           .likedUser()
           .then((el) => {
-            return el.map((data) => data.UserId);
+            return el.map((data) => data.userId);
           });
         return likedUsers.includes(userId!);
       },
@@ -105,20 +108,20 @@ export const Artist = objectType({
   },
 });
 
-export const ArtistQuery = extendType({
+export const CreatorQuery = extendType({
   type: "Query",
   definition(t) {
-    t.field("artist", {
-      type: "Artist",
+    t.field("creator", {
+      type: "Creator",
       args: {
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
-        return await context.prisma.artist.findUnique({ where: { id } });
+        return await context.prisma.creator.findUnique({ where: { id } });
       },
     });
-    t.nonNull.list.nonNull.field("artists", {
-      type: "Artist",
+    t.nonNull.list.nonNull.field("creators", {
+      type: "Creator",
       args: {
         skip: intArg(),
         take: intArg(),
@@ -126,7 +129,7 @@ export const ArtistQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator(args.sort);
-        return await context.prisma.artist.findMany({
+        return await context.prisma.creator.findMany({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
           orderBy,
@@ -136,19 +139,19 @@ export const ArtistQuery = extendType({
   },
 });
 
-export const AritstMutation = extendType({
+export const CreatorMutation = extendType({
   type: "Mutation",
   definition(t) {
-    t.field("likeArtist", {
-      type: "Artist",
+    t.field("likeCreator", {
+      type: "Creator",
       args: {
         id: nonNull(intArg()),
       },
       async resolve(parent, { id }, context, info) {
         const { userId } = context;
         const where = { id };
-        const updateLikedArtist = async (likedUser: any) => {
-          return await context.prisma.artist.update({
+        const updateLikedCreator = async (likedUser: any) => {
+          return await context.prisma.creator.update({
             where,
             data: {
               likedUser,
@@ -157,10 +160,10 @@ export const AritstMutation = extendType({
         };
 
         if (!userId) {
-          throw new Error("Cannot liked Artist without signing in.");
+          throw new Error("Cannot liked Creator without signing in.");
         }
 
-        const userLikedInFunding = await context.prisma.artist.findUnique({
+        const userLikedInFunding = await context.prisma.creator.findUnique({
           where,
           select: {
             likedUser: true,
@@ -168,67 +171,54 @@ export const AritstMutation = extendType({
         });
 
         const isExist = userLikedInFunding?.likedUser.every((el) => {
-          return el.UserId !== userId;
+          return el.userId !== userId;
         });
 
         let likedUser: any = {
           delete: {
-            artistId_UserId: {
-              artistId: id,
-              UserId: userId,
+            creatorId_userId: {
+              creatorId: id,
+              userId: userId,
             },
           },
         };
         if (isExist) {
           likedUser = {
             create: {
-              UserId: userId,
+              userId: userId,
             },
           };
         }
-        return await updateLikedArtist(likedUser);
+        return await updateLikedCreator(likedUser);
       },
     });
-    t.field("createArtist", {
-      type: "Artist",
+    t.field("createCreator", {
+      type: "Creator",
       args: {
         name: nonNull(stringArg()),
         age: nonNull(intArg()),
-        biography: nonNull(stringArg()),
-        investmentPoint: list(nonNull(ArtistInvestmentPoint)),
       },
-      async resolve(
-        parent,
-        { name, age, biography, investmentPoint },
-        context,
-        info
-      ) {
+      async resolve(parent, { name, age }, context, info) {
         if (context.userRole !== "ADMIN") {
-          throw new Error("Only the administrator can create artist.");
+          throw new Error("Only the administrator can create creator.");
         }
 
-        return await context.prisma.artist.create({
+        return await context.prisma.creator.create({
           data: {
             name,
             age,
-            biography,
-            artistInvestmentPoint: {
-              createMany: {
-                data: investmentPoint!,
-              },
-            },
           },
         });
       },
     });
-    t.field("updateArtist", {
-      type: "Artist",
+    t.field("updateCreator", {
+      type: "Creator",
       args: {
         id: nonNull(intArg()),
         name: stringArg(),
         age: intArg(),
         biography: stringArg(),
-        investmentPoint: list(nonNull(ArtistInvestmentPoint)),
+        investmentPoint: list(nonNull(CreatorInvestmentPoint)),
       },
       async resolve(
         parent,
@@ -237,20 +227,15 @@ export const AritstMutation = extendType({
         info
       ) {
         if (context.userRole !== "ADMIN") {
-          throw new Error("Only the administrator can update artist.");
+          throw new Error("Only the administrator can update creator.");
         }
         const variables = makeVariables({ name, age, biography });
 
-        return await context.prisma.artist.update({
+        return await context.prisma.creator.update({
           where: {
             id,
           },
           data: {
-            artistInvestmentPoint: {
-              createMany: {
-                data: investmentPoint!,
-              },
-            },
             ...variables,
           },
         });
