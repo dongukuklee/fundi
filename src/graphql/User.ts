@@ -51,6 +51,23 @@ export const User = objectType({
         );
       },
     });
+    t.list.field("favoriteCreators", {
+      type: "Creator",
+      async resolve(parent, args, context) {
+        const likeCreators = await context.prisma.user
+          .findUnique({ where: { id: parent.id } })
+          .likedCreator();
+
+        const creatorIds = likeCreators.map((el) => el.creatorId);
+        return await Promise.all(
+          creatorIds.map(async (id) => {
+            return await context.prisma.creator.findFirst({
+              where: { id },
+            });
+          })
+        );
+      },
+    });
   },
 });
 
