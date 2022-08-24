@@ -605,7 +605,7 @@ export const FundingMutation = extendType({
       async resolve(parent, { amount, id }, context, info) {
         const funding = await getFunding(context, id);
         const additionalIncome =
-          BigInt(amount) - funding?.contract?.lastYearEarning!;
+          BigInt(amount) - funding?.contract?.lastYearEarning! / BigInt(12);
         const totalAdditionalSettleMentAmount =
           additionalIncome > 0 ? additionalIncome * BigInt(0.24) : 0;
         const amountPerBalance = BigInt(
