@@ -21,3 +21,4 @@ export * from "./QnA";
 export * from "./Notice";
 export * from "./Biography";
 export * from "./CreatorInvestmentPoint";
+export * from "./ContractTypes";

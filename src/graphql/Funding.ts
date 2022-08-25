@@ -1,4 +1,10 @@
-import { AccountBond, FundingStatus, Role, User } from "@prisma/client";
+import {
+  AccountBond,
+  ContractTypes,
+  FundingStatus,
+  Role,
+  User,
+} from "@prisma/client";
 import {
   arg,
   extendType,
@@ -13,6 +19,34 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
+type Invester = User & {
+  accountCash: {
+    id: number;
+    balance: bigint;
+  } | null;
+  accountsBond: (AccountBond & {
+    funding: {
+      title: string;
+    } | null;
+    settlementTransactions: {
+      round: number;
+    }[];
+  })[];
+};
+
+type Funding = {
+  bondPrice: bigint;
+  bondsTotalNumber: bigint;
+  contract: {
+    lastYearEarning: bigint;
+    terms: number;
+    type: ContractTypes;
+  } | null;
+  remainingBonds: bigint;
+  status: FundingStatus;
+  title: string;
+  currentSettlementRound: number;
+};
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
 
@@ -34,6 +68,11 @@ const getInvestor = async (context: Context, fundingId: number) => {
               title: true,
             },
           },
+          settlementTransactions: {
+            select: {
+              round: true,
+            },
+          },
         },
       },
     },
@@ -46,31 +85,70 @@ const getFunding = async (context: Context, fundingId: number) => {
     where: { id: fundingId },
     select: {
       bondsTotalNumber: true,
+      currentSettlementRound: true,
       bondPrice: true,
       status: true,
       title: true,
-      accountsBond: {
-        where: {
-          owner: {
-            role: Role.MANAGER,
-          },
-        },
-        include: {
-          owner: {
-            include: {
-              accountCash: true,
-            },
-          },
-        },
-      },
+      remainingBonds: true,
       contract: {
-        select: { lastYearEarning: true },
+        select: { lastYearEarning: true, terms: true, type: true },
       },
     },
   });
   return funding;
 };
 
+const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
+  const investmentPrice = funding.bondPrice * investor.accountsBond[0].balance;
+  const totalRefundAmount =
+    funding.status === "PRE_CAMPAIGN"
+      ? investmentPrice
+      : BigInt(
+          Math.ceil(
+            ((Number(investmentPrice) *
+              (funding.contract?.terms! - funding.currentSettlementRound)) /
+              funding.contract?.terms!) *
+              0.7
+          )
+        );
+
+  return totalRefundAmount;
+};
+
+const getAmountPerBondWhenLoan = (amount: number, funding: Funding) => {
+  const { bondsTotalNumber } = funding!;
+  const avgIncome = Number(funding?.contract?.lastYearEarning!) / 12;
+  const additionalIncome = amount - avgIncome;
+  const additionalIncomeCheck = additionalIncome > 0;
+  const additionalAmountPerBond = additionalIncomeCheck
+    ? BigInt(Math.floor((additionalIncome * 0.24) / Number(bondsTotalNumber)))
+    : BigInt(0);
+  const amountPerBond = additionalIncomeCheck
+    ? BigInt(Math.ceil((avgIncome * 0.3) / Number(bondsTotalNumber)))
+    : BigInt(Math.ceil((amount * 0.3) / Number(bondsTotalNumber)));
+  return { additionalAmountPerBond, amountPerBond };
+};
+
+const getAmountPerBondWhenOwnershipTransfer = (
+  amount: number,
+  funding: Funding
+) => {
+  const { bondsTotalNumber } = funding!;
+  const amountPerBond = BigInt(
+    Math.ceil((amount * 0.8) / Number(bondsTotalNumber))
+  );
+  return { additionalAmountPerBond: BigInt(0), amountPerBond };
+};
+
+const getAmountPerBond = (amount: number, funding: Funding) => {
+  const { type } = funding.contract!;
+  switch (type) {
+    case "LOANS":
+      return getAmountPerBondWhenLoan(amount, funding);
+    case "OWENERSHIP_TRANSFER":
+      return getAmountPerBondWhenOwnershipTransfer(amount, funding);
+  }
+};
 export const Funding = objectType({
   name: "Funding",
   definition(t) {
@@ -105,28 +183,7 @@ export const Funding = objectType({
     t.dateTime("endDate");
     t.nonNull.bigInt("bondPrice");
     t.nonNull.bigInt("bondsTotalNumber");
-    t.nonNull.field("bondsRemaining", {
-      type: "BigInt",
-      async resolve(parent, args, context, info) {
-        const accountManager = (await context.prisma.accountBond.findFirst({
-          where: {
-            AND: {
-              fundingId: parent.id,
-              owner: {
-                role: Role.MANAGER,
-              },
-            },
-          },
-          select: {
-            balance: true,
-          },
-        })) as AccountBond | undefined;
-        if (!accountManager) {
-          throw new Error("accountManager not found");
-        }
-        return accountManager.balance;
-      },
-    });
+    t.nonNull.bigInt("remainingBonds");
     t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
       async resolve(parent, args, context, info) {
@@ -310,7 +367,7 @@ export const FundingMutation = extendType({
         // 매니저의 채권 정보로 조회한다.
         const funding = await getFunding(context, id);
 
-        if (!funding || !funding.accountsBond) {
+        if (!funding) {
           throw new Error("Invalid funding");
         }
 
@@ -325,7 +382,7 @@ export const FundingMutation = extendType({
           throw new Error("Your account does not have sufficient balance.");
         }
 
-        if (amount > funding.accountsBond[0].balance) {
+        if (BigInt(amount) > funding.remainingBonds) {
           throw new Error("You cannot buy more than the remaining bonds");
         }
 
@@ -351,16 +408,13 @@ export const FundingMutation = extendType({
           throw new Error("Invalid user");
         }
 
-        const accountCashIdInvestor = investor.accountCash?.id;
-        const accountBondIdInvestor = investor.accountsBond[0].id;
-        const accountCashIdManager =
-          funding.accountsBond[0].owner.accountCash?.id;
-        const accountBondIdManager = funding.accountsBond[0].id;
+        const investorAccountCashId = investor.accountCash?.id;
+        const investorAccountBondId = investor.accountsBond[0].id;
 
         await context.prisma.$transaction([
           context.prisma.accountCash.update({
             where: {
-              id: accountCashIdInvestor,
+              id: investorAccountCashId,
             },
             data: {
               balance: {
@@ -369,7 +423,7 @@ export const FundingMutation = extendType({
               transactions: {
                 create: {
                   amount: investmentPrice,
-                  title: "구매",
+                  title: `${funding.title} 펀딩 참여`,
                   type: TransactionType.WITHDRAW,
                   accumulatedCash:
                     investor.accountCash?.balance! - investmentPrice,
@@ -379,44 +433,7 @@ export const FundingMutation = extendType({
           }),
           context.prisma.accountBond.update({
             where: {
-              id: accountBondIdManager,
-            },
-            data: {
-              balance: {
-                decrement: amount,
-              },
-              transactions: {
-                create: {
-                  amount: amount,
-                  title: "매도",
-                  type: TransactionType.WITHDRAW,
-                },
-              },
-            },
-          }),
-          context.prisma.accountCash.update({
-            where: {
-              id: accountCashIdManager,
-            },
-            data: {
-              balance: {
-                increment: investmentPrice,
-              },
-              transactions: {
-                create: {
-                  amount: investmentPrice,
-                  title: "판매",
-                  type: TransactionType.DEPOSIT,
-                  accumulatedCash:
-                    funding.accountsBond[0].owner.accountCash?.balance! +
-                    investmentPrice,
-                },
-              },
-            },
-          }),
-          context.prisma.accountBond.update({
-            where: {
-              id: accountBondIdInvestor,
+              id: investorAccountBondId,
             },
             data: {
               balance: {
@@ -425,9 +442,19 @@ export const FundingMutation = extendType({
               transactions: {
                 create: {
                   amount: amount,
-                  title: "매수",
+                  title: `${funding.title} 펀딩 참여`,
                   type: TransactionType.DEPOSIT,
                 },
+              },
+            },
+          }),
+          context.prisma.funding.update({
+            where: {
+              id,
+            },
+            data: {
+              remainingBonds: {
+                decrement: amount,
               },
             },
           }),
@@ -435,7 +462,7 @@ export const FundingMutation = extendType({
 
         return context.prisma.accountBond.findUnique({
           where: {
-            id: accountBondIdInvestor,
+            id: investorAccountBondId,
           },
           include: {
             transactions: {
@@ -457,7 +484,6 @@ export const FundingMutation = extendType({
           throw new Error("Cannot withdraw in a funding without signing in.");
         }
         let investor = await getInvestor(context, id);
-
         if (
           !investor ||
           !investor.accountCash ||
@@ -469,54 +495,18 @@ export const FundingMutation = extendType({
         // 펀드 조회
         const funding = await getFunding(context, id);
 
-        if (!funding || !funding.accountsBond) {
+        if (!funding) {
           throw new Error("Invalid funding");
         }
 
-        const accountCashIdInvestor = investor.accountCash?.id;
-        const accountCashIdManager =
-          funding.accountsBond[0].owner.accountCash?.id;
+        const investorAccountCashId = investor.accountCash?.id;
         const accountBondInvestor = investor.accountsBond[0];
-        const accountBondManager = funding.accountsBond[0];
-        let totalAmount: bigint, fee: bigint;
-        if (funding.status === "PRE_CAMPAIGN") {
-          //펀딩 시작 전 환불금액 100%
-          totalAmount = funding.bondPrice * investor.accountsBond[0].balance;
-          fee = BigInt(0);
-        } else {
-          const settlementedAmount =
-            await context.prisma.transactionSettlement.findMany({
-              where: {
-                AND: [
-                  {
-                    accountId: investor.accountsBond[0].id,
-                    account: {
-                      fundingId: id,
-                    },
-                  },
-                ],
-              },
-            });
 
-          //펀딩 정산 금액.
-          const totalSettlementedAmount = settlementedAmount.reduce(
-            (acc, cur) => acc + cur.settlementAmount,
-            BigInt(0)
-          );
-          //환불 금액 (투자 원금 - 총 정산 금액)
-          totalAmount =
-            funding.bondPrice * investor.accountsBond[0].balance -
-            totalSettlementedAmount;
-          fee = (totalAmount / BigInt(10)) * BigInt(3);
-        }
-
-        //수수료  (투자 원금 - 총 정산 금액) 의 30%
-        const totalRefundAmount = totalAmount - fee;
-        //총 환불금액 (투자 원금 - 총 정산 금액) - 수수료
+        const totalRefundAmount = getTotalRefundAmount(investor, funding);
 
         const investorAccountCashUpdate = context.prisma.accountCash.update({
           where: {
-            id: accountCashIdInvestor,
+            id: investorAccountCashId,
           },
           data: {
             balance: {
@@ -551,42 +541,9 @@ export const FundingMutation = extendType({
           },
         });
 
-        const managerAccountCashUpdate = context.prisma.accountCash.update({
-          where: { id: accountCashIdManager },
-          data: {
-            balance: { decrement: totalRefundAmount },
-            transactions: {
-              create: {
-                amount: totalRefundAmount,
-                title: `${investor.name}님의 ${accountBondInvestor.funding?.title} 펀딩 취소 환불 금액`,
-                type: "WITHDRAW",
-                accumulatedCash:
-                  funding.accountsBond[0].owner.accountCash?.balance! -
-                  totalRefundAmount,
-              },
-            },
-          },
-        });
-        const managerAccountBondUpdate = context.prisma.accountBond.update({
-          where: { id: accountBondManager.id },
-          data: {
-            balance: {
-              increment: accountBondInvestor.balance,
-            },
-            transactions: {
-              create: {
-                amount: accountBondInvestor.balance,
-                title: `${investor.name}님의 ${accountBondInvestor.funding?.title} 펀딩 취소 채권`,
-                type: "DEPOSIT",
-              },
-            },
-          },
-        });
         const withdrawFundingTransactions = [
           investorAccountCashUpdate,
           investorAccountBondUpdate,
-          managerAccountCashUpdate,
-          managerAccountBondUpdate,
         ];
 
         await context.prisma.$transaction(withdrawFundingTransactions);
@@ -604,14 +561,11 @@ export const FundingMutation = extendType({
       },
       async resolve(parent, { amount, id }, context, info) {
         const funding = await getFunding(context, id);
-        const additionalIncome =
-          BigInt(amount) - funding?.contract?.lastYearEarning! / BigInt(12);
-        const totalAdditionalSettleMentAmount =
-          additionalIncome > 0 ? additionalIncome * BigInt(0.24) : 0;
-        const amountPerBalance = BigInt(
-          Math.ceil(amount / Number(funding?.bondsTotalNumber))
-        );
 
+        const { additionalAmountPerBond, amountPerBond } = getAmountPerBond(
+          amount,
+          funding!
+        );
         const FundingParticipantsAccountBond =
           await context.prisma.accountBond.findMany({
             select: {
@@ -625,8 +579,7 @@ export const FundingMutation = extendType({
             },
           });
 
-        const round =
-          FundingParticipantsAccountBond[0].settlementTransactions.length;
+        const round = funding?.currentSettlementRound!;
         const settlementTransaction: any = [];
 
         for (const participant of FundingParticipantsAccountBond) {
@@ -638,11 +591,11 @@ export const FundingMutation = extendType({
               },
             });
 
-          const settlementAmount = participant.balance * amountPerBalance;
-          const additionalSettleMentAmount = settlementAmount / BigInt(10);
+          const settlementAmount = participant.balance * amountPerBond;
+          const additionalSettleMentAmount =
+            participant.balance * additionalAmountPerBond;
           const totalSettlementedAmount =
             settlementAmount + additionalSettleMentAmount;
-
           settlementTransaction.push(
             context.prisma.user.update({
               where: {
@@ -690,7 +643,16 @@ export const FundingMutation = extendType({
         }
 
         await context.prisma.$transaction(settlementTransaction);
-        return await context.prisma.funding.findUnique({ where: { id } });
+        return await context.prisma.funding.update({
+          where: {
+            id,
+          },
+          data: {
+            currentSettlementRound: {
+              increment: 1,
+            },
+          },
+        });
       },
     });
     t.field("likeFunding", {

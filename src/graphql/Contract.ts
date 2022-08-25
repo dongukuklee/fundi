@@ -6,6 +6,7 @@ export const Contract = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
+    t.nonNull.field("type", { type: "ContractTypes" });
     t.field("funding", {
       type: "Funding",
       resolve(parent, args, context, info) {
@@ -15,7 +16,7 @@ export const Contract = objectType({
       },
     });
     t.nonNull.bigInt("lastYearEarning");
-    t.nonNull.bigInt("loan");
+    t.nonNull.bigInt("amountRecieved");
     t.nonNull.int("terms");
     t.nonNull.dateTime("startDate");
     t.nonNull.dateTime("endDate");
