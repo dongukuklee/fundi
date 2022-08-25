@@ -126,8 +126,10 @@ model Funding {
   contract         Contract?
   startDate        DateTime?
   endDate          DateTime?
+  currentSettlementRound Int     @default(0)
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
+  remainingBonds   BigInt        @default(10000)
   accountsBond     AccountBond[]  
 }
 
@@ -174,10 +176,16 @@ model Contract {
   funding                Funding? @relation(fields: [fundingId], references: [id])
   fundingId              Int      @unique 
   lastYearEarning        BigInt
-  loan                   BigInt
+  amountRecieved                   BigInt
+  type                   ContractTypes @default(LOANS)
   terms                  Int      @default(12)
   startDate              DateTime
   endDate                DateTime
+}
+
+enum ContractTypes {
+  OWENERSHIP_TRANSFER
+  LOANS
 }
 
 model Artwork {
@@ -196,8 +204,8 @@ model TransactionSettlement{
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
   account                    AccountBond     @relation(fields: [accountId], references: [id])
-  accountId                  Int
-  round                      Int  
+  accountId                  Int    
+  round                      Int    
   settlementAmount           BigInt  
   additionalSettleMentAmount BigInt  
 }

@@ -44,6 +44,7 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
+  ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
@@ -94,13 +95,14 @@ export interface NexusGenObjects {
     year: number; // Int!
   }
   Contract: { // root type
+    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
-    loan: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
     terms: number; // Int!
+    type: NexusGenEnums['ContractTypes']; // ContractTypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Creator: { // root type
@@ -117,6 +119,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate?: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
+    remainingBonds: NexusGenScalars['BigInt']; // BigInt!
     startDate?: NexusGenScalars['DateTime'] | null; // DateTime
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
@@ -242,14 +245,15 @@ export interface NexusGenFieldTypes {
     year: number; // Int!
   }
   Contract: { // field return type
+    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
-    loan: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
     terms: number; // Int!
+    type: NexusGenEnums['ContractTypes']; // ContractTypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Creator: { // field return type
@@ -267,7 +271,6 @@ export interface NexusGenFieldTypes {
     accountInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
-    bondsRemaining: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -276,6 +279,7 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
+    remainingBonds: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime'] | null; // DateTime
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
@@ -380,6 +384,7 @@ export interface NexusGenFieldTypes {
     auth: NexusGenRootTypes['Auth'] | null; // Auth
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
+    favoriteCreators: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     favoriteFundings: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     id: number; // Int!
     name: string | null; // String
@@ -439,14 +444,15 @@ export interface NexusGenFieldTypeNames {
     year: 'Int'
   }
   Contract: { // field return type name
+    amountRecieved: 'BigInt'
     createdAt: 'DateTime'
     endDate: 'DateTime'
     funding: 'Funding'
     id: 'Int'
     lastYearEarning: 'BigInt'
-    loan: 'BigInt'
     startDate: 'DateTime'
     terms: 'Int'
+    type: 'ContractTypes'
     updatedAt: 'DateTime'
   }
   Creator: { // field return type name
@@ -464,7 +470,6 @@ export interface NexusGenFieldTypeNames {
     accountInvestor: 'AccountBond'
     accountManager: 'AccountBond'
     bondPrice: 'BigInt'
-    bondsRemaining: 'BigInt'
     bondsTotalNumber: 'BigInt'
     contract: 'Contract'
     createdAt: 'DateTime'
@@ -473,6 +478,7 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     isLikedUser: 'Boolean'
     likedUser: 'User'
+    remainingBonds: 'BigInt'
     startDate: 'DateTime'
     status: 'FundingStatus'
     title: 'String'
@@ -577,6 +583,7 @@ export interface NexusGenFieldTypeNames {
     auth: 'Auth'
     createdAt: 'DateTime'
     email: 'String'
+    favoriteCreators: 'Creator'
     favoriteFundings: 'Funding'
     id: 'Int'
     name: 'String'
