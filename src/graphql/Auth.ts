@@ -1,20 +1,15 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import { send_gmail } from "../../utils/auth";
 import { getString, setString } from "../../utils/redis/ctrl";
 import { Context } from "../context";
+import { User } from "@prisma/client";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
-const isEmailExist = async (email: string, context: Context) => {
-  const auth = await getAuthByEmail(context.prisma, email);
-  if (auth) {
-    return true;
-  }
-  return false;
+const getTokenAndUser = (user: User) => {
+  const token = jwt.sign({ userId: user.id, userRole: user.role }, APP_SECRET);
+  return { token, user };
 };
-
 const getAuthIdByuserId = async (context: Context) => {
   const user = await context.prisma.user.findUnique({
     select: {
@@ -26,16 +21,6 @@ const getAuthIdByuserId = async (context: Context) => {
   });
 
   return user?.authId;
-};
-
-const getAuthByEmail = async (prisma: any, email: string) => {
-  {
-    return await prisma.auth.findUnique({
-      where: {
-        email,
-      },
-    });
-  }
 };
 
 export const Auth = objectType({
@@ -128,18 +113,17 @@ export const AuthMutation = extendType({
       type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
-        password: nonNull(stringArg()),
+        nickName: stringArg(),
       },
       async resolve(parent, args, context, info) {
-        const { email } = args;
-        const password = await bcrypt.hash(args.password, 10);
+        const { email, nickName } = args;
         const user = await context.prisma.user.create({
           data: {
             email,
             auth: {
               create: {
                 email,
-                password,
+                name: nickName,
               },
             },
             accountCash: {
@@ -159,9 +143,9 @@ export const AuthMutation = extendType({
       type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
-        password: nonNull(stringArg()),
       },
       async resolve(parent, args, context, info) {
+        let token;
         const auth = await context.prisma.auth.findUnique({
           where: {
             email: args.email,
@@ -170,45 +154,63 @@ export const AuthMutation = extendType({
             user: {},
           },
         });
+
         if (!auth) {
           throw new Error("No such user found");
+        } else {
+          token = jwt.sign(
+            {
+              userId: auth.user?.id,
+              userRole: auth.user?.role,
+            },
+            APP_SECRET
+          );
         }
-        const valid = await bcrypt.compare(args.password, auth.password);
-        if (!valid) {
-          throw new Error("Invalid password");
-        }
-        const token = jwt.sign(
-          {
-            userId: auth.user?.id,
-            userRole: auth.user?.role,
-          },
-          APP_SECRET
-        );
+
         return {
           token,
           user: auth.user!,
         };
       },
     });
-    t.field("emailAuthentication", {
-      type: "Boolean",
+    t.field("OAuthLogin", {
+      type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
+        nickName: stringArg(),
+        type: stringArg(),
       },
-      async resolve(parent, { email }, context, info) {
-        const EmailExist = await isEmailExist(email, context);
-        if (EmailExist) {
-          return false;
+      async resolve(parent, { email, nickName, type }, context, info) {
+        let user;
+        const parsedEmail = `${email}:${type}`;
+        const auth = await context.prisma.auth.findUnique({
+          where: {
+            email: parsedEmail,
+          },
+          include: {
+            user: {},
+          },
+        });
+        if (!auth) {
+          user = await context.prisma.user.create({
+            data: {
+              email: parsedEmail,
+              name: nickName,
+              auth: {
+                create: {
+                  email: parsedEmail,
+                  name: nickName,
+                },
+              },
+              accountCash: {
+                create: {},
+              },
+            },
+          });
+          return getTokenAndUser(user);
         }
-        const verificationCode = String(Math.floor(Math.random() * 1000000));
-        try {
-          send_gmail({ email, verificationCode });
-        } catch (error) {
-          console.log(error);
-          throw new Error("sending email failed");
-        }
-        await setString(email, verificationCode, 300);
-        return true;
+        user = auth.user!;
+        return getTokenAndUser(user);
       },
     });
     t.field("createPincode", {
@@ -291,46 +293,6 @@ export const AuthMutation = extendType({
         });
 
         return "pincode has been changed successfully";
-      },
-    });
-    t.field("updateUserPassword", {
-      type: "String",
-      args: {
-        password: nonNull(stringArg()),
-      },
-      async resolve(parent, { password }, context, info) {
-        const { userId } = context;
-        if (!userId) {
-          throw new Error("Cannot update password without signing in.");
-        }
-        const auth = await context.prisma.auth.findFirst({
-          where: { user: { id: userId } },
-        });
-        if (!auth) {
-          throw new Error("No such user found");
-        }
-
-        const valid = await bcrypt.compare(password, auth?.password);
-        if (!valid) {
-          throw new Error("Invalid password");
-        }
-
-        const newPassword = await bcrypt.hash(password, 10);
-
-        try {
-          await context.prisma.auth.update({
-            where: {
-              id: auth.id,
-            },
-            data: {
-              password: newPassword,
-            },
-          });
-
-          return `password has been changed successfully `;
-        } catch (error) {
-          throw new Error(`${error}`);
-        }
       },
     });
     t.field("registerWithdrawalAccount", {
