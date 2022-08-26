@@ -293,13 +293,13 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
+    OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
-    emailAuthentication: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -313,7 +313,6 @@ export interface NexusGenFieldTypes {
     updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
     updatePincode: string | null; // String
     updateQuestion: NexusGenRootTypes['QnA'] | null; // QnA
-    updateUserPassword: string | null; // String
     withdrawFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
   }
   Notice: { // field return type
@@ -492,13 +491,13 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     IDVerification: 'Auth'
+    OAuthLogin: 'AuthPayload'
     chargeTheDeposit: 'AccountCash'
     createCreator: 'Creator'
     createFunding: 'Funding'
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
-    emailAuthentication: 'Boolean'
     fundingSettlement: 'Funding'
     likeCreator: 'Creator'
     likeFunding: 'Funding'
@@ -512,7 +511,6 @@ export interface NexusGenFieldTypeNames {
     updateNotice: 'Notice'
     updatePincode: 'String'
     updateQuestion: 'QnA'
-    updateUserPassword: 'String'
     withdrawFunding: 'AccountBond'
   }
   Notice: { // field return type name
@@ -604,6 +602,11 @@ export interface NexusGenArgTypes {
     IDVerification: { // args
       phoneNumber: string; // String!
     }
+    OAuthLogin: { // args
+      email: string; // String!
+      nickName?: string | null; // String
+      type?: string | null; // String
+    }
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
@@ -629,9 +632,6 @@ export interface NexusGenArgTypes {
       title: string; // String!
       type: NexusGenEnums['QnATypes']; // QnATypes!
     }
-    emailAuthentication: { // args
-      email: string; // String!
-    }
     fundingSettlement: { // args
       amount: number; // Int!
       id: number; // Int!
@@ -656,11 +656,10 @@ export interface NexusGenArgTypes {
     }
     signin: { // args
       email: string; // String!
-      password: string; // String!
     }
     signup: { // args
       email: string; // String!
-      password: string; // String!
+      nickName?: string | null; // String
     }
     updateCreator: { // args
       age?: number | null; // Int
@@ -691,9 +690,6 @@ export interface NexusGenArgTypes {
       id: number; // Int!
       title?: string | null; // String
       type?: NexusGenEnums['QnATypes'] | null; // QnATypes
-    }
-    updateUserPassword: { // args
-      password: string; // String!
     }
     withdrawFunding: { // args
       id: number; // Int!

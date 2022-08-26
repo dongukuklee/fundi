@@ -15,7 +15,6 @@ model Auth {
   updatedAt DateTime @updatedAt
   email     String   @unique
   name      String?
-  password  String   
   pincode   String? 
   user      User?
   IDVerification IDVerification?

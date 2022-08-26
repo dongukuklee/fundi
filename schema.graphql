@@ -133,27 +133,26 @@ type IDVerification {
 
 type Mutation {
   IDVerification(phoneNumber: String!): Auth
+  OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
   createCreator(age: Int!, name: String!): Creator
   createFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, intro: String = "", title: String!): Funding
   createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String
   createQnA(content: String!, title: String!, type: QnATypes!): QnA
-  emailAuthentication(email: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
   registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
   replyQueation(id: Int!, reply: String!): QnA
-  signin(email: String!, password: String!): AuthPayload!
-  signup(email: String!, password: String!): AuthPayload!
+  signin(email: String!): AuthPayload!
+  signup(email: String!, nickName: String): AuthPayload!
   updateCreator(age: Int, biography: String, id: Int!, investmentPoint: [CreatorInvestmentPoint!], name: String): Creator
   updateFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, id: Int!, intro: String, status: FundingStatus, title: String): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!, previousPincode: String!): String
   updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
-  updateUserPassword(password: String!): String
   withdrawFunding(id: Int!): AccountBond
 }
 
