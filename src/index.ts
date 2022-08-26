@@ -48,7 +48,7 @@ export const server = new ApolloServer({
     ApolloServerPluginLandingPageGraphQLPlayground(),
   ],
 });
-const port = 3000;
+const port = 8080;
 (async () => {
   await server.start();
   await server.applyMiddleware({ app, path: "/" });
