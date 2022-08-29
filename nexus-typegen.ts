@@ -246,6 +246,7 @@ export interface NexusGenFieldTypes {
   }
   Contract: { // field return type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
+    createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -444,6 +445,7 @@ export interface NexusGenFieldTypeNames {
   }
   Contract: { // field return type name
     amountRecieved: 'BigInt'
+    createContract: 'Contract'
     createdAt: 'DateTime'
     endDate: 'DateTime'
     funding: 'Funding'
@@ -598,6 +600,14 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
+  Contract: {
+    createContract: { // args
+      endDate: string; // String!
+      lastYearEarning: number; // Int!
+      startDate: string; // String!
+      terms: number | null; // Int
+    }
+  }
   Mutation: {
     IDVerification: { // args
       phoneNumber: string; // String!
@@ -683,7 +693,6 @@ export interface NexusGenArgTypes {
     }
     updatePincode: { // args
       followingPincode: string; // String!
-      previousPincode: string; // String!
     }
     updateQuestion: { // args
       content?: string | null; // String

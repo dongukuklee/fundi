@@ -244,45 +244,16 @@ export const AuthMutation = extendType({
     t.field("updatePincode", {
       type: "String",
       args: {
-        previousPincode: nonNull(stringArg()),
         followingPincode: nonNull(stringArg()),
       },
-      async resolve(
-        parent,
-        { previousPincode, followingPincode },
-        context,
-        info
-      ) {
+      async resolve(parent, { followingPincode }, context, info) {
         const { userId } = context;
         if (!userId) {
           throw new Error(
             "Cannot inquiry the transactions of the account without signing in."
           );
         }
-        await context.prisma.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            auth: {
-              update: {},
-            },
-          },
-        });
         const authId = await getAuthIdByuserId(context);
-        const pincodeValidation = await context.prisma.auth.findFirst({
-          where: {
-            AND: {
-              id: authId,
-              pincode: previousPincode,
-            },
-          },
-        });
-
-        if (!pincodeValidation) {
-          throw new Error("pincode does not matching");
-        }
-
         await context.prisma.auth.update({
           where: {
             id: authId,

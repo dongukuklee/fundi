@@ -56,6 +56,7 @@ type Biography {
 
 type Contract {
   amountRecieved: BigInt!
+  createContract(endDate: String!, lastYearEarning: Int!, startDate: String!, terms: Int = 12): Contract
   createdAt: DateTime!
   endDate: DateTime!
   funding: Funding
@@ -151,7 +152,7 @@ type Mutation {
   updateCreator(age: Int, biography: String, id: Int!, investmentPoint: [CreatorInvestmentPoint!], name: String): Creator
   updateFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, id: Int!, intro: String, status: FundingStatus, title: String): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
-  updatePincode(followingPincode: String!, previousPincode: String!): String
+  updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
   withdrawFunding(id: Int!): AccountBond
 }
