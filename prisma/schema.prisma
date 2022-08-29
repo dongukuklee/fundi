@@ -113,18 +113,47 @@ model TransactionBond {
   type      TransactionType
 }
 
+model Creator{
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String
+  description String @default("")
+  age       Int?  
+  biography Biography[]
+  fundings CreatorOnFundings[]
+  contract Contract[]
+  likedUser    CreatorOnUser[]
+}
+
+model Contract {
+  id                     Int      @id @default(autoincrement())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt  
+  lastYearEarning        BigInt
+  amountRecieved         BigInt
+  funding                Funding?
+  type                   ContractTypes @default(LOANS)
+  terms                  Int      @default(12)
+  creator           Creator     @relation(fields: [creatorId], references: [id])
+  creatorId         Int
+  startDate              DateTime
+  endDate                DateTime
+}
+
 model Funding {
   id               Int           @id @default(autoincrement())
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
-  intro            String        @default("")       
+  intro            String        @default("")      
+  contract         Contract      @relation(fields: [contractId], references: [id])
+  contractId       Int           @unique
   creator CreatorOnFundings[]
-  likedUser        FundingOnUser[]
-  contract         Contract?
-  startDate        DateTime?
-  endDate          DateTime?
+  likedUser        FundingOnUser[]  
+  startDate        DateTime
+  endDate          DateTime
   currentSettlementRound Int     @default(0)
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
@@ -143,18 +172,6 @@ enum FundingStatus {
 }
 
 
-model Creator{
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  name      String
-  description String @default("")
-  age       Int?  
-  biography Biography[]
-  fundings CreatorOnFundings[]
-  likedUser    CreatorOnUser[]
-}
-
 
 model Biography{
   id        Int       @id @default(autoincrement())
@@ -166,21 +183,6 @@ model Biography{
   creatorId         Int
 }
 
-
-
-model Contract {
-  id                     Int      @id @default(autoincrement())
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  funding                Funding? @relation(fields: [fundingId], references: [id])
-  fundingId              Int      @unique 
-  lastYearEarning        BigInt
-  amountRecieved         BigInt
-  type                   ContractTypes @default(LOANS)
-  terms                  Int?      @default(12)
-  startDate              DateTime
-  endDate                DateTime
-}
 
 enum ContractTypes {
   OWENERSHIP_TRANSFER

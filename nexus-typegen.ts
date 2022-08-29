@@ -37,8 +37,23 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  ContranctInput: { // input type
+    endDate: string; // String!
+    lastYearEarning: number; // Int!
+    startDate: string; // String!
+    terms: number; // Int!
+    type: NexusGenEnums['ContractTypes']; // ContractTypes!
+  }
   CreatorInvestmentPoint: { // input type
     status: string; // String!
+    title: string; // String!
+  }
+  FundingInput: { // input type
+    bondPrice: number; // Int!
+    bondsTotalNumber: number; // Int!
+    endDate: string; // String!
+    startDate: string; // String!
+    status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
   }
 }
@@ -246,7 +261,6 @@ export interface NexusGenFieldTypes {
   }
   Contract: { // field return type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
-    createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -273,7 +287,6 @@ export interface NexusGenFieldTypes {
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
-    contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
@@ -296,8 +309,8 @@ export interface NexusGenFieldTypes {
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
-    createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
@@ -445,7 +458,6 @@ export interface NexusGenFieldTypeNames {
   }
   Contract: { // field return type name
     amountRecieved: 'BigInt'
-    createContract: 'Contract'
     createdAt: 'DateTime'
     endDate: 'DateTime'
     funding: 'Funding'
@@ -472,7 +484,6 @@ export interface NexusGenFieldTypeNames {
     accountManager: 'AccountBond'
     bondPrice: 'BigInt'
     bondsTotalNumber: 'BigInt'
-    contract: 'Contract'
     createdAt: 'DateTime'
     creator: 'Creator'
     endDate: 'DateTime'
@@ -495,8 +506,8 @@ export interface NexusGenFieldTypeNames {
     IDVerification: 'Auth'
     OAuthLogin: 'AuthPayload'
     chargeTheDeposit: 'AccountCash'
+    createContract: 'Contract'
     createCreator: 'Creator'
-    createFunding: 'Funding'
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
@@ -600,14 +611,6 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
-  Contract: {
-    createContract: { // args
-      endDate: string; // String!
-      lastYearEarning: number; // Int!
-      startDate: string; // String!
-      terms: number | null; // Int
-    }
-  }
   Mutation: {
     IDVerification: { // args
       phoneNumber: string; // String!
@@ -620,15 +623,13 @@ export interface NexusGenArgTypes {
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
+    createContract: { // args
+      contractInput?: NexusGenInputs['ContranctInput'] | null; // ContranctInput
+      fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
+    }
     createCreator: { // args
       age: number; // Int!
       name: string; // String!
-    }
-    createFunding: { // args
-      bondPrice: number | null; // Int
-      bondsTotalNumber: number | null; // Int
-      intro?: string | null; // String
-      title: string; // String!
     }
     createNotice: { // args
       content: string; // String!
