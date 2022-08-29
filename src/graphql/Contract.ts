@@ -1,4 +1,24 @@
-import { objectType, intArg, stringArg, nonNull, arg } from "nexus";
+import { ContractTypes } from "@prisma/client";
+import {
+  objectType,
+  intArg,
+  stringArg,
+  nonNull,
+  extendType,
+  arg,
+  inputObjectType,
+} from "nexus";
+
+export const ContranctInput = inputObjectType({
+  name: "ContranctInput",
+  definition(t) {
+    t.nonNull.int("lastYearEarning");
+    t.nonNull.int("terms");
+    t.nonNull.string("startDate");
+    t.nonNull.string("endDate");
+    t.nonNull.field("type", { type: "ContractTypes" });
+  },
+});
 
 export const Contract = objectType({
   name: "Contract",
@@ -6,7 +26,6 @@ export const Contract = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
-    t.nonNull.field("type", { type: "ContractTypes" });
     t.field("funding", {
       type: "Funding",
       resolve(parent, args, context, info) {
@@ -17,37 +36,59 @@ export const Contract = objectType({
     });
     t.nonNull.bigInt("lastYearEarning");
     t.nonNull.bigInt("amountRecieved");
+    t.nonNull.field("type", { type: "ContractTypes" });
     t.nonNull.int("terms");
     t.nonNull.dateTime("startDate");
     t.nonNull.dateTime("endDate");
+  },
+});
+
+export const ContractMutation = extendType({
+  type: "Mutation",
+  definition(t) {
     t.field("createContract", {
       type: "Contract",
       args: {
-        lastYearEarning: nonNull(intArg()),
-        startDate: nonNull(stringArg()),
-        endDate: nonNull(stringArg()),
-        terms: intArg({ default: 12 }),
+        contractInput: "ContranctInput",
+        fundingInput: "FundingInput",
       },
-      resolve(
-        parent,
-        { lastYearEarning, endDate, startDate, terms },
-        context,
-        info
-      ) {
-        const amountRecieved = lastYearEarning / terms!;
+      resolve(parent, { contractInput, fundingInput }, context, info) {
+        if (!contractInput || !fundingInput) {
+          throw new Error("");
+        }
+        const {
+          lastYearEarning,
+          startDate: contractStartDate,
+          endDate: contractEndDate,
+          terms,
+          type,
+        } = contractInput;
+        const {
+          bondPrice,
+          bondsTotalNumber,
+          startDate: fundingStartDate,
+          endDate: fundingEndDate,
+          title,
+          status,
+        } = fundingInput;
+        const amountRecieved = lastYearEarning / terms;
         return context.prisma.contract.create({
           data: {
-            lastYearEarning: BigInt(lastYearEarning!),
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            lastYearEarning,
+            startDate: new Date(contractStartDate),
+            endDate: new Date(contractEndDate),
             terms,
-            amountRecieved: BigInt(amountRecieved),
-            type: "LOANS",
+            type,
+            amountRecieved,
             funding: {
               create: {
-                title: "1",
-                status: "PRE_CAMPAIGN",
-                currentSettlementRound: 0,
+                title,
+                startDate: new Date(fundingStartDate),
+                endDate: new Date(fundingEndDate),
+                bondPrice,
+                bondsTotalNumber,
+                remainingBonds: bondsTotalNumber,
+                status: status!,
               },
             },
           },

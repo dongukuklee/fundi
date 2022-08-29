@@ -8,6 +8,7 @@ import {
 import {
   arg,
   extendType,
+  inputObjectType,
   intArg,
   list,
   nonNull,
@@ -19,6 +20,21 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
+export const FundingInput = inputObjectType({
+  name: "FundingInput",
+  definition(t) {
+    t.nonNull.field("status", {
+      type: "FundingStatus",
+      default: "PRE_CAMPAIGN",
+    });
+    t.nonNull.string("title");
+    t.nonNull.string("title");
+    t.nonNull.string("startDate");
+    t.nonNull.string("endDate");
+    t.nonNull.int("bondPrice");
+    t.nonNull.int("bondsTotalNumber");
+  },
+});
 type Invester = User & {
   accountCash: {
     id: number;
@@ -41,7 +57,7 @@ type Funding = {
     lastYearEarning: bigint;
     terms: number;
     type: ContractTypes;
-  } | null;
+  };
   remainingBonds: bigint;
   status: FundingStatus;
   title: string;
@@ -95,6 +111,7 @@ const getFunding = async (context: Context, fundingId: number) => {
       },
     },
   });
+
   return funding;
 };
 
@@ -171,14 +188,14 @@ export const Funding = objectType({
         });
       },
     });
-    t.field("contract", {
-      type: "Contract",
-      async resolve(parent, args, context, info) {
-        return await context.prisma.funding
-          .findUnique({ where: { id: parent.id } })
-          .contract();
-      },
-    });
+    // t.field("contract", {
+    //   type: "Contract",
+    //   async resolve(parent, args, context, info) {
+    //     return await context.prisma.funding
+    //       .findUnique({ where: { id: parent.id } })
+    //       .contract();
+    //   },
+    // });
     t.dateTime("startDate");
     t.dateTime("endDate");
     t.nonNull.bigInt("bondPrice");
@@ -705,29 +722,29 @@ export const FundingMutation = extendType({
         return await updateLikedFunding(likedUser);
       },
     });
-    t.field("createFunding", {
-      type: "Funding",
-      args: {
-        title: nonNull(stringArg()),
-        intro: stringArg({ default: "" }),
-        bondPrice: intArg({ default: 10000 }),
-        bondsTotalNumber: intArg({ default: 10000 }),
-      },
-      async resolve(parent, args, context, info) {
-        const fundingVariables = {
-          title: args.title!,
-          intro: args.intro!,
-          bondPrice: args.bondPrice!,
-          bondsTotalNumber: args.bondsTotalNumber!,
-        };
+    // t.field("createFunding", {
+    //   type: "Funding",
+    //   args: {
+    //     title: nonNull(stringArg()),
+    //     intro: stringArg({ default: "" }),
+    //     bondPrice: intArg({ default: 10000 }),
+    //     bondsTotalNumber: intArg({ default: 10000 }),
+    //   },
+    //   async resolve(parent, args, context, info) {
+    //     const fundingVariables = {
+    //       title: args.title!,
+    //       intro: args.intro!,
+    //       bondPrice: args.bondPrice!,
+    //       bondsTotalNumber: args.bondsTotalNumber!,
+    //     };
 
-        return await context.prisma.funding.create({
-          data: {
-            ...fundingVariables,
-          },
-        });
-      },
-    });
+    //     return await context.prisma.funding.create({
+    //       data: {
+    //         ...fundingVariables,
+    //       },
+    //     });
+    //   },
+    // });
     t.field("updateFunding", {
       type: "Funding",
       args: {

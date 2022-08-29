@@ -56,7 +56,6 @@ type Biography {
 
 type Contract {
   amountRecieved: BigInt!
-  createContract(endDate: String!, lastYearEarning: Int!, startDate: String!, terms: Int = 12): Contract
   createdAt: DateTime!
   endDate: DateTime!
   funding: Funding
@@ -72,6 +71,14 @@ type Contract {
 enum ContractTypes {
   LOANS
   OWENERSHIP_TRANSFER
+}
+
+input ContranctInput {
+  endDate: String!
+  lastYearEarning: Int!
+  startDate: String!
+  terms: Int!
+  type: ContractTypes!
 }
 
 type Creator {
@@ -101,7 +108,6 @@ type Funding {
   accountManager: AccountBond
   bondPrice: BigInt!
   bondsTotalNumber: BigInt!
-  contract: Contract
   createdAt: DateTime!
   creator: [Creator]
   endDate: DateTime
@@ -113,6 +119,15 @@ type Funding {
   status: FundingStatus!
   title: String!
   updatedAt: DateTime!
+}
+
+input FundingInput {
+  bondPrice: Int!
+  bondsTotalNumber: Int!
+  endDate: String!
+  startDate: String!
+  status: FundingStatus! = PRE_CAMPAIGN
+  title: String!
 }
 
 """Define funding status"""
@@ -136,8 +151,8 @@ type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
+  createContract(contractInput: ContranctInput, fundingInput: FundingInput): Contract
   createCreator(age: Int!, name: String!): Creator
-  createFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, intro: String = "", title: String!): Funding
   createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String
   createQnA(content: String!, title: String!, type: QnATypes!): QnA
