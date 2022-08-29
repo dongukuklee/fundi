@@ -1,4 +1,4 @@
-import { objectType } from "nexus";
+import { objectType, intArg, stringArg, nonNull, arg } from "nexus";
 
 export const Contract = objectType({
   name: "Contract",
@@ -20,5 +20,39 @@ export const Contract = objectType({
     t.nonNull.int("terms");
     t.nonNull.dateTime("startDate");
     t.nonNull.dateTime("endDate");
+    t.field("createContract", {
+      type: "Contract",
+      args: {
+        lastYearEarning: nonNull(intArg()),
+        startDate: nonNull(stringArg()),
+        endDate: nonNull(stringArg()),
+        terms: intArg({ default: 12 }),
+      },
+      resolve(
+        parent,
+        { lastYearEarning, endDate, startDate, terms },
+        context,
+        info
+      ) {
+        const amountRecieved = lastYearEarning / terms!;
+        return context.prisma.contract.create({
+          data: {
+            lastYearEarning: BigInt(lastYearEarning!),
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            terms,
+            amountRecieved: BigInt(amountRecieved),
+            type: "LOANS",
+            funding: {
+              create: {
+                title: "1",
+                status: "PRE_CAMPAIGN",
+                currentSettlementRound: 0,
+              },
+            },
+          },
+        });
+      },
+    });
   },
 });

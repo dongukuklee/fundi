@@ -175,9 +175,9 @@ model Contract {
   funding                Funding? @relation(fields: [fundingId], references: [id])
   fundingId              Int      @unique 
   lastYearEarning        BigInt
-  amountRecieved                   BigInt
+  amountRecieved         BigInt
   type                   ContractTypes @default(LOANS)
-  terms                  Int      @default(12)
+  terms                  Int?      @default(12)
   startDate              DateTime
   endDate                DateTime
 }
