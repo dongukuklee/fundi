@@ -276,6 +276,7 @@ export interface NexusGenFieldTypes {
   }
   Creator: { // field return type
     age: number | null; // Int
+    contract: Array<NexusGenRootTypes['Contract'] | null> | null; // [Contract]
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     description: string; // String!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
@@ -477,6 +478,7 @@ export interface NexusGenFieldTypeNames {
   }
   Creator: { // field return type name
     age: 'Int'
+    contract: 'Contract'
     createdAt: 'DateTime'
     description: 'String'
     fundings: 'Funding'

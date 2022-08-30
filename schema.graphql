@@ -83,6 +83,7 @@ enum ContractTypes {
 
 type Creator {
   age: Int
+  contract: [Contract]
   createdAt: DateTime!
   description: String!
   fundings: [Funding!]!

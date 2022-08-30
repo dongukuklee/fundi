@@ -49,6 +49,14 @@ export const Creator = objectType({
     t.nonNull.string("name");
     t.nonNull.boolean("isVisible");
     t.nonNull.string("description");
+    t.list.field("contract", {
+      type: "Contract",
+      resolve(parent, args, context, info) {
+        return context.prisma.creator
+          .findUnique({ where: { id: parent.id } })
+          .contract();
+      },
+    });
     t.int("age");
     t.nonNull.list.nonNull.field("fundings", {
       type: "Funding",

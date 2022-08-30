@@ -58,7 +58,8 @@ export const ContractMutation = extendType({
         }
         const { lastYearEarning, startDate, endDate, terms, type } =
           contractInput;
-        const fundingAmount = lastYearEarning * 0.3;
+        const fundingAmount =
+          Math.floor((lastYearEarning * 0.3) / 10000) * 10000;
         const amountRecieved = fundingAmount * 0.9;
 
         return context.prisma.contract.create({
