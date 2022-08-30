@@ -1,5 +1,6 @@
 import {
   arg,
+  booleanArg,
   extendType,
   intArg,
   list,
@@ -10,7 +11,6 @@ import {
 import { TAKE } from "../common/const";
 import { CreatorInvestmentPoint } from "./CreatorInvestmentPoint";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
-import { Biography } from "./Biography";
 
 type updateCreatorVariables = {
   name?: string;
@@ -47,6 +47,7 @@ export const Creator = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("name");
+    t.nonNull.boolean("isVisible");
     t.nonNull.string("description");
     t.int("age");
     t.nonNull.list.nonNull.field("fundings", {
@@ -54,6 +55,7 @@ export const Creator = objectType({
       resolve(parent, args, context, info) {
         return context.prisma.funding.findMany({
           where: {
+            isVisible: true,
             creator: {
               every: {
                 creatorId: parent.id,
@@ -126,6 +128,7 @@ export const CreatorQuery = extendType({
         skip: intArg(),
         take: intArg(),
         sort: stringArg(),
+        isVisible: booleanArg(),
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator(args.sort);
@@ -133,6 +136,7 @@ export const CreatorQuery = extendType({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
           orderBy,
+          where: { isVisible: true },
         });
       },
     });

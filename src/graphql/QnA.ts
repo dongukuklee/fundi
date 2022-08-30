@@ -7,6 +7,7 @@ export const QnA = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
+    t.nonNull.boolean("isVisible");
     t.nonNull.field("type", { type: "QnATypes" });
     t.field("user", {
       type: "User",
