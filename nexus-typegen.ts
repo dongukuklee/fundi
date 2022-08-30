@@ -37,7 +37,7 @@ declare global {
 }
 
 export interface NexusGenInputs {
-  ContranctInput: { // input type
+  ContractInput: { // input type
     endDate: string; // String!
     lastYearEarning: number; // Int!
     startDate: string; // String!
@@ -635,7 +635,7 @@ export interface NexusGenArgTypes {
       amount: number; // Int!
     }
     createContract: { // args
-      contractInput?: NexusGenInputs['ContranctInput'] | null; // ContranctInput
+      contractInput?: NexusGenInputs['ContractInput'] | null; // ContractInput
       creatorId: number; // Int!
     }
     createCreator: { // args

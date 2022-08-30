@@ -9,8 +9,8 @@ import {
   inputObjectType,
 } from "nexus";
 
-export const ContranctInput = inputObjectType({
-  name: "ContranctInput",
+export const ContractInput = inputObjectType({
+  name: "ContractInput",
   definition(t) {
     t.nonNull.int("lastYearEarning");
     t.nonNull.int("terms");
@@ -49,7 +49,7 @@ export const ContractMutation = extendType({
     t.field("createContract", {
       type: "Contract",
       args: {
-        contractInput: "ContranctInput",
+        contractInput: "ContractInput",
         creatorId: nonNull(intArg()),
       },
       resolve(parent, { contractInput, creatorId }, context, info) {
@@ -58,12 +58,6 @@ export const ContractMutation = extendType({
         }
         const { lastYearEarning, startDate, endDate, terms, type } =
           contractInput;
-        // const {
-        //   startDate: fundingStartDate,
-        //   endDate: fundingEndDate,
-        //   title,
-        //   status,
-        // } = fundingInput;
         const fundingAmount = lastYearEarning * 0.3;
         const amountRecieved = fundingAmount * 0.9;
 
