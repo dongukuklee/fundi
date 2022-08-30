@@ -67,18 +67,18 @@ type Contract {
   updatedAt: DateTime!
 }
 
-"""Define ContractStatus"""
-enum ContractTypes {
-  LOANS
-  OWENERSHIP_TRANSFER
-}
-
-input ContranctInput {
+input ContractInput {
   endDate: String!
   lastYearEarning: Int!
   startDate: String!
   terms: Int!
   type: ContractTypes!
+}
+
+"""Define ContractStatus"""
+enum ContractTypes {
+  LOANS
+  OWENERSHIP_TRANSFER
 }
 
 type Creator {
@@ -152,7 +152,7 @@ type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
-  createContract(contractInput: ContranctInput, creatorId: Int!): Contract
+  createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(age: Int!, channelTitle: String!, channelUrl: String!, name: String!): Creator
   createFunding(contractId: Int!, fundingInput: FundingInput): Funding
   createNotice(content: String!, title: String!): Notice

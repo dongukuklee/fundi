@@ -136,7 +136,7 @@ export const CreatorQuery = extendType({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
           orderBy,
-          where: { isVisible: true },
+          //where: { isVisible: true },
         });
       },
     });
