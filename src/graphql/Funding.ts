@@ -28,7 +28,7 @@ export const FundingInput = inputObjectType({
       default: "PRE_CAMPAIGN",
     });
     t.nonNull.string("title");
-    t.nonNull.string("title");
+    t.nonNull.boolean("isVisible");
     t.nonNull.string("startDate");
     t.nonNull.string("endDate");
     t.nonNull.int("bondPrice");

@@ -8,6 +8,7 @@ export const Notice = objectType({
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
+    t.nonNull.boolean("isVisible");
     t.string("title");
     t.string("content");
   },
