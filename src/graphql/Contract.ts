@@ -50,41 +50,29 @@ export const ContractMutation = extendType({
       type: "Contract",
       args: {
         contractInput: "ContranctInput",
-        fundingInput: "FundingInput",
         creatorId: nonNull(intArg()),
       },
-      resolve(
-        parent,
-        { contractInput, fundingInput, creatorId },
-        context,
-        info
-      ) {
-        if (!contractInput || !fundingInput || !creatorId) {
+      resolve(parent, { contractInput, creatorId }, context, info) {
+        if (!contractInput || !creatorId) {
           throw new Error("");
         }
-        const {
-          lastYearEarning,
-          startDate: contractStartDate,
-          endDate: contractEndDate,
-          terms,
-          type,
-        } = contractInput;
-        const {
-          startDate: fundingStartDate,
-          endDate: fundingEndDate,
-          title,
-          status,
-        } = fundingInput;
-        const bondPrice = 10000;
+        const { lastYearEarning, startDate, endDate, terms, type } =
+          contractInput;
+        // const {
+        //   startDate: fundingStartDate,
+        //   endDate: fundingEndDate,
+        //   title,
+        //   status,
+        // } = fundingInput;
         const fundingAmount = lastYearEarning * 0.3;
-        const bondsTotalNumber = fundingAmount / bondPrice;
         const amountRecieved = fundingAmount * 0.9;
 
         return context.prisma.contract.create({
           data: {
             lastYearEarning,
-            startDate: new Date(contractStartDate),
-            endDate: new Date(contractEndDate),
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            fundingAmount,
             terms,
             type,
             creator: {
@@ -93,17 +81,6 @@ export const ContractMutation = extendType({
               },
             },
             amountRecieved,
-            funding: {
-              create: {
-                title,
-                startDate: new Date(fundingStartDate),
-                endDate: new Date(fundingEndDate),
-                bondPrice,
-                bondsTotalNumber,
-                remainingBonds: bondsTotalNumber,
-                status: status!,
-              },
-            },
           },
         });
       },

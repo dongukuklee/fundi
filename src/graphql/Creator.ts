@@ -201,8 +201,15 @@ export const CreatorMutation = extendType({
       args: {
         name: nonNull(stringArg()),
         age: nonNull(intArg()),
+        channelTitle: nonNull(stringArg()),
+        channelUrl: nonNull(stringArg()),
       },
-      async resolve(parent, { name, age }, context, info) {
+      async resolve(
+        parent,
+        { name, age, channelTitle, channelUrl },
+        context,
+        info
+      ) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can create creator.");
         // }
@@ -211,6 +218,8 @@ export const CreatorMutation = extendType({
           data: {
             name,
             age,
+            channelTitle,
+            channelUrl,
           },
         });
       },

@@ -88,6 +88,7 @@ type Creator {
   fundings: [Funding!]!
   id: Int!
   isLikedUser: Boolean
+  isVisible: Boolean!
   likedUser: [User]
   name: String!
   updatedAt: DateTime!
@@ -122,9 +123,9 @@ type Funding {
 }
 
 input FundingInput {
-  bondPrice: Int!
-  bondsTotalNumber: Int!
   endDate: String!
+  intro: String
+  isVisible: Boolean!
   startDate: String!
   status: FundingStatus! = PRE_CAMPAIGN
   title: String!
@@ -151,8 +152,9 @@ type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
-  createContract(contractInput: ContranctInput, creatorId: Int, fundingInput: FundingInput): Contract
-  createCreator(age: Int!, name: String!): Creator
+  createContract(contractInput: ContranctInput, creatorId: Int!): Contract
+  createCreator(age: Int!, channelTitle: String!, channelUrl: String!, name: String!): Creator
+  createFunding(contractId: Int!, fundingInput: FundingInput): Funding
   createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String
   createQnA(content: String!, title: String!, type: QnATypes!): QnA
@@ -176,6 +178,7 @@ type Notice {
   content: String
   createdAt: DateTime!
   id: Int!
+  isVisible: Boolean!
   title: String
   updatedAt: DateTime!
 }
@@ -184,6 +187,7 @@ type QnA {
   content: String
   createdAt: DateTime!
   id: Int!
+  isVisible: Boolean!
   reply: String
   title: String
   type: QnATypes!
@@ -209,7 +213,7 @@ type Query {
   balanceCash: BigInt
   checkPincode(pincode: String!): Boolean
   creator(id: Int!): Creator
-  creators(skip: Int, sort: String, take: Int): [Creator!]!
+  creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
   myFundings(skip: Int, take: Int): [Funding!]!
