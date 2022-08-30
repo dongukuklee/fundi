@@ -31,8 +31,6 @@ export const FundingInput = inputObjectType({
     t.nonNull.boolean("isVisible");
     t.nonNull.string("startDate");
     t.nonNull.string("endDate");
-    t.nonNull.int("bondPrice");
-    t.nonNull.int("bondsTotalNumber");
   },
 });
 type Invester = User & {

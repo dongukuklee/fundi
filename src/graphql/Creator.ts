@@ -203,9 +203,9 @@ export const CreatorMutation = extendType({
         age: nonNull(intArg()),
       },
       async resolve(parent, { name, age }, context, info) {
-        if (context.userRole !== "ADMIN") {
-          throw new Error("Only the administrator can create creator.");
-        }
+        // if (context.userRole !== "ADMIN") {
+        //   throw new Error("Only the administrator can create creator.");
+        // }
 
         return await context.prisma.creator.create({
           data: {
@@ -225,9 +225,9 @@ export const CreatorMutation = extendType({
         investmentPoint: list(nonNull(CreatorInvestmentPoint)),
       },
       async resolve(parent, { id, name, age, biography }, context, info) {
-        if (context.userRole !== "ADMIN") {
-          throw new Error("Only the administrator can update creator.");
-        }
+        // if (context.userRole !== "ADMIN") {
+        //   throw new Error("Only the administrator can update creator.");
+        // }
         const variables = makeVariables({ name, age, biography });
 
         return await context.prisma.creator.update({
