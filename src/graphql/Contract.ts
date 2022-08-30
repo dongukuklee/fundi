@@ -51,9 +51,15 @@ export const ContractMutation = extendType({
       args: {
         contractInput: "ContranctInput",
         fundingInput: "FundingInput",
+        creatorId: nonNull(intArg()),
       },
-      resolve(parent, { contractInput, fundingInput }, context, info) {
-        if (!contractInput || !fundingInput) {
+      resolve(
+        parent,
+        { contractInput, fundingInput, creatorId },
+        context,
+        info
+      ) {
+        if (!contractInput || !fundingInput || !creatorId) {
           throw new Error("");
         }
         const {
@@ -79,6 +85,11 @@ export const ContractMutation = extendType({
             endDate: new Date(contractEndDate),
             terms,
             type,
+            creator: {
+              connect: {
+                id: creatorId,
+              },
+            },
             amountRecieved,
             funding: {
               create: {

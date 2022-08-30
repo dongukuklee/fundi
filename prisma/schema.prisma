@@ -135,8 +135,8 @@ model Contract {
   funding                Funding?
   type                   ContractTypes @default(LOANS)
   terms                  Int      @default(12)
-  creator           Creator     @relation(fields: [creatorId], references: [id])
-  creatorId         Int
+  creator                Creator     @relation(fields: [creatorId], references: [id])
+  creatorId              Int
   startDate              DateTime
   endDate                DateTime
 }

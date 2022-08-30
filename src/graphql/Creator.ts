@@ -220,12 +220,7 @@ export const CreatorMutation = extendType({
         biography: stringArg(),
         investmentPoint: list(nonNull(CreatorInvestmentPoint)),
       },
-      async resolve(
-        parent,
-        { id, investmentPoint, name, age, biography },
-        context,
-        info
-      ) {
+      async resolve(parent, { id, name, age, biography }, context, info) {
         if (context.userRole !== "ADMIN") {
           throw new Error("Only the administrator can update creator.");
         }
