@@ -151,7 +151,7 @@ type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
-  createContract(contractInput: ContranctInput, fundingInput: FundingInput): Contract
+  createContract(contractInput: ContranctInput, creatorId: Int, fundingInput: FundingInput): Contract
   createCreator(age: Int!, name: String!): Creator
   createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String

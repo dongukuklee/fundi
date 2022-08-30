@@ -625,6 +625,7 @@ export interface NexusGenArgTypes {
     }
     createContract: { // args
       contractInput?: NexusGenInputs['ContranctInput'] | null; // ContranctInput
+      creatorId?: number | null; // Int
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
     }
     createCreator: { // args
