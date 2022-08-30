@@ -28,6 +28,7 @@ export const FundingInput = inputObjectType({
       default: "PRE_CAMPAIGN",
     });
     t.nonNull.string("title");
+    t.string("intro");
     t.nonNull.boolean("isVisible");
     t.nonNull.string("startDate");
     t.nonNull.string("endDate");
@@ -720,29 +721,43 @@ export const FundingMutation = extendType({
         return await updateLikedFunding(likedUser);
       },
     });
-    // t.field("createFunding", {
-    //   type: "Funding",
-    //   args: {
-    //     title: nonNull(stringArg()),
-    //     intro: stringArg({ default: "" }),
-    //     bondPrice: intArg({ default: 10000 }),
-    //     bondsTotalNumber: intArg({ default: 10000 }),
-    //   },
-    //   async resolve(parent, args, context, info) {
-    //     const fundingVariables = {
-    //       title: args.title!,
-    //       intro: args.intro!,
-    //       bondPrice: args.bondPrice!,
-    //       bondsTotalNumber: args.bondsTotalNumber!,
-    //     };
+    t.field("createFunding", {
+      type: "Funding",
+      args: {
+        fundingInput: "FundingInput",
+        contractId: nonNull(intArg()),
+      },
+      async resolve(parent, { fundingInput, contractId }, context, info) {
+        const { endDate, isVisible, startDate, status, title } = fundingInput!;
+        const bondPrice = 10000;
+        const contract = await context.prisma.contract.findUnique({
+          where: { id: contractId },
+        });
+        if (!contract) {
+          throw new Error("contract not found");
+        }
+        const bondsTotalNumber = BigInt(
+          Number(contract.fundingAmount) / bondPrice
+        );
 
-    //     return await context.prisma.funding.create({
-    //       data: {
-    //         ...fundingVariables,
-    //       },
-    //     });
-    //   },
-    // });
+        return await context.prisma.funding.create({
+          data: {
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            title,
+            bondsTotalNumber,
+            bondPrice,
+            contract: {
+              connect: {
+                id: contractId,
+              },
+            },
+            isVisible,
+            status,
+          },
+        });
+      },
+    });
     t.field("updateFunding", {
       type: "Funding",
       args: {

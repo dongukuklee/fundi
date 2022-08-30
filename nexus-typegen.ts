@@ -49,9 +49,9 @@ export interface NexusGenInputs {
     title: string; // String!
   }
   FundingInput: { // input type
-    bondPrice: number; // Int!
-    bondsTotalNumber: number; // Int!
     endDate: string; // String!
+    intro?: string | null; // String
+    isVisible: boolean; // Boolean!
     startDate: string; // String!
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
@@ -125,6 +125,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     description: string; // String!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -151,6 +152,7 @@ export interface NexusGenObjects {
     content?: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     title?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -158,6 +160,7 @@ export interface NexusGenObjects {
     content?: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     reply?: string | null; // String
     title?: string | null; // String
     type: NexusGenEnums['QnATypes']; // QnATypes!
@@ -278,6 +281,7 @@ export interface NexusGenFieldTypes {
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
+    isVisible: boolean; // Boolean!
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -311,6 +315,7 @@ export interface NexusGenFieldTypes {
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
@@ -333,6 +338,7 @@ export interface NexusGenFieldTypes {
     content: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     title: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -340,6 +346,7 @@ export interface NexusGenFieldTypes {
     content: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     reply: string | null; // String
     title: string | null; // String
     type: NexusGenEnums['QnATypes']; // QnATypes!
@@ -475,6 +482,7 @@ export interface NexusGenFieldTypeNames {
     fundings: 'Funding'
     id: 'Int'
     isLikedUser: 'Boolean'
+    isVisible: 'Boolean'
     likedUser: 'User'
     name: 'String'
     updatedAt: 'DateTime'
@@ -508,6 +516,7 @@ export interface NexusGenFieldTypeNames {
     chargeTheDeposit: 'AccountCash'
     createContract: 'Contract'
     createCreator: 'Creator'
+    createFunding: 'Funding'
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
@@ -530,6 +539,7 @@ export interface NexusGenFieldTypeNames {
     content: 'String'
     createdAt: 'DateTime'
     id: 'Int'
+    isVisible: 'Boolean'
     title: 'String'
     updatedAt: 'DateTime'
   }
@@ -537,6 +547,7 @@ export interface NexusGenFieldTypeNames {
     content: 'String'
     createdAt: 'DateTime'
     id: 'Int'
+    isVisible: 'Boolean'
     reply: 'String'
     title: 'String'
     type: 'QnATypes'
@@ -625,12 +636,17 @@ export interface NexusGenArgTypes {
     }
     createContract: { // args
       contractInput?: NexusGenInputs['ContranctInput'] | null; // ContranctInput
-      creatorId?: number | null; // Int
-      fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
+      creatorId: number; // Int!
     }
     createCreator: { // args
       age: number; // Int!
+      channelTitle: string; // String!
+      channelUrl: string; // String!
       name: string; // String!
+    }
+    createFunding: { // args
+      contractId: number; // Int!
+      fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
     }
     createNotice: { // args
       content: string; // String!
@@ -714,6 +730,7 @@ export interface NexusGenArgTypes {
       id: number; // Int!
     }
     creators: { // args
+      isVisible?: boolean | null; // Boolean
       skip?: number | null; // Int
       sort?: string | null; // String
       take?: number | null; // Int

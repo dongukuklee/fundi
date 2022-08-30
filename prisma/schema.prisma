@@ -118,6 +118,8 @@ model Creator{
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String
+  channelTitle String @default("")
+  channelUrl  String @default("")
   description String @default("")
   age       Int?  
   isVisible Boolean @default(false)
@@ -132,6 +134,7 @@ model Contract {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt  
   lastYearEarning        BigInt
+  fundingAmount          BigInt   
   amountRecieved         BigInt
   funding                Funding?
   type                   ContractTypes @default(LOANS)
@@ -148,7 +151,7 @@ model Funding {
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
-  intro            String        @default("")      
+  intro            String?        @default("")      
   contract         Contract      @relation(fields: [contractId], references: [id])
   contractId       Int           @unique
   isVisible        Boolean       @default(false)
