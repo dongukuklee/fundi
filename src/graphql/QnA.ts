@@ -57,7 +57,6 @@ export const QnAQuery = extendType({
         // if (userRole !== "ADMIN") {
         //   throw new Error("Only the admin can inquiry user QnAs.");
         // }
-        console.log(await context.prisma.qnA.findMany({}));
         return await context.prisma.qnA.findMany({});
       },
     });

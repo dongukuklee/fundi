@@ -313,9 +313,6 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator(args.sort);
-
-        await context.prisma.creator.deleteMany({});
-
         const funding = await context.prisma.funding.findMany({
           where: {
             status: args?.status as FundingStatus | undefined,
