@@ -699,12 +699,8 @@ export interface NexusGenArgTypes {
       name?: string | null; // String
     }
     updateFunding: { // args
-      bondPrice: number | null; // Int
-      bondsTotalNumber: number | null; // Int
-      id: number; // Int!
-      intro?: string | null; // String
-      status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
-      title?: string | null; // String
+      fundingId?: number | null; // Int
+      fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
     }
     updateNotice: { // args
       content?: string | null; // String

@@ -168,7 +168,7 @@ type Mutation {
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
   updateCreator(age: Int, biography: String, id: Int!, investmentPoint: [CreatorInvestmentPoint!], name: String): Creator
-  updateFunding(bondPrice: Int = 10000, bondsTotalNumber: Int = 10000, id: Int!, intro: String, status: FundingStatus, title: String): Funding
+  updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
