@@ -265,6 +265,7 @@ export interface NexusGenFieldTypes {
   Contract: { // field return type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    creator: NexusGenRootTypes['Creator'] | null; // Creator
     endDate: NexusGenScalars['DateTime']; // DateTime!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
@@ -292,6 +293,7 @@ export interface NexusGenFieldTypes {
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
+    contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
@@ -467,6 +469,7 @@ export interface NexusGenFieldTypeNames {
   Contract: { // field return type name
     amountRecieved: 'BigInt'
     createdAt: 'DateTime'
+    creator: 'Creator'
     endDate: 'DateTime'
     funding: 'Funding'
     id: 'Int'
@@ -494,6 +497,7 @@ export interface NexusGenFieldTypeNames {
     accountManager: 'AccountBond'
     bondPrice: 'BigInt'
     bondsTotalNumber: 'BigInt'
+    contract: 'Contract'
     createdAt: 'DateTime'
     creator: 'Creator'
     endDate: 'DateTime'
@@ -693,9 +697,7 @@ export interface NexusGenArgTypes {
     }
     updateCreator: { // args
       age?: number | null; // Int
-      biography?: string | null; // String
       id: number; // Int!
-      investmentPoint?: NexusGenInputs['CreatorInvestmentPoint'][] | null; // [CreatorInvestmentPoint!]
       name?: string | null; // String
     }
     updateFunding: { // args
