@@ -93,5 +93,14 @@ export const UserQuery = extendType({
         });
       },
     });
+    t.list.field("users", {
+      type: "User",
+      async resolve(parent, args, context, info) {
+        // if (userRole === Role.ADMIN) {
+        //   throw new Error("Only the owner can inquiry user information.");
+        // }
+        return context.prisma.user.findMany({});
+      },
+    });
   },
 });

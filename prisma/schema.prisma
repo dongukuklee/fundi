@@ -121,9 +121,8 @@ model Creator{
   channelTitle String @default("")
   channelUrl  String @default("")
   description String @default("")
-  age       Int?  
+  birthYear Int @default(2002)  
   isVisible Boolean @default(false)
-  biography Biography[]
   fundings CreatorOnFundings[]
   contract Contract[]
   likedUser    CreatorOnUser[]
@@ -175,19 +174,6 @@ enum FundingStatus {
   FAILED_CAMPAIGN
   END
 }
-
-
-
-model Biography{
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  year      String
-  description String
-  creator           Creator     @relation(fields: [creatorId], references: [id])
-  creatorId         Int
-}
-
 
 enum ContractTypes {
   OWENERSHIP_TRANSFER

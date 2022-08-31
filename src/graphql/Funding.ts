@@ -746,6 +746,7 @@ export const FundingMutation = extendType({
             endDate: new Date(endDate),
             title,
             bondsTotalNumber,
+            remainingBonds: bondsTotalNumber,
             bondPrice,
             contract: {
               connect: {

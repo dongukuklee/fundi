@@ -44,6 +44,13 @@ export interface NexusGenInputs {
     terms: number; // Int!
     type: NexusGenEnums['ContractTypes']; // ContractTypes!
   }
+  CreatorInput: { // input type
+    birthYear: number; // Int!
+    channelTitle: string; // String!
+    channelUrl: string; // String!
+    isVisible: boolean; // Boolean!
+    name: string; // String!
+  }
   CreatorInvestmentPoint: { // input type
     status: string; // String!
     title: string; // String!
@@ -121,7 +128,7 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Creator: { // root type
-    age?: number | null; // Int
+    birthYear?: number | null; // Int
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     description: string; // String!
     id: number; // Int!
@@ -276,7 +283,7 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Creator: { // field return type
-    age: number | null; // Int
+    birthYear: number | null; // Int
     contract: Array<NexusGenRootTypes['Contract'] | null> | null; // [Contract]
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     description: string; // String!
@@ -330,6 +337,7 @@ export interface NexusGenFieldTypes {
     replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    updateContract: NexusGenRootTypes['Contract'] | null; // Contract
     updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
@@ -371,6 +379,7 @@ export interface NexusGenFieldTypes {
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     user: NexusGenRootTypes['User'] | null; // User
+    users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     verificationCode: boolean; // Boolean!
   }
   TransactionBond: { // field return type
@@ -480,7 +489,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Creator: { // field return type name
-    age: 'Int'
+    birthYear: 'Int'
     contract: 'Contract'
     createdAt: 'DateTime'
     description: 'String'
@@ -534,6 +543,7 @@ export interface NexusGenFieldTypeNames {
     replyQueation: 'QnA'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    updateContract: 'Contract'
     updateCreator: 'Creator'
     updateFunding: 'Funding'
     updateNotice: 'Notice'
@@ -575,6 +585,7 @@ export interface NexusGenFieldTypeNames {
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
     user: 'User'
+    users: 'User'
     verificationCode: 'Boolean'
   }
   TransactionBond: { // field return type name
@@ -645,10 +656,7 @@ export interface NexusGenArgTypes {
       creatorId: number; // Int!
     }
     createCreator: { // args
-      age: number; // Int!
-      channelTitle: string; // String!
-      channelUrl: string; // String!
-      name: string; // String!
+      creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
     }
     createFunding: { // args
       contractId: number; // Int!
@@ -695,10 +703,13 @@ export interface NexusGenArgTypes {
       email: string; // String!
       nickName?: string | null; // String
     }
+    updateContract: { // args
+      contractId: number; // Int!
+      contractInput?: NexusGenInputs['ContractInput'] | null; // ContractInput
+    }
     updateCreator: { // args
-      age?: number | null; // Int
-      id: number; // Int!
-      name?: string | null; // String
+      creatorId: number; // Int!
+      creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
     }
     updateFunding: { // args
       fundingId?: number | null; // Int
