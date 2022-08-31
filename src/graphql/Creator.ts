@@ -21,22 +21,15 @@ type updateCreatorVariables = {
 const makeVariables = ({
   name,
   age,
-  biography,
 }: {
   name: string | null | undefined;
   age: number | null | undefined;
-  biography: string | null | undefined;
 }) => {
   const variables: updateCreatorVariables = {};
-  if (name) {
-    variables.name = name;
-  }
-  if (age) {
-    variables.age = age;
-  }
-  if (biography) {
-    variables.biography = biography;
-  }
+  if (name) variables.name = name;
+
+  if (age) variables.age = age;
+
   return variables;
 };
 
@@ -238,14 +231,12 @@ export const CreatorMutation = extendType({
         id: nonNull(intArg()),
         name: stringArg(),
         age: intArg(),
-        biography: stringArg(),
-        investmentPoint: list(nonNull(CreatorInvestmentPoint)),
       },
-      async resolve(parent, { id, name, age, biography }, context, info) {
+      async resolve(parent, { id, name, age }, context, info) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can update creator.");
         // }
-        const variables = makeVariables({ name, age, biography });
+        const variables = makeVariables({ name, age });
 
         return await context.prisma.creator.update({
           where: {

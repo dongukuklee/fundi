@@ -187,14 +187,14 @@ export const Funding = objectType({
         });
       },
     });
-    // t.field("contract", {
-    //   type: "Contract",
-    //   async resolve(parent, args, context, info) {
-    //     return await context.prisma.funding
-    //       .findUnique({ where: { id: parent.id } })
-    //       .contract();
-    //   },
-    // });
+    t.field("contract", {
+      type: "Contract",
+      async resolve(parent, args, context, info) {
+        return await context.prisma.funding
+          .findUnique({ where: { id: parent.id } })
+          .contract();
+      },
+    });
     t.dateTime("startDate");
     t.dateTime("endDate");
     t.nonNull.bigInt("bondPrice");
@@ -761,31 +761,23 @@ export const FundingMutation = extendType({
     t.field("updateFunding", {
       type: "Funding",
       args: {
-        id: nonNull(intArg()),
-        title: stringArg(),
-        intro: stringArg(),
-        status: arg({ type: "FundingStatus" }),
-        bondPrice: intArg({ default: 10000 }),
-        bondsTotalNumber: intArg({ default: 10000 }),
+        fundingInput: "FundingInput",
+        fundingId: intArg(),
       },
-      async resolve(parent, { id, ...arg }, context) {
+      async resolve(parent, { fundingInput, fundingId: id }, context) {
+        const { endDate, isVisible, startDate, status, title, intro } =
+          fundingInput!;
         const variables = {} as any;
-        if (arg.title) {
-          variables.title = arg.title;
-        }
-        if (arg.bondPrice) {
-          variables.bondPrice = arg.bondPrice;
-        }
-        if (arg.bondsTotalNumber) {
-          variables.bondsTotalNumber = arg.bondsTotalNumber;
-        }
-        if (arg.intro) {
-          variables.intro = arg.intro;
-        }
+        if (!id) throw new Error("funding not found");
 
-        if (arg.status) {
-          variables.status = arg.status;
-        }
+        if (title) variables.title = title;
+        if (intro) variables.intro = intro;
+        if (status) variables.status = status;
+        if (endDate) variables.endDate = new Date(endDate);
+        if (startDate) variables.startDate = new Date(startDate);
+        if (isVisible !== undefined || isVisible !== null)
+          variables.isVisible = isVisible;
+
         return await context.prisma.funding.update({
           where: {
             id,

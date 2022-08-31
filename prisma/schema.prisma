@@ -280,3 +280,21 @@ enum QnAStatus {
   AWAITING_RESPONSE
   RESPONDED  
 }
+
+enum AlarmTypes {
+  NOTICE
+  FUNDING
+  QNA
+}
+
+model Alarm{
+  id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  title                      String
+  content                    String
+  sentTime                   DateTime 
+  alarmType                  AlarmTypes @default(NOTICE)
+  isConfirm                  Boolean
+  isVisible                  Boolean
+}

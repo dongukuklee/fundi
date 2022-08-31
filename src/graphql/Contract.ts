@@ -34,6 +34,14 @@ export const Contract = objectType({
           .funding();
       },
     });
+    t.field("creator", {
+      type: "Creator",
+      resolve(parent, args, context, info) {
+        return context.prisma.contract
+          .findUnique({ where: { id: parent.id } })
+          .creator();
+      },
+    });
     t.nonNull.bigInt("lastYearEarning");
     t.nonNull.bigInt("amountRecieved");
     t.nonNull.field("type", { type: "ContractTypes" });
