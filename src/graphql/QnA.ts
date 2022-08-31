@@ -9,6 +9,7 @@ export const QnA = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.boolean("isVisible");
     t.nonNull.field("type", { type: "QnATypes" });
+    t.nonNull.int("userId");
     t.field("user", {
       type: "User",
       resolve(parent, args, context, info) {
@@ -26,6 +27,15 @@ export const QnA = objectType({
 export const QnAQuery = extendType({
   type: "Query",
   definition(t) {
+    t.field("QnA", {
+      type: "QnA",
+      args: {
+        id: nonNull(intArg()),
+      },
+      resolve(parent, { id }, context, info) {
+        return context.prisma.qnA.findUnique({ where: { id } });
+      },
+    });
     t.list.field("myQnA", {
       type: "QnA",
       async resolve(parent, args, context, info) {
@@ -47,6 +57,7 @@ export const QnAQuery = extendType({
         // if (userRole !== "ADMIN") {
         //   throw new Error("Only the admin can inquiry user QnAs.");
         // }
+        console.log(await context.prisma.qnA.findMany({}));
         return await context.prisma.qnA.findMany({});
       },
     });

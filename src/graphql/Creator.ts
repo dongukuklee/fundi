@@ -10,7 +10,6 @@ import {
   inputObjectType,
 } from "nexus";
 import { TAKE } from "../common/const";
-import { CreatorInvestmentPoint } from "./CreatorInvestmentPoint";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
 export const CreatorInput = inputObjectType({
@@ -32,7 +31,8 @@ export const Creator = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("name");
     t.nonNull.boolean("isVisible");
-    t.nonNull.string("description");
+    t.nonNull.string("channelTitle");
+    t.nonNull.string("channelUrl");
     t.list.field("contract", {
       type: "Contract",
       resolve(parent, args, context, info) {
