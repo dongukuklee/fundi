@@ -129,8 +129,9 @@ export interface NexusGenObjects {
   }
   Creator: { // root type
     birthYear?: number | null; // Int
+    channelTitle: string; // String!
+    channelUrl: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
-    description: string; // String!
     id: number; // Int!
     isVisible: boolean; // Boolean!
     name: string; // String!
@@ -172,6 +173,7 @@ export interface NexusGenObjects {
     title?: string | null; // String
     type: NexusGenEnums['QnATypes']; // QnATypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    userId: number; // Int!
   }
   Query: {};
   TransactionBond: { // root type
@@ -284,9 +286,10 @@ export interface NexusGenFieldTypes {
   }
   Creator: { // field return type
     birthYear: number | null; // Int
+    channelTitle: string; // String!
+    channelUrl: string; // String!
     contract: Array<NexusGenRootTypes['Contract'] | null> | null; // [Contract]
     createdAt: NexusGenScalars['DateTime']; // DateTime!
-    description: string; // String!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
@@ -363,8 +366,10 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['QnATypes']; // QnATypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     user: NexusGenRootTypes['User'] | null; // User
+    userId: number; // Int!
   }
   Query: { // field return type
+    QnA: NexusGenRootTypes['QnA'] | null; // QnA
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
     checkPincode: boolean | null; // Boolean
@@ -490,9 +495,10 @@ export interface NexusGenFieldTypeNames {
   }
   Creator: { // field return type name
     birthYear: 'Int'
+    channelTitle: 'String'
+    channelUrl: 'String'
     contract: 'Contract'
     createdAt: 'DateTime'
-    description: 'String'
     fundings: 'Funding'
     id: 'Int'
     isLikedUser: 'Boolean'
@@ -569,8 +575,10 @@ export interface NexusGenFieldTypeNames {
     type: 'QnATypes'
     updatedAt: 'DateTime'
     user: 'User'
+    userId: 'Int'
   }
   Query: { // field return type name
+    QnA: 'QnA'
     QnAs: 'QnA'
     balanceCash: 'BigInt'
     checkPincode: 'Boolean'
@@ -734,6 +742,9 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    QnA: { // args
+      id: number; // Int!
+    }
     checkPincode: { // args
       pincode: string; // String!
     }

@@ -84,9 +84,10 @@ enum ContractTypes {
 
 type Creator {
   birthYear: Int
+  channelTitle: String!
+  channelUrl: String!
   contract: [Contract]
   createdAt: DateTime!
-  description: String!
   fundings: [Funding!]!
   id: Int!
   isLikedUser: Boolean
@@ -205,6 +206,7 @@ type QnA {
   type: QnATypes!
   updatedAt: DateTime!
   user: User
+  userId: Int!
 }
 
 """Define QnA Status"""
@@ -221,6 +223,7 @@ enum QnATypes {
 }
 
 type Query {
+  QnA(id: Int!): QnA
   QnAs: [QnA]
   balanceCash: BigInt
   checkPincode(pincode: String!): Boolean
