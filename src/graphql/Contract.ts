@@ -9,6 +9,35 @@ import {
   inputObjectType,
 } from "nexus";
 
+const makeContractVariable = (
+  contractInput: any,
+  transactionType: string,
+  creatorId?: number
+) => {
+  const { lastYearEarning, startDate, endDate, terms, type } = contractInput;
+  const fundingAmount = Math.floor((lastYearEarning * 0.3) / 10000) * 10000;
+  const amountRecieved = fundingAmount * 0.9;
+  let data = {
+    ...contractInput,
+    startDate: new Date(startDate),
+    endDate: new Date(endDate),
+    fundingAmount,
+    amountRecieved,
+  };
+  switch (transactionType) {
+    case "create":
+      return {
+        ...data,
+        creator: {
+          connect: {
+            id: creatorId,
+          },
+        },
+      };
+    case "update":
+      return data;
+  }
+};
 export const ContractInput = inputObjectType({
   name: "ContractInput",
   definition(t) {
@@ -64,27 +93,23 @@ export const ContractMutation = extendType({
         if (!contractInput || !creatorId) {
           throw new Error("");
         }
-        const { lastYearEarning, startDate, endDate, terms, type } =
-          contractInput;
-        const fundingAmount =
-          Math.floor((lastYearEarning * 0.3) / 10000) * 10000;
-        const amountRecieved = fundingAmount * 0.9;
-
+        const data = makeContractVariable(contractInput, "create", creatorId);
         return context.prisma.contract.create({
-          data: {
-            lastYearEarning,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            fundingAmount,
-            terms,
-            type,
-            creator: {
-              connect: {
-                id: creatorId,
-              },
-            },
-            amountRecieved,
-          },
+          data,
+        });
+      },
+    });
+    t.field("updateContract", {
+      type: "Contract",
+      args: {
+        contractInput: "ContractInput",
+        contractId: nonNull(intArg()),
+      },
+      resolve(parent, { contractInput, contractId: id }, context, info) {
+        const data = makeContractVariable(contractInput, "update");
+        return context.prisma.contract.update({
+          where: { id },
+          data,
         });
       },
     });

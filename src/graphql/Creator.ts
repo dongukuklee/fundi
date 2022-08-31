@@ -7,31 +7,22 @@ import {
   nonNull,
   objectType,
   stringArg,
+  inputObjectType,
 } from "nexus";
 import { TAKE } from "../common/const";
 import { CreatorInvestmentPoint } from "./CreatorInvestmentPoint";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
-type updateCreatorVariables = {
-  name?: string;
-  age?: number;
-  biography?: string;
-};
-
-const makeVariables = ({
-  name,
-  age,
-}: {
-  name: string | null | undefined;
-  age: number | null | undefined;
-}) => {
-  const variables: updateCreatorVariables = {};
-  if (name) variables.name = name;
-
-  if (age) variables.age = age;
-
-  return variables;
-};
+export const CreatorInput = inputObjectType({
+  name: "CreatorInput",
+  definition(t) {
+    t.nonNull.string("name");
+    t.nonNull.int("birthYear");
+    t.nonNull.string("channelTitle");
+    t.nonNull.string("channelUrl");
+    t.nonNull.boolean("isVisible");
+  },
+});
 
 export const Creator = objectType({
   name: "Creator",
@@ -50,7 +41,7 @@ export const Creator = objectType({
           .contract();
       },
     });
-    t.int("age");
+    t.int("birthYear");
     t.nonNull.list.nonNull.field("fundings", {
       type: "Funding",
       resolve(parent, args, context, info) {
@@ -200,27 +191,17 @@ export const CreatorMutation = extendType({
     t.field("createCreator", {
       type: "Creator",
       args: {
-        name: nonNull(stringArg()),
-        age: nonNull(intArg()),
-        channelTitle: nonNull(stringArg()),
-        channelUrl: nonNull(stringArg()),
+        creatorInput: "CreatorInput",
       },
-      async resolve(
-        parent,
-        { name, age, channelTitle, channelUrl },
-        context,
-        info
-      ) {
+      async resolve(parent, { creatorInput }, context, info) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can create creator.");
         // }
+        if (!creatorInput) throw new Error("");
 
         return await context.prisma.creator.create({
           data: {
-            name,
-            age,
-            channelTitle,
-            channelUrl,
+            ...creatorInput,
           },
         });
       },
@@ -228,22 +209,21 @@ export const CreatorMutation = extendType({
     t.field("updateCreator", {
       type: "Creator",
       args: {
-        id: nonNull(intArg()),
-        name: stringArg(),
-        age: intArg(),
+        creatorInput: "CreatorInput",
+        creatorId: nonNull(intArg()),
       },
-      async resolve(parent, { id, name, age }, context, info) {
+      async resolve(parent, { creatorId: id, creatorInput }, context, info) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can update creator.");
         // }
-        const variables = makeVariables({ name, age });
+        if (!creatorInput) throw new Error("");
 
         return await context.prisma.creator.update({
           where: {
             id,
           },
           data: {
-            ...variables,
+            ...creatorInput,
           },
         });
       },

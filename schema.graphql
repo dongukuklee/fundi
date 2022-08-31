@@ -83,7 +83,7 @@ enum ContractTypes {
 }
 
 type Creator {
-  age: Int
+  birthYear: Int
   contract: [Contract]
   createdAt: DateTime!
   description: String!
@@ -94,6 +94,14 @@ type Creator {
   likedUser: [User]
   name: String!
   updatedAt: DateTime!
+}
+
+input CreatorInput {
+  birthYear: Int!
+  channelTitle: String!
+  channelUrl: String!
+  isVisible: Boolean!
+  name: String!
 }
 
 input CreatorInvestmentPoint {
@@ -156,7 +164,7 @@ type Mutation {
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
-  createCreator(age: Int!, channelTitle: String!, channelUrl: String!, name: String!): Creator
+  createCreator(creatorInput: CreatorInput): Creator
   createFunding(contractId: Int!, fundingInput: FundingInput): Funding
   createNotice(content: String!, title: String!): Notice
   createPincode(pincode: String!): String
@@ -169,7 +177,8 @@ type Mutation {
   replyQueation(id: Int!, reply: String!): QnA
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
-  updateCreator(age: Int, id: Int!, name: String): Creator
+  updateContract(contractId: Int!, contractInput: ContractInput): Contract
+  updateCreator(creatorId: Int!, creatorInput: CreatorInput): Creator
   updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!): String
@@ -226,6 +235,7 @@ type Query {
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user: User
+  users: [User]
   verificationCode(email: String!, verificationCode: String!): Boolean!
 }
 
