@@ -81,7 +81,6 @@ export const AccountBondMutation = extendType({
             balance: true,
           },
         });
-
         return await context.prisma.accountCash.update({
           where: { ownerId: userId },
           data: {
