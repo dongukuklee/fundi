@@ -7,7 +7,10 @@ import { User } from "@prisma/client";
 const APP_SECRET = process.env.APP_SECRET!;
 
 const getTokenAndUser = (user: User) => {
-  const token = jwt.sign({ userId: user.id, userRole: user.role }, APP_SECRET);
+  const token = jwt.sign(
+    { userId: user.id, userRole: user.role, userName: user.name },
+    APP_SECRET
+  );
   return { token, user };
 };
 const getAuthIdByuserId = async (context: Context) => {
