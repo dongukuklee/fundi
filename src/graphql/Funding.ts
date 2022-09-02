@@ -173,6 +173,7 @@ export const Funding = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
+    t.nonNull.int("currentSettlementRound");
     t.list.field("fundingSettlement", {
       type: "FundingSettlement",
       resolve(parent, args, context, info) {

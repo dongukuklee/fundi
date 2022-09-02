@@ -68,6 +68,14 @@ export const User = objectType({
         );
       },
     });
+    t.list.field("alarm", {
+      type: "Alarm",
+      resolve(parent, args, context, info) {
+        return context.prisma.user
+          .findUnique({ where: { id: parent.id } })
+          .alarm();
+      },
+    });
   },
 });
 

@@ -53,7 +53,7 @@ model User {
   accountCash  AccountCash?
   accountsBond AccountBond[]
   qna              QnA[]
-  //alarm       Alarm[]
+  alarm       Alarm[]
 }
 
 model Alarm{
@@ -62,8 +62,10 @@ model Alarm{
   updatedAt                  DateTime @updatedAt
   title                      String
   content                    String
+  user                       User @relation(fields: [userId], references: [id])
+  userId                     Int
   sentTime                   DateTime 
-  alarmType                  AlarmTypes @default(NOTICE)
+  type                  AlarmTypes @default(NOTICE)
   isConfirm                  Boolean
   isVisible                  Boolean
 }
