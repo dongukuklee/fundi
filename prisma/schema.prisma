@@ -49,11 +49,23 @@ model User {
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
   likeFundings  FundingOnUser[]
-
   likedCreator  CreatorOnUser[]
   accountCash  AccountCash?
   accountsBond AccountBond[]
   qna              QnA[]
+  //alarm       Alarm[]
+}
+
+model Alarm{
+  id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  title                      String
+  content                    String
+  sentTime                   DateTime 
+  alarmType                  AlarmTypes @default(NOTICE)
+  isConfirm                  Boolean
+  isVisible                  Boolean
 }
 
 enum Role {
@@ -162,9 +174,19 @@ model Funding {
   bondPrice        BigInt        @default(10000)
   bondsTotalNumber BigInt        @default(10000)
   remainingBonds   BigInt        @default(10000)
+  fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
 }
 
+model FundingSettlement {
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  funding          Funding       @relation(fields: [fundingId], references: [id])
+  fundingId        Int
+  round            Int
+  monthlySettlementAmount BigInt
+}
 
 enum FundingStatus {
   PRE_CAMPAIGN
@@ -178,17 +200,6 @@ enum FundingStatus {
 enum ContractTypes {
   OWENERSHIP_TRANSFER
   LOANS
-}
-
-model Artwork {
-  id           Int      @id @default(autoincrement())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  title        String  
-  fundingId    Int?
-  initialPrice BigInt   @default(0)
-  sellingPrice BigInt   @default(0)
-  isSold       Boolean  @default(false)
 }
 
 model TransactionSettlement{
@@ -273,14 +284,3 @@ enum AlarmTypes {
   QNA
 }
 
-model Alarm{
-  id                         Int      @id @default(autoincrement())
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
-  title                      String
-  content                    String
-  sentTime                   DateTime 
-  alarmType                  AlarmTypes @default(NOTICE)
-  isConfirm                  Boolean
-  isVisible                  Boolean
-}
