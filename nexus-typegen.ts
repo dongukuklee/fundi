@@ -51,10 +51,6 @@ export interface NexusGenInputs {
     isVisible: boolean; // Boolean!
     name: string; // String!
   }
-  CreatorInvestmentPoint: { // input type
-    status: string; // String!
-    title: string; // String!
-  }
   FundingInput: { // input type
     endDate: string; // String!
     intro?: string | null; // String
@@ -66,6 +62,7 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
+  AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
@@ -95,6 +92,17 @@ export interface NexusGenObjects {
     balance: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Alarm: { // root type
+    content: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isConfirm: boolean; // Boolean!
+    isVisible: boolean; // Boolean!
+    sentTime: NexusGenScalars['DateTime']; // DateTime!
+    title: string; // String!
+    type: NexusGenEnums['AlarmTypes']; // AlarmTypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Auth: { // root type
@@ -141,6 +149,7 @@ export interface NexusGenObjects {
     bondPrice: NexusGenScalars['BigInt']; // BigInt!
     bondsTotalNumber: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    currentSettlementRound: number; // Int!
     endDate?: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
     remainingBonds: NexusGenScalars['BigInt']; // BigInt!
@@ -256,6 +265,17 @@ export interface NexusGenFieldTypes {
     transactions: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  Alarm: { // field return type
+    content: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isConfirm: boolean; // Boolean!
+    isVisible: boolean; // Boolean!
+    sentTime: NexusGenScalars['DateTime']; // DateTime!
+    title: string; // String!
+    type: NexusGenEnums['AlarmTypes']; // AlarmTypes!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   Auth: { // field return type
     IDVerification: NexusGenRootTypes['IDVerification'] | null; // IDVerification
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -313,6 +333,7 @@ export interface NexusGenFieldTypes {
     contract: NexusGenRootTypes['Contract'] | null; // Contract
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
+    currentSettlementRound: number; // Int!
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
     fundingSettlement: Array<NexusGenRootTypes['FundingSettlement'] | null> | null; // [FundingSettlement]
     id: number; // Int!
@@ -433,6 +454,7 @@ export interface NexusGenFieldTypes {
   User: { // field return type
     accountCash: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     accountsBond: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
+    alarm: Array<NexusGenRootTypes['Alarm'] | null> | null; // [Alarm]
     auth: NexusGenRootTypes['Auth'] | null; // Auth
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
@@ -471,6 +493,17 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     owner: 'User'
     transactions: 'TransactionCash'
+    updatedAt: 'DateTime'
+  }
+  Alarm: { // field return type name
+    content: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    isConfirm: 'Boolean'
+    isVisible: 'Boolean'
+    sentTime: 'DateTime'
+    title: 'String'
+    type: 'AlarmTypes'
     updatedAt: 'DateTime'
   }
   Auth: { // field return type name
@@ -530,6 +563,7 @@ export interface NexusGenFieldTypeNames {
     contract: 'Contract'
     createdAt: 'DateTime'
     creator: 'Creator'
+    currentSettlementRound: 'Int'
     endDate: 'DateTime'
     fundingSettlement: 'FundingSettlement'
     id: 'Int'
@@ -650,6 +684,7 @@ export interface NexusGenFieldTypeNames {
   User: { // field return type name
     accountCash: 'AccountCash'
     accountsBond: 'AccountBond'
+    alarm: 'Alarm'
     auth: 'Auth'
     createdAt: 'DateTime'
     email: 'String'
