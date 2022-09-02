@@ -149,6 +149,13 @@ export interface NexusGenObjects {
     title: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  FundingSettlement: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    monthlySettlementAmount: NexusGenScalars['BigInt']; // BigInt!
+    round: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   IDVerification: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
@@ -307,6 +314,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
+    fundingSettlement: Array<NexusGenRootTypes['FundingSettlement'] | null> | null; // [FundingSettlement]
     id: number; // Int!
     isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
@@ -314,6 +322,13 @@ export interface NexusGenFieldTypes {
     startDate: NexusGenScalars['DateTime'] | null; // DateTime
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  FundingSettlement: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    monthlySettlementAmount: NexusGenScalars['BigInt']; // BigInt!
+    round: number; // Int!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   IDVerification: { // field return type
@@ -516,6 +531,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     creator: 'Creator'
     endDate: 'DateTime'
+    fundingSettlement: 'FundingSettlement'
     id: 'Int'
     isLikedUser: 'Boolean'
     likedUser: 'User'
@@ -523,6 +539,13 @@ export interface NexusGenFieldTypeNames {
     startDate: 'DateTime'
     status: 'FundingStatus'
     title: 'String'
+    updatedAt: 'DateTime'
+  }
+  FundingSettlement: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    monthlySettlementAmount: 'BigInt'
+    round: 'Int'
     updatedAt: 'DateTime'
   }
   IDVerification: { // field return type name

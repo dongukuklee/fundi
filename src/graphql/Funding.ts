@@ -173,6 +173,14 @@ export const Funding = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
+    t.list.field("fundingSettlement", {
+      type: "FundingSettlement",
+      resolve(parent, args, context, info) {
+        return context.prisma.funding
+          .findUnique({ where: { id: parent.id } })
+          .fundingSettlement();
+      },
+    });
     t.list.field("creator", {
       type: "Creator",
       resolve(parent, args, context, info) {

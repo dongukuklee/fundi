@@ -8,6 +8,7 @@ export * from "./TransactionCash";
 export * from "./TransactionBond";
 export * from "./enums/";
 export * from "./Funding";
+export * from "./FundingSettlement";
 export * from "./Creator";
 export * from "./Contract";
 export * from "./TransactionSettlement";

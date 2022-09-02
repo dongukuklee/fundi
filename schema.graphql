@@ -124,6 +124,7 @@ type Funding {
   createdAt: DateTime!
   creator: [Creator]
   endDate: DateTime
+  fundingSettlement: [FundingSettlement]
   id: Int!
   isLikedUser: Boolean
   likedUser: [User]
@@ -141,6 +142,14 @@ input FundingInput {
   startDate: String!
   status: FundingStatus! = PRE_CAMPAIGN
   title: String!
+}
+
+type FundingSettlement {
+  createdAt: DateTime!
+  id: Int!
+  monthlySettlementAmount: BigInt!
+  round: Int!
+  updatedAt: DateTime!
 }
 
 """Define funding status"""
