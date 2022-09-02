@@ -563,7 +563,6 @@ export const FundingMutation = extendType({
         ];
 
         await context.prisma.$transaction(withdrawFundingTransactions);
-
         return await context.prisma.accountCash.findUnique({
           where: { id: userId },
         });
@@ -666,6 +665,12 @@ export const FundingMutation = extendType({
           data: {
             currentSettlementRound: {
               increment: 1,
+            },
+            fundingSettlement: {
+              create: {
+                round: round + 1,
+                monthlySettlementAmount: amount,
+              },
             },
           },
         });

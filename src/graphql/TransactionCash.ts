@@ -40,9 +40,16 @@ export const TransactionCashQuery = extendType({
             "Cannot inquiry the transactions of the account without signing in."
           );
         }
+
+        const userAccountCash = await context.prisma.accountCash.findUnique({
+          where: { ownerId: userId },
+        });
+        if (!userAccountCash) {
+          throw new Error("account cash not found");
+        }
         const transactions = await context.prisma.transactionCash.findMany({
           where: {
-            accountId: userId,
+            accountId: userAccountCash.id,
             type: args?.type as TransactionType | undefined,
           },
           orderBy: {
