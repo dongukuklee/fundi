@@ -65,9 +65,9 @@ model Alarm{
   user                       User @relation(fields: [userId], references: [id])
   userId                     Int
   sentTime                   DateTime 
-  type                  AlarmTypes @default(NOTICE)
-  isConfirm                  Boolean
-  isVisible                  Boolean
+  type                       AlarmTypes @default(NOTICE)
+  isConfirm                  Boolean @default(false)
+  isVisible                  Boolean @default(true)
 }
 
 enum Role {
