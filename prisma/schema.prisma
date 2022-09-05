@@ -140,6 +140,7 @@ model Creator{
   fundings CreatorOnFundings[]
   contract Contract[]
   likedUser    CreatorOnUser[]
+  images     Image[]
 }
 
 model Contract {
@@ -178,6 +179,7 @@ model Funding {
   remainingBonds   BigInt        @default(10000)
   fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
+  images     Image[]
 }
 
 model FundingSettlement {
@@ -253,6 +255,7 @@ model Notice{
   isVisible                  Boolean  @default(false)
   title                      String
   content                    String
+  images     Image[]
 }
 
 model QnA {
@@ -267,6 +270,27 @@ model QnA {
   title                      String
   content                    String
   reply                      String?
+  images     Image[]
+}
+
+model Image {
+  id                       Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  width                      Int
+  height                     Int
+  filename                   String
+  path_origin                String
+  path_w640                  String
+  path_sq640                 String
+  creator   Creator  @relation(fields: [creatorId],references: [id])
+  creatorId Int
+  funding   Funding  @relation(fields: [fundingId],references: [id])
+ fundingId Int
+  notice    Notice  @relation(fields: [noticeId],references: [id])
+  noticeId Int
+  qna   QnA  @relation(fields: [qnaId],references: [id])
+  qnaId Int
 }
 
 enum QnATypes {

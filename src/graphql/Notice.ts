@@ -11,6 +11,14 @@ export const Notice = objectType({
     t.nonNull.boolean("isVisible");
     t.string("title");
     t.string("content");
+    t.list.field("images", {
+      type: "Image",
+      resolve(parent, args, context, info) {
+        return context.prisma.notice
+          .findUnique({ where: { id: parent.id } })
+          .images();
+      },
+    });
   },
 });
 

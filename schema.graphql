@@ -73,14 +73,6 @@ The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
 scalar BigInt
 
-type Biography {
-  createdAt: DateTime!
-  description: String!
-  id: Int!
-  updatedAt: DateTime!
-  year: Int!
-}
-
 type Contract {
   amountRecieved: BigInt!
   createdAt: DateTime!
@@ -117,6 +109,7 @@ type Creator {
   createdAt: DateTime!
   fundings: [Funding!]!
   id: Int!
+  images: [Image]
   isLikedUser: Boolean
   isVisible: Boolean!
   likedUser: [User]
@@ -149,6 +142,7 @@ type Funding {
   endDate: DateTime
   fundingSettlement: [FundingSettlement]
   id: Int!
+  images: [Image]
   isLikedUser: Boolean
   likedUser: [User]
   remainingBonds: BigInt!
@@ -192,11 +186,27 @@ type IDVerification {
   updatedAt: DateTime!
 }
 
+type Image {
+  createdAt: DateTime!
+  creator: Creator
+  filename: String!
+  funding: Funding
+  height: Int!
+  id: Int!
+  notice: Notice
+  path_origin: String!
+  path_sq640: String!
+  path_w640: String!
+  qna: QnA
+  updatedAt: DateTime!
+  width: Int!
+}
+
 type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
-  checkAlaram(id: Int!, updateData: AlarmInputData): Alarm
+  checkAlaram(id: Int!, isConfirm: Boolean, isVisible: Boolean, updateData: AlarmInputData): Alarm
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput): Creator
   createFunding(contractId: Int!, fundingInput: FundingInput): Funding
@@ -224,6 +234,7 @@ type Notice {
   content: String
   createdAt: DateTime!
   id: Int!
+  images: [Image]
   isVisible: Boolean!
   title: String
   updatedAt: DateTime!
@@ -233,6 +244,7 @@ type QnA {
   content: String
   createdAt: DateTime!
   id: Int!
+  images: [Image]
   isVisible: Boolean!
   reply: String
   title: String
