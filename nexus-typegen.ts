@@ -37,6 +37,13 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  AlarmInputData: { // input type
+    content?: string | null; // String
+    isConfirm?: boolean | null; // Boolean
+    isVisible?: boolean | null; // Boolean
+    title?: string | null; // String
+    type?: NexusGenEnums['AlarmTypes'] | null; // AlarmTypes
+  }
   ContractInput: { // input type
     endDate: string; // String!
     lastYearEarning: number; // Int!
@@ -362,6 +369,7 @@ export interface NexusGenFieldTypes {
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    checkAlaram: NexusGenRootTypes['Alarm'] | null; // Alarm
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -592,6 +600,7 @@ export interface NexusGenFieldTypeNames {
     IDVerification: 'Auth'
     OAuthLogin: 'AuthPayload'
     chargeTheDeposit: 'AccountCash'
+    checkAlaram: 'Alarm'
     createContract: 'Contract'
     createCreator: 'Creator'
     createFunding: 'Funding'
@@ -716,6 +725,10 @@ export interface NexusGenArgTypes {
     }
     chargeTheDeposit: { // args
       amount: number; // Int!
+    }
+    checkAlaram: { // args
+      id: number; // Int!
+      updateData?: NexusGenInputs['AlarmInputData'] | null; // AlarmInputData
     }
     createContract: { // args
       contractInput?: NexusGenInputs['ContractInput'] | null; // ContractInput

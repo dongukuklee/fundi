@@ -36,6 +36,14 @@ type Alarm {
   updatedAt: DateTime!
 }
 
+input AlarmInputData {
+  content: String
+  isConfirm: Boolean
+  isVisible: Boolean
+  title: String
+  type: AlarmTypes
+}
+
 """Define alarm types"""
 enum AlarmTypes {
   FUNDING
@@ -188,6 +196,7 @@ type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
   chargeTheDeposit(amount: Int!): AccountCash
+  checkAlaram(id: Int!, updateData: AlarmInputData): Alarm
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput): Creator
   createFunding(contractId: Int!, fundingInput: FundingInput): Funding

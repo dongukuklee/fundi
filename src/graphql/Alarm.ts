@@ -1,4 +1,53 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import { AlarmTypes } from "@prisma/client";
+import {
+  booleanArg,
+  extendType,
+  inputObjectType,
+  intArg,
+  nonNull,
+  objectType,
+  stringArg,
+} from "nexus";
+import { filter } from "underscore";
+
+type UpdateAlarmDataType = {
+  title?: string | null;
+  content?: string | null;
+  isConfirm?: boolean | null;
+  isVisible?: boolean | null;
+  type?: AlarmTypes | null;
+};
+
+type ToReturnUpdateAlarmDataType = {
+  title?: string;
+  content?: string;
+  isConfirm?: boolean;
+  isVisible?: boolean;
+  type?: AlarmTypes;
+};
+
+const makeUpdateAlarmVariables = (updateAlarm: UpdateAlarmDataType) => {
+  const { content, isConfirm, isVisible, title, type } = updateAlarm;
+  const variables: ToReturnUpdateAlarmDataType = {};
+  if (content) variables.content = content;
+  if (isConfirm) variables.isConfirm = isConfirm;
+  if (isVisible) variables.isVisible = isVisible;
+  if (title) variables.title = title;
+  if (type) variables.type = type;
+
+  return variables;
+};
+
+export const AlarmInputData = inputObjectType({
+  name: "AlarmInputData",
+  definition(t) {
+    t.string("title");
+    t.string("content");
+    t.boolean("isConfirm");
+    t.boolean("isVisible");
+    t.field("type", { type: "AlarmTypes" });
+  },
+});
 
 export const Alarm = objectType({
   name: "Alarm",
@@ -17,15 +66,25 @@ export const Alarm = objectType({
   },
 });
 
-// export const AlarmMutation = extendType({
-//     type:"Mutation",
-//     definition(t) {
-//         t.field('createAlarm',{
-//             type:"Alarm",
-//             args:{
-//                 title:nonNull(stringArg()),
-//                 content:nonNull(stringArg()),
-//             }
-//         })
-//     },
-// })
+export const AlarmMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("checkAlaram", {
+      type: "Alarm",
+      args: {
+        id: nonNull(intArg()),
+        isConfirm: booleanArg(),
+        isVisible: booleanArg(),
+        updateData: "AlarmInputData",
+      },
+      resolve(parent, { id, updateData }, context, info) {
+        if (!updateData) throw new Error("updateData is not defined");
+        const data = makeUpdateAlarmVariables(updateData);
+        return context.prisma.alarm.update({
+          where: { id },
+          data,
+        });
+      },
+    });
+  },
+});
