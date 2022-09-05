@@ -21,6 +21,14 @@ export const QnA = objectType({
     t.string("title");
     t.string("content");
     t.string("reply");
+    t.list.field("images", {
+      type: "Image",
+      resolve(parent, args, context, info) {
+        return context.prisma.qnA
+          .findUnique({ where: { id: parent.id } })
+          .images();
+      },
+    });
   },
 });
 

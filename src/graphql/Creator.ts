@@ -99,6 +99,14 @@ export const Creator = objectType({
         return likedUsers.includes(userId!);
       },
     });
+    t.list.field("images", {
+      type: "Image",
+      resolve(parent, args, context, info) {
+        return context.prisma.creator
+          .findUnique({ where: { id: parent.id } })
+          .images();
+      },
+    });
   },
 });
 

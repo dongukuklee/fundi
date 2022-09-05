@@ -124,13 +124,6 @@ export interface NexusGenObjects {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
-  Biography: { // root type
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    description: string; // String!
-    id: number; // Int!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-    year: number; // Int!
-  }
   Contract: { // root type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -177,6 +170,17 @@ export interface NexusGenObjects {
     id: number; // Int!
     phoneNumber?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Image: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    filename: string; // String!
+    height: number; // Int!
+    id: number; // Int!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    width: number; // Int!
   }
   Mutation: {};
   Notice: { // root type
@@ -298,13 +302,6 @@ export interface NexusGenFieldTypes {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
-  Biography: { // field return type
-    createdAt: NexusGenScalars['DateTime']; // DateTime!
-    description: string; // String!
-    id: number; // Int!
-    updatedAt: NexusGenScalars['DateTime']; // DateTime!
-    year: number; // Int!
-  }
   Contract: { // field return type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -326,6 +323,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
+    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isLikedUser: boolean | null; // Boolean
     isVisible: boolean; // Boolean!
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
@@ -344,6 +342,7 @@ export interface NexusGenFieldTypes {
     endDate: NexusGenScalars['DateTime'] | null; // DateTime
     fundingSettlement: Array<NexusGenRootTypes['FundingSettlement'] | null> | null; // [FundingSettlement]
     id: number; // Int!
+    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isLikedUser: boolean | null; // Boolean
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     remainingBonds: NexusGenScalars['BigInt']; // BigInt!
@@ -364,6 +363,21 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     phoneNumber: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Image: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    creator: NexusGenRootTypes['Creator'] | null; // Creator
+    filename: string; // String!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
+    height: number; // Int!
+    id: number; // Int!
+    notice: NexusGenRootTypes['Notice'] | null; // Notice
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
+    qna: NexusGenRootTypes['QnA'] | null; // QnA
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    width: number; // Int!
   }
   Mutation: { // field return type
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
@@ -396,6 +410,7 @@ export interface NexusGenFieldTypes {
     content: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isVisible: boolean; // Boolean!
     title: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -404,6 +419,7 @@ export interface NexusGenFieldTypes {
     content: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isVisible: boolean; // Boolean!
     reply: string | null; // String
     title: string | null; // String
@@ -529,13 +545,6 @@ export interface NexusGenFieldTypeNames {
     token: 'String'
     user: 'User'
   }
-  Biography: { // field return type name
-    createdAt: 'DateTime'
-    description: 'String'
-    id: 'Int'
-    updatedAt: 'DateTime'
-    year: 'Int'
-  }
   Contract: { // field return type name
     amountRecieved: 'BigInt'
     createdAt: 'DateTime'
@@ -557,6 +566,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     fundings: 'Funding'
     id: 'Int'
+    images: 'Image'
     isLikedUser: 'Boolean'
     isVisible: 'Boolean'
     likedUser: 'User'
@@ -575,6 +585,7 @@ export interface NexusGenFieldTypeNames {
     endDate: 'DateTime'
     fundingSettlement: 'FundingSettlement'
     id: 'Int'
+    images: 'Image'
     isLikedUser: 'Boolean'
     likedUser: 'User'
     remainingBonds: 'BigInt'
@@ -595,6 +606,21 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     phoneNumber: 'String'
     updatedAt: 'DateTime'
+  }
+  Image: { // field return type name
+    createdAt: 'DateTime'
+    creator: 'Creator'
+    filename: 'String'
+    funding: 'Funding'
+    height: 'Int'
+    id: 'Int'
+    notice: 'Notice'
+    path_origin: 'String'
+    path_sq640: 'String'
+    path_w640: 'String'
+    qna: 'QnA'
+    updatedAt: 'DateTime'
+    width: 'Int'
   }
   Mutation: { // field return type name
     IDVerification: 'Auth'
@@ -627,6 +653,7 @@ export interface NexusGenFieldTypeNames {
     content: 'String'
     createdAt: 'DateTime'
     id: 'Int'
+    images: 'Image'
     isVisible: 'Boolean'
     title: 'String'
     updatedAt: 'DateTime'
@@ -635,6 +662,7 @@ export interface NexusGenFieldTypeNames {
     content: 'String'
     createdAt: 'DateTime'
     id: 'Int'
+    images: 'Image'
     isVisible: 'Boolean'
     reply: 'String'
     title: 'String'
@@ -728,6 +756,8 @@ export interface NexusGenArgTypes {
     }
     checkAlaram: { // args
       id: number; // Int!
+      isConfirm?: boolean | null; // Boolean
+      isVisible?: boolean | null; // Boolean
       updateData?: NexusGenInputs['AlarmInputData'] | null; // AlarmInputData
     }
     createContract: { // args

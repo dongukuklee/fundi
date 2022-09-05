@@ -182,6 +182,14 @@ export const Funding = objectType({
           .fundingSettlement();
       },
     });
+    t.list.field("images", {
+      type: "Image",
+      resolve(parent, args, context, info) {
+        return context.prisma.funding
+          .findUnique({ where: { id: parent.id } })
+          .images();
+      },
+    });
     t.list.field("creator", {
       type: "Creator",
       resolve(parent, args, context, info) {
