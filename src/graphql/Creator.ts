@@ -3,25 +3,12 @@ import {
   booleanArg,
   extendType,
   intArg,
-  list,
   nonNull,
   objectType,
   stringArg,
-  inputObjectType,
 } from "nexus";
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
-
-export const CreatorInput = inputObjectType({
-  name: "CreatorInput",
-  definition(t) {
-    t.nonNull.string("name");
-    t.nonNull.int("birthYear");
-    t.nonNull.string("channelTitle");
-    t.nonNull.string("channelUrl");
-    t.nonNull.boolean("isVisible");
-  },
-});
 
 export const Creator = objectType({
   name: "Creator",

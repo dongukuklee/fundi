@@ -1,4 +1,19 @@
-import { objectType } from "nexus";
+import { arg, extendType, intArg, nonNull, objectType } from "nexus";
+import { ImageInput } from "./ImageInput";
+
+type ConnectType =
+  | {
+      connect: { id: number };
+    }
+  | undefined;
+
+type ImageConnectType = {
+  [type: string]: ConnectType;
+  funding?: ConnectType;
+  creator?: ConnectType;
+  notice?: ConnectType;
+  qna?: ConnectType;
+};
 
 export const Image = objectType({
   name: "Image",
@@ -42,6 +57,27 @@ export const Image = objectType({
         return context.prisma.image
           .findUnique({ where: { id: parent.id } })
           .qna();
+      },
+    });
+  },
+});
+
+export const ImageMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("createImage", {
+      type: "Image",
+      args: {
+        createImageInput: "ImageInput",
+        type: nonNull(arg({ type: "ImageTypes" })),
+        id: nonNull(intArg()),
+      },
+      resolve(parent, { id, type, createImageInput }, context, info) {
+        if (!createImageInput || !type || !id) throw new Error("");
+        const connectAttr: ImageConnectType = { [type]: { connect: { id } } };
+        return context.prisma.image.create({
+          data: { ...connectAttr, ...createImageInput },
+        });
       },
     });
   },

@@ -66,12 +66,21 @@ export interface NexusGenInputs {
     status: NexusGenEnums['FundingStatus']; // FundingStatus!
     title: string; // String!
   }
+  ImageInput: { // input type
+    filename: string; // String!
+    height: number; // Int!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
+    width: number; // Int!
+  }
 }
 
 export interface NexusGenEnums {
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
+  ImageTypes: "creator" | "funding" | "notice" | "qna"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
@@ -387,6 +396,7 @@ export interface NexusGenFieldTypes {
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
+    createImage: NexusGenRootTypes['Image'] | null; // Image
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
@@ -630,6 +640,7 @@ export interface NexusGenFieldTypeNames {
     createContract: 'Contract'
     createCreator: 'Creator'
     createFunding: 'Funding'
+    createImage: 'Image'
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
@@ -770,6 +781,11 @@ export interface NexusGenArgTypes {
     createFunding: { // args
       contractId: number; // Int!
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
+    }
+    createImage: { // args
+      createImageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
+      id: number; // Int!
+      type: NexusGenEnums['ImageTypes']; // ImageTypes!
     }
     createNotice: { // args
       content: string; // String!

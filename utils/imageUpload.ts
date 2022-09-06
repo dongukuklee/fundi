@@ -2,9 +2,25 @@ import multer from "multer";
 import AWS from "aws-sdk";
 import sharp from "sharp";
 import path from "path";
+import { Context, prisma } from "../src/context";
+import { Request, Response } from "express";
+
 require("dotenv").config();
 
 type Next = () => void | Promise<void>;
+
+type ResultType = {
+  [index: string]: string;
+  filename: string;
+  path_origin: string;
+  path_sq640: string;
+  path_w640: string;
+};
+
+type CreateImageInput = ResultType & {
+  height: number;
+  width: number;
+};
 
 const UPLOAD_MAX_COUNTS = parseInt(process.env.UPLOAD_MAX_COUNTS || "10");
 const UPLOAD_LOCATION = process.env.UPLOAD_LOCATION || "uploads";
@@ -30,7 +46,7 @@ const s3 = new AWS.S3();
 const storage = multer.memoryStorage();
 const uploads = multer({ storage: storage }).array("images", UPLOAD_MAX_COUNTS);
 
-const upload = (req: any, res: any, next: Next) => {
+const upload = (req: Request, res: Response, next: Next) => {
   uploads(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
@@ -46,19 +62,19 @@ const upload = (req: any, res: any, next: Next) => {
 const resize = async (req: any, res: any, next: Next) => {
   if (!req.files) return next();
 
-  const resultArray = Array(req.files.length);
+  const resultArray: CreateImageInput[] = Array(req.files.length);
 
   for (const [index, file] of req.files.entries()) {
     // console.log(file);
     const originalExt = `${path.extname(file.originalname)}`;
     const filename = `${Date.now()}`;
-    resultArray[index] = {};
-    const result = resultArray[index];
+    const createImageInput = <CreateImageInput>{};
 
+    resultArray[index] = createImageInput;
+    const result: CreateImageInput = resultArray[index];
     const metadata = await sharp(file.buffer).metadata();
-    result.height = metadata.height;
-    result.width = metadata.width;
-    result.aspectRatio = result.height / result.width;
+    result.height = metadata.height!;
+    result.width = metadata.width!;
     const params = {
       Bucket: AWS_S3_BUCKET!,
       ACL: "public-read",
@@ -71,9 +87,11 @@ const resize = async (req: any, res: any, next: Next) => {
     result.filename = `${filename}.jpg`;
 
     for (const resolution of IMAGE_RESIZES) {
+      const { path, title, width } = resolution;
+
       const buffer = await sharp(file.buffer)
         .resize({
-          width: resolution.width,
+          width,
           fit: "inside",
         })
         .sharpen()
@@ -84,10 +102,10 @@ const resize = async (req: any, res: any, next: Next) => {
         Bucket: AWS_S3_BUCKET!,
         ACL: "public-read",
         Body: buffer,
-        Key: `${resolution.path}${filename}.jpg`,
+        Key: `${path}${filename}.jpg`,
       };
       await s3.upload(params).promise();
-      result[resolution.title] = `${resolution.path}${filename}.jpg`;
+      result[title] = `${path}${filename}.jpg`;
     }
 
     for (const resolution of IMAGE_RESIZES_SQUARE) {
@@ -113,12 +131,18 @@ const resize = async (req: any, res: any, next: Next) => {
 
   console.log(resultArray);
   req.body.results = resultArray;
+
   next();
 };
 
-const result = async (req: any, res: any) => {
+const result = async (req: Request, res: Response) => {
   if (req.body.results.length <= 0) {
     return res.send(`You must select at least 1 image.`);
+  }
+  for (const CreateImageData of req.body.results) {
+    await prisma.image.create({
+      data: { ...CreateImageData },
+    });
   }
 
   return res.send(req.body.results);
