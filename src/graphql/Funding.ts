@@ -5,35 +5,12 @@ import {
   Role,
   User,
 } from "@prisma/client";
-import {
-  arg,
-  extendType,
-  inputObjectType,
-  intArg,
-  list,
-  nonNull,
-  objectType,
-  stringArg,
-} from "nexus";
+import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 
-export const FundingInput = inputObjectType({
-  name: "FundingInput",
-  definition(t) {
-    t.nonNull.field("status", {
-      type: "FundingStatus",
-      default: "PRE_CAMPAIGN",
-    });
-    t.nonNull.string("title");
-    t.string("intro");
-    t.nonNull.boolean("isVisible");
-    t.nonNull.string("startDate");
-    t.nonNull.string("endDate");
-  },
-});
 type Invester = User & {
   accountCash: {
     id: number;

@@ -283,14 +283,14 @@ model Image {
   path_origin                String
   path_w640                  String
   path_sq640                 String
-  creator   Creator  @relation(fields: [creatorId],references: [id])
-  creatorId Int
-  funding   Funding  @relation(fields: [fundingId],references: [id])
- fundingId Int
-  notice    Notice  @relation(fields: [noticeId],references: [id])
-  noticeId Int
-  qna   QnA  @relation(fields: [qnaId],references: [id])
-  qnaId Int
+  creator   Creator?  @relation(fields: [creatorId],references: [id])
+  creatorId Int?
+  funding   Funding?  @relation(fields: [fundingId],references: [id])
+ fundingId Int?
+  notice    Notice?  @relation(fields: [noticeId],references: [id])
+  noticeId Int?
+  qna   QnA?  @relation(fields: [qnaId],references: [id])
+  qnaId Int?
 }
 
 enum QnATypes {

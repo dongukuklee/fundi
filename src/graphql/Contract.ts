@@ -1,13 +1,4 @@
-import { ContractTypes } from "@prisma/client";
-import {
-  objectType,
-  intArg,
-  stringArg,
-  nonNull,
-  extendType,
-  arg,
-  inputObjectType,
-} from "nexus";
+import { objectType, intArg, nonNull, extendType } from "nexus";
 
 const makeContractVariable = (
   contractInput: any,
@@ -38,16 +29,6 @@ const makeContractVariable = (
       return data;
   }
 };
-export const ContractInput = inputObjectType({
-  name: "ContractInput",
-  definition(t) {
-    t.nonNull.int("lastYearEarning");
-    t.nonNull.int("terms");
-    t.nonNull.string("startDate");
-    t.nonNull.string("endDate");
-    t.nonNull.field("type", { type: "ContractTypes" });
-  },
-});
 
 export const Contract = objectType({
   name: "Contract",

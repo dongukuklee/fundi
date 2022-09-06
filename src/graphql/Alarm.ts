@@ -1,14 +1,5 @@
 import { AlarmTypes } from "@prisma/client";
-import {
-  booleanArg,
-  extendType,
-  inputObjectType,
-  intArg,
-  nonNull,
-  objectType,
-  stringArg,
-} from "nexus";
-import { filter } from "underscore";
+import { booleanArg, extendType, intArg, nonNull, objectType } from "nexus";
 
 type UpdateAlarmDataType = {
   title?: string | null;
@@ -37,17 +28,6 @@ const makeUpdateAlarmVariables = (updateAlarm: UpdateAlarmDataType) => {
 
   return variables;
 };
-
-export const AlarmInputData = inputObjectType({
-  name: "AlarmInputData",
-  definition(t) {
-    t.string("title");
-    t.string("content");
-    t.boolean("isConfirm");
-    t.boolean("isVisible");
-    t.field("type", { type: "AlarmTypes" });
-  },
-});
 
 export const Alarm = objectType({
   name: "Alarm",
