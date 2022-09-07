@@ -135,8 +135,13 @@ export interface NexusGenObjects {
     user: NexusGenRootTypes['User']; // User!
   }
   Banner: { // root type
+    id: number; // Int!
+    sequence: number; // Int!
+  }
+  BannerModule: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    isVisible: boolean; // Boolean!
     targetId?: number | null; // Int
     type?: NexusGenEnums['BannerTypes'] | null; // BannerTypes
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -317,9 +322,15 @@ export interface NexusGenFieldTypes {
     user: NexusGenRootTypes['User']; // User!
   }
   Banner: { // field return type
+    banners: NexusGenRootTypes['BannerModule'] | null; // BannerModule
+    id: number; // Int!
+    sequence: number; // Int!
+  }
+  BannerModule: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
+    isVisible: boolean; // Boolean!
     targetId: number | null; // Int
     type: NexusGenEnums['BannerTypes'] | null; // BannerTypes
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -404,8 +415,11 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
+    alterSequence: boolean | null; // Boolean
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     checkAlaram: NexusGenRootTypes['Alarm'] | null; // Alarm
+    createBanner: NexusGenRootTypes['Banner'] | null; // Banner
+    createBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -421,6 +435,7 @@ export interface NexusGenFieldTypes {
     replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
+    updateBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     updateContract: NexusGenRootTypes['Contract'] | null; // Contract
     updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -455,6 +470,8 @@ export interface NexusGenFieldTypes {
     QnA: NexusGenRootTypes['QnA'] | null; // QnA
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    bannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
+    bannerModules: Array<NexusGenRootTypes['BannerModule'] | null> | null; // [BannerModule]
     banners: Array<NexusGenRootTypes['Banner'] | null> | null; // [Banner]
     checkPincode: boolean | null; // Boolean
     creator: NexusGenRootTypes['Creator'] | null; // Creator
@@ -570,9 +587,15 @@ export interface NexusGenFieldTypeNames {
     user: 'User'
   }
   Banner: { // field return type name
+    banners: 'BannerModule'
+    id: 'Int'
+    sequence: 'Int'
+  }
+  BannerModule: { // field return type name
     createdAt: 'DateTime'
     id: 'Int'
     images: 'Image'
+    isVisible: 'Boolean'
     targetId: 'Int'
     type: 'BannerTypes'
     updatedAt: 'DateTime'
@@ -657,8 +680,11 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     IDVerification: 'Auth'
     OAuthLogin: 'AuthPayload'
+    alterSequence: 'Boolean'
     chargeTheDeposit: 'AccountCash'
     checkAlaram: 'Alarm'
+    createBanner: 'Banner'
+    createBannerModule: 'BannerModule'
     createContract: 'Contract'
     createCreator: 'Creator'
     createFunding: 'Funding'
@@ -674,6 +700,7 @@ export interface NexusGenFieldTypeNames {
     replyQueation: 'QnA'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
+    updateBannerModule: 'BannerModule'
     updateContract: 'Contract'
     updateCreator: 'Creator'
     updateFunding: 'Funding'
@@ -708,6 +735,8 @@ export interface NexusGenFieldTypeNames {
     QnA: 'QnA'
     QnAs: 'QnA'
     balanceCash: 'BigInt'
+    bannerModule: 'BannerModule'
+    bannerModules: 'BannerModule'
     banners: 'Banner'
     checkPincode: 'Boolean'
     creator: 'Creator'
@@ -785,6 +814,9 @@ export interface NexusGenArgTypes {
       nickName?: string | null; // String
       type?: string | null; // String
     }
+    alterSequence: { // args
+      ids: number[]; // [Int!]!
+    }
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
@@ -793,6 +825,16 @@ export interface NexusGenArgTypes {
       isConfirm?: boolean | null; // Boolean
       isVisible?: boolean | null; // Boolean
       updateData?: NexusGenInputs['AlarmInputData'] | null; // AlarmInputData
+    }
+    createBanner: { // args
+      id: number; // Int!
+      sequence: number; // Int!
+    }
+    createBannerModule: { // args
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
+      isVisible: boolean; // Boolean!
+      targetId: number; // Int!
+      types: NexusGenEnums['BannerTypes']; // BannerTypes!
     }
     createContract: { // args
       contractInput?: NexusGenInputs['ContractInput'] | null; // ContractInput
@@ -855,6 +897,13 @@ export interface NexusGenArgTypes {
       email: string; // String!
       nickName?: string | null; // String
     }
+    updateBannerModule: { // args
+      id: number; // Int!
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
+      isVisible?: boolean | null; // Boolean
+      targetId?: number | null; // Int
+      types?: NexusGenEnums['BannerTypes'] | null; // BannerTypes
+    }
     updateContract: { // args
       contractId: number; // Int!
       contractInput?: NexusGenInputs['ContractInput'] | null; // ContractInput
@@ -888,6 +937,9 @@ export interface NexusGenArgTypes {
   }
   Query: {
     QnA: { // args
+      id: number; // Int!
+    }
+    bannerModule: { // args
       id: number; // Int!
     }
     checkPincode: { // args
