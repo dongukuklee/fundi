@@ -19,4 +19,5 @@ export * from "./TransactionSettlement";
 export * from "./User";
 export * from "./WithdrawalAccount";
 export * from "./InputTypes";
+export * from "./BannerModule";
 export * from "./Banner";

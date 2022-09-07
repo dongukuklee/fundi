@@ -69,9 +69,16 @@ type AuthPayload {
 }
 
 type Banner {
+  banners: BannerModule
+  id: Int!
+  sequence: Int!
+}
+
+type BannerModule {
   createdAt: DateTime!
   id: Int!
   images: [Image]
+  isVisible: Boolean!
   targetId: Int
   type: BannerTypes
   updatedAt: DateTime!
@@ -237,8 +244,11 @@ enum ImageTypes {
 type Mutation {
   IDVerification(phoneNumber: String!): Auth
   OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
+  alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlaram(id: Int!, isConfirm: Boolean, isVisible: Boolean, updateData: AlarmInputData): Alarm
+  createBanner(id: Int!, sequence: Int!): Banner
+  createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput, imageInput: ImageInput): Creator
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
@@ -254,6 +264,7 @@ type Mutation {
   replyQueation(id: Int!, reply: String!): QnA
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
+  updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
   updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
   updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
@@ -304,6 +315,8 @@ type Query {
   QnA(id: Int!): QnA
   QnAs: [QnA]
   balanceCash: BigInt
+  bannerModule(id: Int!): BannerModule
+  bannerModules: [BannerModule]
   banners: [Banner]
   checkPincode(pincode: String!): Boolean
   creator(id: Int!): Creator
