@@ -80,20 +80,35 @@ export const QnAMutation = extendType({
         title: nonNull(stringArg()),
         content: nonNull(stringArg()),
         type: nonNull(arg({ type: "QnATypes" })),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { title, content, type }, context, info) {
+      async resolve(
+        parent,
+        { title, content, type, imageInput },
+        context,
+        info
+      ) {
         const { userId } = context;
         if (!userId) {
           throw new Error("Cannot create Question without signing in.");
         }
-        return await context.prisma.qnA.create({
-          data: {
-            title,
-            content,
-            type,
-            userId: userId,
-          },
-        });
+        const defaultCreateData = {
+          title,
+          content,
+          type,
+          userId: userId,
+        };
+        const data = !imageInput
+          ? defaultCreateData
+          : {
+              ...defaultCreateData,
+              images: {
+                create: {
+                  ...imageInput,
+                },
+              },
+            };
+        return await context.prisma.qnA.create({ data });
       },
     });
     t.field("replyQueation", {

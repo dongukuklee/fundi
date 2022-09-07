@@ -68,6 +68,21 @@ type AuthPayload {
   user: User!
 }
 
+type Banner {
+  createdAt: DateTime!
+  id: Int!
+  images: [Image]
+  targetId: Int
+  type: BannerTypes
+  updatedAt: DateTime!
+}
+
+"""Define ContractStatus"""
+enum BannerTypes {
+  FUNDING
+  NOTICE
+}
+
 """
 The `BigInt` scalar type represents non-fractional signed whole numeric values.
 """
@@ -194,11 +209,11 @@ type Image {
   height: Int!
   id: Int!
   notice: Notice
-  path_origin: String!
-  path_sq640: String!
-  path_w640: String!
+  origin: String!
   qna: QnA
+  sq640: String!
   updatedAt: DateTime!
+  w640: String!
   width: Int!
 }
 
@@ -225,12 +240,12 @@ type Mutation {
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlaram(id: Int!, isConfirm: Boolean, isVisible: Boolean, updateData: AlarmInputData): Alarm
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
-  createCreator(creatorInput: CreatorInput): Creator
-  createFunding(contractId: Int!, fundingInput: FundingInput): Funding
+  createCreator(creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
-  createNotice(content: String!, title: String!): Notice
+  createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
   createPincode(pincode: String!): String
-  createQnA(content: String!, title: String!, type: QnATypes!): QnA
+  createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
@@ -240,7 +255,7 @@ type Mutation {
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
-  updateCreator(creatorId: Int!, creatorInput: CreatorInput): Creator
+  updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
   updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!): String
@@ -289,6 +304,7 @@ type Query {
   QnA(id: Int!): QnA
   QnAs: [QnA]
   balanceCash: BigInt
+  banners: [Banner]
   checkPincode(pincode: String!): Boolean
   creator(id: Int!): Creator
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!

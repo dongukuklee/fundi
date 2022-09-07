@@ -6,3 +6,4 @@ export * from "./Role";
 export * from "./TransactionType";
 export * from "./AlarmTypes";
 export * from "./ImageTypes";
+export * from "./BannerTypes";

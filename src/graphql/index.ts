@@ -18,5 +18,5 @@ export * from "./FundingSettlement";
 export * from "./TransactionSettlement";
 export * from "./User";
 export * from "./WithdrawalAccount";
-export * from "./ImageInput";
 export * from "./InputTypes";
+export * from "./Banner";

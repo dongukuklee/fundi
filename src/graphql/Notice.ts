@@ -60,14 +60,24 @@ export const NoticeMutation = extendType({
       args: {
         title: nonNull(stringArg()),
         content: nonNull(stringArg()),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { title, content }, context, info) {
-        return await context.prisma.notice.create({
-          data: {
-            title,
-            content,
-          },
-        });
+      async resolve(parent, { title, content, imageInput }, context, info) {
+        const defaultCreateData = {
+          title,
+          content,
+        };
+        const data = !imageInput
+          ? defaultCreateData
+          : {
+              ...defaultCreateData,
+              images: {
+                create: {
+                  ...imageInput,
+                },
+              },
+            };
+        return await context.prisma.notice.create({ data });
       },
     });
     t.field("updateNotice", {

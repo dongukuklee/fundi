@@ -291,6 +291,24 @@ model Image {
   noticeId Int?
   qna   QnA?  @relation(fields: [qnaId],references: [id])
   qnaId Int?
+    banner   Banner?  @relation(fields: [bannerId],references: [id])
+  bannerId Int?
+}
+
+model Banner {
+  id                       Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  images                     Image[]
+  types                      BannerTypes @default(FUNDING)
+  targetId                   Int  
+}
+
+
+
+enum BannerTypes {
+  FUNDING
+  NOTICE
 }
 
 enum QnATypes {
