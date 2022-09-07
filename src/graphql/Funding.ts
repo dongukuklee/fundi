@@ -724,17 +724,23 @@ export const FundingMutation = extendType({
       type: "Funding",
       args: {
         fundingInput: "FundingInput",
+        imageInput: "ImageInput",
         contractId: nonNull(intArg()),
       },
-      async resolve(parent, { fundingInput, contractId }, context, info) {
+      async resolve(
+        parent,
+        { fundingInput, contractId, imageInput },
+        context,
+        info
+      ) {
         const { endDate, isVisible, startDate, status, title } = fundingInput!;
         const bondPrice = 10000;
         const contract = await context.prisma.contract.findUnique({
           where: { id: contractId },
         });
-        if (!contract) {
-          throw new Error("contract not found");
-        }
+        if (!contract) throw new Error("contract not found");
+        if (!imageInput) throw new Error("image data not found");
+
         const bondsTotalNumber = BigInt(
           Number(contract.fundingAmount) / bondPrice
         );
@@ -754,6 +760,11 @@ export const FundingMutation = extendType({
             },
             isVisible,
             status,
+            images: {
+              create: {
+                ...imageInput,
+              },
+            },
           },
         });
       },

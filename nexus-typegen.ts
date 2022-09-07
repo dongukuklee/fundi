@@ -78,6 +78,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
+  BannerTypes: "FUNDING" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   ImageTypes: "creator" | "funding" | "notice" | "qna"
@@ -133,6 +134,13 @@ export interface NexusGenObjects {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
+  Banner: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    targetId?: number | null; // Int
+    type?: NexusGenEnums['BannerTypes'] | null; // BannerTypes
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   Contract: { // root type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -185,9 +193,6 @@ export interface NexusGenObjects {
     filename: string; // String!
     height: number; // Int!
     id: number; // Int!
-    path_origin: string; // String!
-    path_sq640: string; // String!
-    path_w640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     width: number; // Int!
   }
@@ -311,6 +316,14 @@ export interface NexusGenFieldTypes {
     token: string; // String!
     user: NexusGenRootTypes['User']; // User!
   }
+  Banner: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
+    targetId: number | null; // Int
+    type: NexusGenEnums['BannerTypes'] | null; // BannerTypes
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   Contract: { // field return type
     amountRecieved: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -381,11 +394,11 @@ export interface NexusGenFieldTypes {
     height: number; // Int!
     id: number; // Int!
     notice: NexusGenRootTypes['Notice'] | null; // Notice
-    path_origin: string; // String!
-    path_sq640: string; // String!
-    path_w640: string; // String!
+    origin: string; // String!
     qna: NexusGenRootTypes['QnA'] | null; // QnA
+    sq640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    w640: string; // String!
     width: number; // Int!
   }
   Mutation: { // field return type
@@ -442,6 +455,7 @@ export interface NexusGenFieldTypes {
     QnA: NexusGenRootTypes['QnA'] | null; // QnA
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
+    banners: Array<NexusGenRootTypes['Banner'] | null> | null; // [Banner]
     checkPincode: boolean | null; // Boolean
     creator: NexusGenRootTypes['Creator'] | null; // Creator
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
@@ -555,6 +569,14 @@ export interface NexusGenFieldTypeNames {
     token: 'String'
     user: 'User'
   }
+  Banner: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    images: 'Image'
+    targetId: 'Int'
+    type: 'BannerTypes'
+    updatedAt: 'DateTime'
+  }
   Contract: { // field return type name
     amountRecieved: 'BigInt'
     createdAt: 'DateTime'
@@ -625,11 +647,11 @@ export interface NexusGenFieldTypeNames {
     height: 'Int'
     id: 'Int'
     notice: 'Notice'
-    path_origin: 'String'
-    path_sq640: 'String'
-    path_w640: 'String'
+    origin: 'String'
     qna: 'QnA'
+    sq640: 'String'
     updatedAt: 'DateTime'
+    w640: 'String'
     width: 'Int'
   }
   Mutation: { // field return type name
@@ -686,6 +708,7 @@ export interface NexusGenFieldTypeNames {
     QnA: 'QnA'
     QnAs: 'QnA'
     balanceCash: 'BigInt'
+    banners: 'Banner'
     checkPincode: 'Boolean'
     creator: 'Creator'
     creators: 'Creator'
@@ -777,10 +800,12 @@ export interface NexusGenArgTypes {
     }
     createCreator: { // args
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
     createFunding: { // args
       contractId: number; // Int!
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
     createImage: { // args
       createImageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
@@ -789,6 +814,7 @@ export interface NexusGenArgTypes {
     }
     createNotice: { // args
       content: string; // String!
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title: string; // String!
     }
     createPincode: { // args
@@ -796,6 +822,7 @@ export interface NexusGenArgTypes {
     }
     createQnA: { // args
       content: string; // String!
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title: string; // String!
       type: NexusGenEnums['QnATypes']; // QnATypes!
     }
@@ -835,6 +862,7 @@ export interface NexusGenArgTypes {
     updateCreator: { // args
       creatorId: number; // Int!
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
     updateFunding: { // args
       fundingId?: number | null; // Int

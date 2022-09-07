@@ -187,16 +187,22 @@ export const CreatorMutation = extendType({
       type: "Creator",
       args: {
         creatorInput: "CreatorInput",
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { creatorInput }, context, info) {
+      async resolve(parent, { creatorInput, imageInput }, context, info) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can create creator.");
         // }
-        if (!creatorInput) throw new Error("");
+        if (!creatorInput || !imageInput) throw new Error("");
 
         return await context.prisma.creator.create({
           data: {
             ...creatorInput,
+            images: {
+              create: {
+                ...imageInput,
+              },
+            },
           },
         });
       },
@@ -205,9 +211,15 @@ export const CreatorMutation = extendType({
       type: "Creator",
       args: {
         creatorInput: "CreatorInput",
+        imageInput: "ImageInput",
         creatorId: nonNull(intArg()),
       },
-      async resolve(parent, { creatorId: id, creatorInput }, context, info) {
+      async resolve(
+        parent,
+        { creatorId: id, creatorInput, imageInput },
+        context,
+        info
+      ) {
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can update creator.");
         // }
