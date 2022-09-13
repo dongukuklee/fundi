@@ -46,11 +46,11 @@ model User {
   email        String        @unique
   name         String?
   role         Role          @default(INVESTOR)
-  auth         Auth          @relation(fields: [authId], references: [id])
+  auth         Auth          @relation(fields: [authId], references: [id] )
   authId       Int           @unique
-  likeFundings  FundingOnUser[]
+  likeFundings  FundingOnUser[] 
   likedCreator  CreatorOnUser[]
-  accountCash  AccountCash?
+  accountCash  AccountCash? 
   accountsBond AccountBond[]
   qna              QnA[]
   alarm       Alarm[]
@@ -299,6 +299,7 @@ model BannerModule {
   id                       Int      @id @default(autoincrement())
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
+  title                    String @default("")
   images                     Image?
   types                      BannerTypes @default(FUNDING)
   targetId                   Int  

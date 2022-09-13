@@ -5,6 +5,7 @@ import {
   intArg,
   nonNull,
   objectType,
+  stringArg,
 } from "nexus";
 import { BannerTypes } from "@prisma/client";
 
@@ -42,15 +43,18 @@ export const BannerModule = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.boolean("isVisible");
+    t.nonNull.string("title");
     t.field("images", {
       type: "Image",
-      resolve(parent, args, context, info) {
+      async resolve(parent, args, context, info) {
         return context.prisma.bannerModule
-          .findUnique({ where: { id: parent.id } })
+          .findUnique({
+            where: { id: parent.id },
+          })
           .images();
       },
     });
-    t.field("type", { type: "BannerTypes" });
+    t.field("types", { type: "BannerTypes" });
     t.int("targetId");
   },
 });
@@ -82,21 +86,22 @@ export const BannerModuleMutation = extendType({
     t.field("createBannerModule", {
       type: "BannerModule",
       args: {
+        title: nonNull(stringArg()),
         types: nonNull(arg({ type: "BannerTypes" })),
         targetId: nonNull(intArg()),
         imageInput: "ImageInput",
         isVisible: nonNull(booleanArg()),
       },
-      resolve(
+      async resolve(
         parent,
-        { types, targetId, imageInput, isVisible },
+        { title, types, targetId, imageInput, isVisible },
         context,
         info
       ) {
         if (!imageInput) throw new Error("image not found");
-
-        return context.prisma.bannerModule.create({
+        const newBannerModule = await context.prisma.bannerModule.create({
           data: {
+            title,
             targetId,
             types,
             images: {
@@ -107,6 +112,7 @@ export const BannerModuleMutation = extendType({
             isVisible,
           },
         });
+        return newBannerModule;
       },
     });
     t.field("updateBannerModule", {

@@ -143,7 +143,8 @@ export interface NexusGenObjects {
     id: number; // Int!
     isVisible: boolean; // Boolean!
     targetId?: number | null; // Int
-    type?: NexusGenEnums['BannerTypes'] | null; // BannerTypes
+    title: string; // String!
+    types?: NexusGenEnums['BannerTypes'] | null; // BannerTypes
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // root type
@@ -322,7 +323,7 @@ export interface NexusGenFieldTypes {
     user: NexusGenRootTypes['User']; // User!
   }
   Banner: { // field return type
-    banners: NexusGenRootTypes['BannerModule'] | null; // BannerModule
+    banner: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     id: number; // Int!
     sequence: number; // Int!
   }
@@ -332,7 +333,8 @@ export interface NexusGenFieldTypes {
     images: NexusGenRootTypes['Image'] | null; // Image
     isVisible: boolean; // Boolean!
     targetId: number | null; // Int
-    type: NexusGenEnums['BannerTypes'] | null; // BannerTypes
+    title: string; // String!
+    types: NexusGenEnums['BannerTypes'] | null; // BannerTypes
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // field return type
@@ -587,7 +589,7 @@ export interface NexusGenFieldTypeNames {
     user: 'User'
   }
   Banner: { // field return type name
-    banners: 'BannerModule'
+    banner: 'BannerModule'
     id: 'Int'
     sequence: 'Int'
   }
@@ -597,7 +599,8 @@ export interface NexusGenFieldTypeNames {
     images: 'Image'
     isVisible: 'Boolean'
     targetId: 'Int'
-    type: 'BannerTypes'
+    title: 'String'
+    types: 'BannerTypes'
     updatedAt: 'DateTime'
   }
   Contract: { // field return type name
@@ -834,6 +837,7 @@ export interface NexusGenArgTypes {
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       isVisible: boolean; // Boolean!
       targetId: number; // Int!
+      title: string; // String!
       types: NexusGenEnums['BannerTypes']; // BannerTypes!
     }
     createContract: { // args

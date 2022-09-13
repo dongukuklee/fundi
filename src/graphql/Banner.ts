@@ -5,7 +5,7 @@ export const Banner = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.int("sequence");
-    t.field("banners", {
+    t.field("banner", {
       type: "BannerModule",
       resolve(parent, args, context, info) {
         return context.prisma.banner
@@ -24,7 +24,7 @@ export const BannerQuery = extendType({
       resolve(parent, args, context, info) {
         return context.prisma.banner.findMany({
           orderBy: {
-            sequence: "desc",
+            sequence: "asc",
           },
         });
       },
@@ -68,7 +68,7 @@ export const BannerMutation = extendType({
                   id: el,
                 },
               },
-              sequence: idx,
+              sequence: idx + 1,
             },
           });
         });
