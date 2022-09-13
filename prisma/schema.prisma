@@ -291,15 +291,15 @@ model Image {
   noticeId Int?
   qna   QnA?  @relation(fields: [qnaId],references: [id])
   qnaId Int?
-    banner   BannerModule?  @relation(fields: [bannerId],references: [id])
-  bannerId Int?
+  banner   BannerModule?  @relation(fields: [bannerId],references: [id])
+  bannerId Int? @unique
 }
 
 model BannerModule {
   id                       Int      @id @default(autoincrement())
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
-  images                     Image[]
+  images                     Image?
   types                      BannerTypes @default(FUNDING)
   targetId                   Int  
   isVisible                 Boolean @default(false)

@@ -329,7 +329,7 @@ export interface NexusGenFieldTypes {
   BannerModule: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
+    images: NexusGenRootTypes['Image'] | null; // Image
     isVisible: boolean; // Boolean!
     targetId: number | null; // Int
     type: NexusGenEnums['BannerTypes'] | null; // BannerTypes

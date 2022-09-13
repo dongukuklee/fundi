@@ -77,7 +77,7 @@ type Banner {
 type BannerModule {
   createdAt: DateTime!
   id: Int!
-  images: [Image]
+  images: Image
   isVisible: Boolean!
   targetId: Int
   type: BannerTypes
