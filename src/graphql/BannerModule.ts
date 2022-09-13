@@ -6,7 +6,35 @@ import {
   nonNull,
   objectType,
 } from "nexus";
+import { BannerTypes } from "@prisma/client";
 
+type ToReturnVariables = {
+  types: BannerTypes;
+  targetId: number;
+  isVisible: boolean;
+  images: any;
+};
+
+const makeBannerModuleVariables = (
+  targetId?: number | null,
+  isVisible?: boolean | null,
+  imageInput?: any | null,
+  types?: BannerTypes | null
+) => {
+  const variables = <ToReturnVariables>{};
+  if (types) variables.types = types;
+  if (targetId) variables.targetId = targetId;
+  if (isVisible) variables.isVisible = isVisible;
+  if (imageInput) {
+    variables.images = {
+      delete: true,
+      create: {
+        ...imageInput!,
+      },
+    };
+  }
+  return variables;
+};
 export const BannerModule = objectType({
   name: "BannerModule",
   definition(t) {
@@ -14,7 +42,7 @@ export const BannerModule = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.boolean("isVisible");
-    t.list.field("images", {
+    t.field("images", {
       type: "Image",
       resolve(parent, args, context, info) {
         return context.prisma.bannerModule
@@ -87,20 +115,26 @@ export const BannerModuleMutation = extendType({
         id: nonNull(intArg()),
         types: arg({ type: "BannerTypes" }),
         targetId: intArg(),
-        imageInput: "ImageInput",
         isVisible: booleanArg(),
+        imageInput: "ImageInput",
       },
-      resolve(
+      async resolve(
         parent,
-        { id, types, targetId, imageInput, isVisible },
+        { id, types, targetId, isVisible, imageInput },
         context,
         info
       ) {
+        const data = makeBannerModuleVariables(
+          targetId,
+          isVisible,
+          imageInput,
+          types
+        );
         return context.prisma.bannerModule.update({
           where: {
             id,
           },
-          data: {},
+          data,
         });
       },
     });
