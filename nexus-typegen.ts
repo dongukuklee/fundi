@@ -528,6 +528,8 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     name: string | null; // String
     role: NexusGenEnums['Role']; // Role!
+    totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
+    totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   WithdrawalAccount: { // field return type
@@ -793,6 +795,8 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     name: 'String'
     role: 'Role'
+    totalCumulativeInvestmentAmount: 'BigInt'
+    totalCumulativeSettlementAmount: 'BigInt'
     updatedAt: 'DateTime'
   }
   WithdrawalAccount: { // field return type name
