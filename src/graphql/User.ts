@@ -9,6 +9,53 @@ export const User = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("email");
     t.string("name");
+    t.field("totalCumulativeInvestmentAmount", {
+      type: "BigInt",
+      async resolve(parent, args, context, info) {
+        const accountBonds = await context.prisma.accountBond.findMany({
+          where: {
+            ownerId: parent.id,
+          },
+          include: {
+            funding: {
+              select: {
+                bondPrice: true,
+              },
+            },
+          },
+        });
+        return accountBonds.reduce(
+          (acc, cur) => acc + cur.balance * cur.funding!.bondPrice!,
+          BigInt(0)
+        );
+      },
+    });
+    t.field("totalCumulativeSettlementAmount", {
+      type: "BigInt",
+      async resolve(parent, args, context, info) {
+        const accountBonds = await context.prisma.accountBond.findMany({
+          where: {
+            ownerId: parent.id,
+          },
+          include: {
+            settlementTransactions: {
+              select: {
+                settlementAmount: true,
+                additionalSettleMentAmount: true,
+              },
+            },
+          },
+        });
+        return accountBonds.reduce((acc, cur) => {
+          const cumulativeSettlementAmount = cur.settlementTransactions.reduce(
+            (acc, cur) =>
+              acc + cur.additionalSettleMentAmount + cur.settlementAmount,
+            BigInt(0)
+          );
+          return acc + cumulativeSettlementAmount;
+        }, BigInt(0));
+      },
+    });
     t.nonNull.field("role", { type: "Role" });
     t.field("auth", {
       type: "Auth",

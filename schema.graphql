@@ -390,6 +390,8 @@ type User {
   id: Int!
   name: String
   role: Role!
+  totalCumulativeInvestmentAmount: BigInt
+  totalCumulativeSettlementAmount: BigInt
   updatedAt: DateTime!
 }
 
