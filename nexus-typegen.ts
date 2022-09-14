@@ -136,7 +136,6 @@ export interface NexusGenObjects {
   }
   Banner: { // root type
     id: number; // Int!
-    sequence: number; // Int!
   }
   BannerModule: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -325,7 +324,6 @@ export interface NexusGenFieldTypes {
   Banner: { // field return type
     banner: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     id: number; // Int!
-    sequence: number; // Int!
   }
   BannerModule: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -591,7 +589,6 @@ export interface NexusGenFieldTypeNames {
   Banner: { // field return type name
     banner: 'BannerModule'
     id: 'Int'
-    sequence: 'Int'
   }
   BannerModule: { // field return type name
     createdAt: 'DateTime'

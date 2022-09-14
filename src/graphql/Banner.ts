@@ -4,7 +4,6 @@ export const Banner = objectType({
   name: "Banner",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.int("sequence");
     t.field("banner", {
       type: "BannerModule",
       resolve(parent, args, context, info) {
@@ -21,12 +20,8 @@ export const BannerQuery = extendType({
   definition(t) {
     t.list.field("banners", {
       type: "Banner",
-      resolve(parent, args, context, info) {
-        return context.prisma.banner.findMany({
-          orderBy: {
-            sequence: "asc",
-          },
-        });
+      async resolve(parent, args, context, info) {
+        return context.prisma.banner.findMany({});
       },
     });
   },
@@ -44,7 +39,6 @@ export const BannerMutation = extendType({
       resolve(parent, { id, sequence }, context, info) {
         return context.prisma.banner.create({
           data: {
-            sequence,
             banners: {
               connect: {
                 id,
@@ -60,6 +54,24 @@ export const BannerMutation = extendType({
         ids: nonNull(list(nonNull(intArg()))),
       },
       async resolve(parent, { ids }, context, info) {
+        const beforeBanner = await context.prisma.banner.findMany({
+          select: {
+            id: true,
+          },
+        });
+        const beforeBannerIds = beforeBanner.map((el) => el.id);
+        const disconnectBannerModuls = beforeBannerIds.map((el) => {
+          return context.prisma.banner.update({
+            where: {
+              id: el,
+            },
+            data: {
+              banners: {
+                disconnect: true,
+              },
+            },
+          });
+        });
         const updateBanners = ids.map((el, idx) => {
           return context.prisma.banner.create({
             data: {
@@ -68,19 +80,26 @@ export const BannerMutation = extendType({
                   id: el,
                 },
               },
-              sequence: idx + 1,
+            },
+          });
+        });
+        const deleteBeforeBanner = beforeBannerIds.map((el) => {
+          return context.prisma.banner.delete({
+            where: {
+              id: el,
             },
           });
         });
 
         try {
           await context.prisma.$transaction([
-            context.prisma.banner.deleteMany({}),
+            ...disconnectBannerModuls,
             ...updateBanners,
+            ...deleteBeforeBanner,
           ]);
-
           return true;
         } catch (error) {
+          console.log(error);
           return false;
         }
       },

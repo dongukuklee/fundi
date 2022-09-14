@@ -312,7 +312,6 @@ model BannerModule {
 model Banner {
   id                       Int      @id @default(autoincrement())
   banners                  BannerModule?
-  sequence                 Int @default(10)
 }
 
 enum BannerTypes {

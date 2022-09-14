@@ -71,7 +71,6 @@ type AuthPayload {
 type Banner {
   banner: BannerModule
   id: Int!
-  sequence: Int!
 }
 
 type BannerModule {
