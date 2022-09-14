@@ -46,7 +46,7 @@ export const BannerModule = objectType({
     t.nonNull.string("title");
     t.field("images", {
       type: "Image",
-      async resolve(parent, args, context, info) {
+      resolve(parent, args, context, info) {
         return context.prisma.bannerModule
           .findUnique({
             where: { id: parent.id },
