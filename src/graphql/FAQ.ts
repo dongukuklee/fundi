@@ -54,10 +54,28 @@ export const FAQQuery = extendType({
         skip: intArg(),
         take: intArg(),
         type: arg({ type: "FAQTypes" }),
+        keyword: stringArg(),
       },
       resolve(parent, args, context, info) {
         return context.prisma.fAQ.findMany({
-          where: { type: args.type as FAQTypes | undefined, isVisible: true },
+          where: {
+            type: args.type as FAQTypes | undefined,
+            isVisible: true,
+            OR: args.keyword
+              ? [
+                  {
+                    answer: {
+                      contains: args.keyword as string | undefined,
+                    },
+                  },
+                  {
+                    question: {
+                      contains: args.keyword as string | undefined,
+                    },
+                  },
+                ]
+              : undefined,
+          },
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });

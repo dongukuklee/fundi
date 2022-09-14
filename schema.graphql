@@ -331,7 +331,7 @@ enum QnATypes {
 }
 
 type Query {
-  FAQs(skip: Int, take: Int, type: FAQTypes): [FAQ]
+  FAQs(keyword: String, skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
   balanceCash: BigInt

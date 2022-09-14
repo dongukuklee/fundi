@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  previewFeatures = ["referentialIntegrity","fullTextSearch","fullTextIndex"]
 }
 
 datasource db {
@@ -281,6 +281,7 @@ model FAQ{
   type                       FAQTypes @default(ETC)
   question                   String
   answer                    String
+   
 }
 
 model Image {
