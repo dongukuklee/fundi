@@ -989,6 +989,7 @@ export interface NexusGenArgTypes {
   }
   Query: {
     FAQs: { // args
+      keyword?: string | null; // String
       skip?: number | null; // Int
       take?: number | null; // Int
       type?: NexusGenEnums['FAQTypes'] | null; // FAQTypes
