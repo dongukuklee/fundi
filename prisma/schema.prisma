@@ -273,6 +273,16 @@ model QnA {
   images     Image[]
 }
 
+model FAQ{
+   id                         Int      @id @default(autoincrement())
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  isVisible                  Boolean @default(false)
+  type                       FAQTypes @default(ETC)
+  question                   String
+  answer                    String
+}
+
 model Image {
   id                       Int      @id @default(autoincrement())
   createdAt                  DateTime @default(now())
@@ -324,6 +334,13 @@ enum QnATypes {
   ETC
   SETTLEMENT
 }
+
+enum FAQTypes {
+  USAGE
+  PAYMENT
+  ETC
+}
+
 
 enum QnAStatus {
   AWAITING_RESPONSE
