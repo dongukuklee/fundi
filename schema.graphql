@@ -152,6 +152,23 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
+type FAQ {
+  answer: String
+  createdAt: DateTime!
+  id: Int!
+  isVisible: Boolean!
+  question: String
+  type: FAQTypes!
+  updatedAt: DateTime!
+}
+
+"""Define FAQ Types"""
+enum FAQTypes {
+  ETC
+  PAYMENT
+  USAGE
+}
+
 type Funding {
   accountInvestor: [AccountBond!]!
   accountManager: AccountBond
@@ -251,6 +268,7 @@ type Mutation {
   createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, title: String!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  createFAQ(answer: String!, isVisible: Boolean, question: String!, type: FAQTypes!): FAQ
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
@@ -267,6 +285,7 @@ type Mutation {
   updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
   updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
   updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!): String
@@ -312,6 +331,7 @@ enum QnATypes {
 }
 
 type Query {
+  FAQs(skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
   balanceCash: BigInt

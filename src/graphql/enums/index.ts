@@ -7,3 +7,4 @@ export * from "./TransactionType";
 export * from "./AlarmTypes";
 export * from "./ImageTypes";
 export * from "./BannerTypes";
+export * from "./FAQTypes";

@@ -7,6 +7,7 @@ export * from "./Alarm";
 export * from "./Contract";
 export * from "./Creator";
 export * from "./enums";
+export * from "./FAQ";
 export * from "./Funding";
 export * from "./IDVerification";
 export * from "./Image";

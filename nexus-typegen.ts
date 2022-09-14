@@ -80,6 +80,7 @@ export interface NexusGenEnums {
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
   BannerTypes: "FUNDING" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
+  FAQTypes: "ETC" | "PAYMENT" | "USAGE"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   ImageTypes: "creator" | "funding" | "notice" | "qna"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
@@ -165,6 +166,15 @@ export interface NexusGenObjects {
     id: number; // Int!
     isVisible: boolean; // Boolean!
     name: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  FAQ: { // root type
+    answer?: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isVisible: boolean; // Boolean!
+    question?: string | null; // String
+    type: NexusGenEnums['FAQTypes']; // FAQTypes!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Funding: { // root type
@@ -363,6 +373,15 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  FAQ: { // field return type
+    answer: string | null; // String
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isVisible: boolean; // Boolean!
+    question: string | null; // String
+    type: NexusGenEnums['FAQTypes']; // FAQTypes!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   Funding: { // field return type
     accountInvestor: NexusGenRootTypes['AccountBond'][]; // [AccountBond!]!
     accountManager: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -422,6 +441,7 @@ export interface NexusGenFieldTypes {
     createBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    createFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createImage: NexusGenRootTypes['Image'] | null; // Image
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
@@ -438,6 +458,7 @@ export interface NexusGenFieldTypes {
     updateBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     updateContract: NexusGenRootTypes['Contract'] | null; // Contract
     updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    updateFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
     updatePincode: string | null; // String
@@ -467,6 +488,7 @@ export interface NexusGenFieldTypes {
     userId: number; // Int!
   }
   Query: { // field return type
+    FAQs: Array<NexusGenRootTypes['FAQ'] | null> | null; // [FAQ]
     QnA: NexusGenRootTypes['QnA'] | null; // QnA
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
@@ -630,6 +652,15 @@ export interface NexusGenFieldTypeNames {
     name: 'String'
     updatedAt: 'DateTime'
   }
+  FAQ: { // field return type name
+    answer: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    isVisible: 'Boolean'
+    question: 'String'
+    type: 'FAQTypes'
+    updatedAt: 'DateTime'
+  }
   Funding: { // field return type name
     accountInvestor: 'AccountBond'
     accountManager: 'AccountBond'
@@ -689,6 +720,7 @@ export interface NexusGenFieldTypeNames {
     createBannerModule: 'BannerModule'
     createContract: 'Contract'
     createCreator: 'Creator'
+    createFAQ: 'FAQ'
     createFunding: 'Funding'
     createImage: 'Image'
     createNotice: 'Notice'
@@ -705,6 +737,7 @@ export interface NexusGenFieldTypeNames {
     updateBannerModule: 'BannerModule'
     updateContract: 'Contract'
     updateCreator: 'Creator'
+    updateFAQ: 'FAQ'
     updateFunding: 'Funding'
     updateNotice: 'Notice'
     updatePincode: 'String'
@@ -734,6 +767,7 @@ export interface NexusGenFieldTypeNames {
     userId: 'Int'
   }
   Query: { // field return type name
+    FAQs: 'FAQ'
     QnA: 'QnA'
     QnAs: 'QnA'
     balanceCash: 'BigInt'
@@ -849,6 +883,12 @@ export interface NexusGenArgTypes {
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
+    createFAQ: { // args
+      answer: string; // String!
+      isVisible?: boolean | null; // Boolean
+      question: string; // String!
+      type: NexusGenEnums['FAQTypes']; // FAQTypes!
+    }
     createFunding: { // args
       contractId: number; // Int!
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
@@ -918,6 +958,13 @@ export interface NexusGenArgTypes {
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
+    updateFAQ: { // args
+      answer?: string | null; // String
+      id: number; // Int!
+      isVisible?: boolean | null; // Boolean
+      question?: string | null; // String
+      type?: NexusGenEnums['FAQTypes'] | null; // FAQTypes
+    }
     updateFunding: { // args
       fundingId?: number | null; // Int
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
@@ -941,6 +988,11 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    FAQs: { // args
+      skip?: number | null; // Int
+      take?: number | null; // Int
+      type?: NexusGenEnums['FAQTypes'] | null; // FAQTypes
+    }
     QnA: { // args
       id: number; // Int!
     }
