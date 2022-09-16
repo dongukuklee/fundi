@@ -55,6 +55,9 @@ export const QnAQuery = extendType({
         }
         return await context.prisma.qnA.findMany({
           where: { userId: userId },
+          orderBy: {
+            updatedAt: "desc",
+          },
         });
       },
     });
@@ -65,6 +68,11 @@ export const QnAQuery = extendType({
         // if (userRole !== "ADMIN") {
         //   throw new Error("Only the admin can inquiry user QnAs.");
         // }
+        // const fundings = await context.prisma.funding.findMany({});
+        // for (const a of fundings) {
+        //   await setHash(`funding:${a.id}:${a.isVisible}:${a.status}`, a);
+        // }
+
         return await context.prisma.qnA.findMany({});
       },
     });
