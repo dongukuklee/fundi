@@ -150,6 +150,14 @@ export const Funding = objectType({
     t.nonNull.dateTime("updatedAt");
     t.nonNull.field("status", { type: "FundingStatus" });
     t.nonNull.string("title");
+    t.list.field("description", {
+      type: "FundingDescripton",
+      resolve(parent, args, context, info) {
+        return context.prisma.funding
+          .findUnique({ where: { id: parent.id } })
+          .description();
+      },
+    });
     t.nonNull.int("currentSettlementRound");
     t.list.field("fundingSettlement", {
       type: "FundingSettlement",
@@ -484,7 +492,7 @@ export const FundingMutation = extendType({
       },
     });
     t.field("withdrawFunding", {
-      type: "AccountBond",
+      type: "AccountCash",
       args: {
         id: nonNull(intArg()),
       },

@@ -22,3 +22,4 @@ export * from "./WithdrawalAccount";
 export * from "./InputTypes";
 export * from "./BannerModule";
 export * from "./Banner";
+export * from "./FundingDescripton";

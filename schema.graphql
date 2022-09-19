@@ -6,9 +6,11 @@ type AccountBond {
   balance: BigInt!
   createdAt: DateTime!
   funding: Funding
+  fundingId: Int!
   id: Int!
   investmentAmount: BigInt
   owner: User
+  ownerId: Int!
   settlementAmount: [BigInt]
   transactionSettlement: [TransactionSettlement!]!
   transactions: [TransactionBond!]!
@@ -178,6 +180,7 @@ type Funding {
   createdAt: DateTime!
   creator: [Creator]
   currentSettlementRound: Int!
+  description: [FundingDescripton]
   endDate: DateTime
   fundingSettlement: [FundingSettlement]
   id: Int!
@@ -191,7 +194,19 @@ type Funding {
   updatedAt: DateTime!
 }
 
+input FundingDescriptionInputTypes {
+  content: String!
+  title: String!
+}
+
+type FundingDescripton {
+  content: String!
+  id: Int!
+  title: String!
+}
+
 input FundingInput {
+  description: [FundingDescriptionInputTypes]
   endDate: String!
   intro: String
   isVisible: Boolean!
@@ -290,7 +305,7 @@ type Mutation {
   updateNotice(content: String, id: Int!, title: String): Notice
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
-  withdrawFunding(id: Int!): AccountBond
+  withdrawFunding(id: Int!): AccountCash
 }
 
 type Notice {

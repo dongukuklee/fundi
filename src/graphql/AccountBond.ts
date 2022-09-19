@@ -7,6 +7,8 @@ export const AccountBond = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.bigInt("balance");
+    t.nonNull.int("ownerId");
+    t.nonNull.int("fundingId");
     t.field("owner", {
       type: "User",
       resolve(parent, args, context, info) {
@@ -36,9 +38,9 @@ export const AccountBond = objectType({
     t.field("funding", {
       type: "Funding",
       resolve(parent, args, context, info) {
-        return context.prisma.accountBond
-          .findUnique({ where: { id: parent.id } })
-          .funding();
+        return context.prisma.funding.findUnique({
+          where: { id: parent.fundingId },
+        });
       },
     });
     t.list.field("settlementAmount", {
