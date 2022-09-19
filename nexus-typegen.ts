@@ -60,12 +60,12 @@ export interface NexusGenInputs {
   }
   FundingDescriptionInputTypes: { // input type
     content: string; // String!
+    id?: number | null; // Int
     title: string; // String!
   }
   FundingInput: { // input type
-    description?: Array<NexusGenInputs['FundingDescriptionInputTypes'] | null> | null; // [FundingDescriptionInputTypes]
+    description?: NexusGenInputs['FundingDescriptionInputTypes'][] | null; // [FundingDescriptionInputTypes!]
     endDate: string; // String!
-    intro?: string | null; // String
     isVisible: boolean; // Boolean!
     startDate: string; // String!
     status: NexusGenEnums['FundingStatus']; // FundingStatus!

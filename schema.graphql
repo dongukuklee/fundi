@@ -196,6 +196,7 @@ type Funding {
 
 input FundingDescriptionInputTypes {
   content: String!
+  id: Int
   title: String!
 }
 
@@ -206,9 +207,8 @@ type FundingDescripton {
 }
 
 input FundingInput {
-  description: [FundingDescriptionInputTypes]
+  description: [FundingDescriptionInputTypes!]
   endDate: String!
-  intro: String
   isVisible: Boolean!
   startDate: String!
   status: FundingStatus! = PRE_CAMPAIGN
