@@ -165,7 +165,7 @@ model Funding {
   updatedAt        DateTime      @updatedAt
   status           FundingStatus @default(PRE_CAMPAIGN)
   title            String
-  intro            String?        @default("")      
+  description      FundingDescription[]
   contract         Contract      @relation(fields: [contractId], references: [id])
   contractId       Int           @unique
   isVisible        Boolean       @default(false)
@@ -180,6 +180,14 @@ model Funding {
   fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
   images     Image[]
+}
+
+model FundingDescription{
+  id               Int           @id @default(autoincrement())
+  title            String
+  content          String
+  funding          Funding  @relation(fields: [fundingId],references: [id])
+  fundingId        Int
 }
 
 model FundingSettlement {
