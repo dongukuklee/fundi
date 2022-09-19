@@ -822,14 +822,10 @@ export const FundingMutation = extendType({
         if (description) {
           each(description, (el) => {
             updateTransaction.push(
-              context.prisma.fundingDescription.update({
-                where: {
-                  id: el.id!,
-                },
-                data: {
-                  title: el.title,
-                  content: el.content,
-                },
+              context.prisma.fundingDescription.upsert({
+                where: { id: el.id! },
+                update: { content: el.content, title: el.title },
+                create: { content: el.content, title: el.title, fundingId: id },
               })
             );
           });
