@@ -10,6 +10,7 @@ import { TransactionType } from "@prisma/client";
 import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
+import { each, filter, map } from "underscore";
 
 type Invester = User & {
   accountCash: {
@@ -38,6 +39,12 @@ type Funding = {
   status: FundingStatus;
   title: string;
   currentSettlementRound: number;
+};
+
+type DescriptionType = {
+  id: number | undefined;
+  title: string;
+  content: string;
 };
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
@@ -741,18 +748,29 @@ export const FundingMutation = extendType({
         context,
         info
       ) {
-        const { endDate, isVisible, startDate, status, title } = fundingInput!;
+        const { endDate, isVisible, startDate, status, title, description } =
+          fundingInput!;
         const bondPrice = 10000;
         const contract = await context.prisma.contract.findUnique({
           where: { id: contractId },
         });
         if (!contract) throw new Error("contract not found");
         if (!imageInput) throw new Error("image data not found");
-
+        if (!description) throw new Error("image data not found");
         const bondsTotalNumber = BigInt(
           Number(contract.fundingAmount) / bondPrice
         );
-
+        const typeParsedDescription = map(
+          filter(description, (el) => !el.id),
+          (el) => {
+            const { content, title, id } = el;
+            return <DescriptionType>{
+              content,
+              id,
+              title,
+            };
+          }
+        );
         return await context.prisma.funding.create({
           data: {
             startDate: new Date(startDate),
@@ -764,6 +782,11 @@ export const FundingMutation = extendType({
             contract: {
               connect: {
                 id: contractId,
+              },
+            },
+            description: {
+              createMany: {
+                data: [...typeParsedDescription],
               },
             },
             isVisible,
@@ -784,27 +807,47 @@ export const FundingMutation = extendType({
         fundingId: intArg(),
       },
       async resolve(parent, { fundingInput, fundingId: id }, context) {
-        const { endDate, isVisible, startDate, status, title, intro } =
+        const { endDate, isVisible, startDate, status, title, description } =
           fundingInput!;
+        const updateTransaction = [];
         const variables = {} as any;
         if (!id) throw new Error("funding not found");
 
         if (title) variables.title = title;
-        if (intro) variables.intro = intro;
         if (status) variables.status = status;
         if (endDate) variables.endDate = new Date(endDate);
         if (startDate) variables.startDate = new Date(startDate);
         if (isVisible !== undefined || isVisible !== null)
           variables.isVisible = isVisible;
-
-        return await context.prisma.funding.update({
-          where: {
-            id,
-          },
-          data: {
-            ...variables,
-          },
-        });
+        if (description) {
+          each(description, (el) => {
+            updateTransaction.push(
+              context.prisma.fundingDescription.update({
+                where: {
+                  id: el.id!,
+                },
+                data: {
+                  title: el.title,
+                  content: el.content,
+                },
+              })
+            );
+          });
+        }
+        updateTransaction.push(
+          context.prisma.funding.update({
+            where: {
+              id,
+            },
+            data: {
+              ...variables,
+            },
+          })
+        );
+        const fundingUpdateResult = await context.prisma.$transaction(
+          updateTransaction
+        );
+        return fundingUpdateResult[0];
       },
     });
   },

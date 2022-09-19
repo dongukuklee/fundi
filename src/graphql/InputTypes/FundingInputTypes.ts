@@ -8,8 +8,9 @@ export const FundingInput = inputObjectType({
       default: "PRE_CAMPAIGN",
     });
     t.nonNull.string("title");
-    t.list.field("description", { type: "FundingDescriptionInputTypes" });
-    t.string("intro");
+    t.list.nonNull.field("description", {
+      type: "FundingDescriptionInputTypes",
+    });
     t.nonNull.boolean("isVisible");
     t.nonNull.string("startDate");
     t.nonNull.string("endDate");
