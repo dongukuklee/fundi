@@ -57,3 +57,11 @@ export const getHashValue = async (key: string, field: string) => {
   const value = await redisClient.HGET(key, field);
   return typeChecker(field, value);
 };
+
+export const isInSet = async (key: string, value: string) => {
+  return await redisClient.SISMEMBER(key, value);
+};
+
+export const getSet = async (key: string) => {
+  return await redisClient.SMEMBERS(key);
+};

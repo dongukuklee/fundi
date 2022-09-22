@@ -131,6 +131,7 @@ type Creator {
   channelUrl: String!
   contract: [Contract]
   createdAt: DateTime!
+  description: String!
   fundings: [Funding!]!
   id: Int!
   images: [Image]
@@ -202,7 +203,7 @@ input FundingDescriptionInputTypes {
 
 type FundingDescripton {
   content: String!
-  id: Int!
+  id: Int
   title: String!
 }
 
@@ -353,6 +354,7 @@ type Query {
   bannerModule(id: Int!): BannerModule
   bannerModules: [BannerModule]
   banners: [Banner]
+  cancellationCharge(id: Int!): BigInt
   checkPincode(pincode: String!): Boolean
   creator(id: Int!): Creator
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!

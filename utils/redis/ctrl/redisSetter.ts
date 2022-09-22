@@ -33,3 +33,7 @@ export const setHashValue = async (key: string, field: string, value: any) => {
   const parsedValue = typeChecker(value);
   await redisClient.HSET(key, field, parsedValue);
 };
+
+export const addToSet = async (key: string, value: string) => {
+  return await redisClient.SADD(key, value);
+};

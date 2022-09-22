@@ -333,6 +333,11 @@ model Banner {
   banners                  BannerModule?
 }
 
+model DeviceToken {
+  id                       Int      @id @default(autoincrement())
+  Token                    String
+}
+
 enum BannerTypes {
   FUNDING
   NOTICE

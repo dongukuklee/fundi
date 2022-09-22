@@ -170,6 +170,7 @@ export interface NexusGenObjects {
     channelTitle: string; // String!
     channelUrl: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
     id: number; // Int!
     isVisible: boolean; // Boolean!
     name: string; // String!
@@ -199,7 +200,7 @@ export interface NexusGenObjects {
   }
   FundingDescripton: { // root type
     content: string; // String!
-    id: number; // Int!
+    id?: number | null; // Int
     title: string; // String!
   }
   FundingSettlement: { // root type
@@ -378,6 +379,7 @@ export interface NexusGenFieldTypes {
     channelUrl: string; // String!
     contract: Array<NexusGenRootTypes['Contract'] | null> | null; // [Contract]
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    description: string; // String!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
     images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
@@ -420,7 +422,7 @@ export interface NexusGenFieldTypes {
   }
   FundingDescripton: { // field return type
     content: string; // String!
-    id: number; // Int!
+    id: number | null; // Int
     title: string; // String!
   }
   FundingSettlement: { // field return type
@@ -515,6 +517,7 @@ export interface NexusGenFieldTypes {
     bannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     bannerModules: Array<NexusGenRootTypes['BannerModule'] | null> | null; // [BannerModule]
     banners: Array<NexusGenRootTypes['Banner'] | null> | null; // [Banner]
+    cancellationCharge: NexusGenScalars['BigInt'] | null; // BigInt
     checkPincode: boolean | null; // Boolean
     creator: NexusGenRootTypes['Creator'] | null; // Creator
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
@@ -665,6 +668,7 @@ export interface NexusGenFieldTypeNames {
     channelUrl: 'String'
     contract: 'Contract'
     createdAt: 'DateTime'
+    description: 'String'
     fundings: 'Funding'
     id: 'Int'
     images: 'Image'
@@ -802,6 +806,7 @@ export interface NexusGenFieldTypeNames {
     bannerModule: 'BannerModule'
     bannerModules: 'BannerModule'
     banners: 'Banner'
+    cancellationCharge: 'BigInt'
     checkPincode: 'Boolean'
     creator: 'Creator'
     creators: 'Creator'
@@ -1026,6 +1031,9 @@ export interface NexusGenArgTypes {
       id: number; // Int!
     }
     bannerModule: { // args
+      id: number; // Int!
+    }
+    cancellationCharge: { // args
       id: number; // Int!
     }
     checkPincode: { // args
