@@ -11,6 +11,7 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each, filter, map } from "underscore";
+import { sendMessageToDevice } from "../../utils/appPushMessage";
 
 type Invester = User & {
   accountCash: {
@@ -299,6 +300,19 @@ export const Funding = objectType({
 export const FundingQuery = extendType({
   type: "Query",
   definition(t) {
+    t.field("cancellationCharge", {
+      type: "BigInt",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        const investor = await getInvestor(context, id);
+        const funding = await getFunding(context, id);
+        if (!investor) throw new Error("investor not found");
+        if (!funding) throw new Error("funding not found");
+        return await getTotalRefundAmount(investor, funding);
+      },
+    });
     t.field("funding", {
       type: "Funding",
       args: {
@@ -756,7 +770,7 @@ export const FundingMutation = extendType({
         });
         if (!contract) throw new Error("contract not found");
         if (!imageInput) throw new Error("image data not found");
-        if (!description) throw new Error("image data not found");
+        if (!description) throw new Error("description not found");
         const bondsTotalNumber = BigInt(
           Number(contract.fundingAmount) / bondPrice
         );

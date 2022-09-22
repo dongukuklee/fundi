@@ -10,12 +10,17 @@ type CreateAlarmData = {
 };
 
 export const AppPushAndCreateAlarm = async (
-  context: Context,
   token: string,
-  createAlarmData: CreateAlarmData
+  createAlarmData: CreateAlarmData,
+  context?: Context
 ) => {
-  sendMessageToDevice(token, createAlarmData.title, createAlarmData.content);
-  if (!!context.userId)
+  await sendMessageToDevice(
+    token,
+    createAlarmData.title,
+    createAlarmData.content
+  );
+  console.log(context);
+  if (!!context?.userId)
     await context.prisma.alarm.create({
       data: {
         ...createAlarmData,

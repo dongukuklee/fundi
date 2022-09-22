@@ -81,7 +81,7 @@ export const AccountBondMutation = extendType({
             balance: true,
           },
         });
-        return await context.prisma.accountCash.update({
+        const updatedAccountCash = await context.prisma.accountCash.update({
           where: { ownerId: userId },
           data: {
             balance: { increment: BigInt(amount) },
@@ -95,6 +95,8 @@ export const AccountBondMutation = extendType({
             },
           },
         });
+
+        return updatedAccountCash;
       },
     });
   },

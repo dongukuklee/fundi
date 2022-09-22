@@ -20,6 +20,7 @@ export const Creator = objectType({
     t.nonNull.boolean("isVisible");
     t.nonNull.string("channelTitle");
     t.nonNull.string("channelUrl");
+    t.nonNull.string("description");
     t.list.field("contract", {
       type: "Contract",
       resolve(parent, args, context, info) {
