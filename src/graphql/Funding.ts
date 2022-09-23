@@ -11,7 +11,7 @@ import { TAKE } from "../common/const";
 import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each, filter, map } from "underscore";
-import { sendMessageToDevice } from "../../utils/appPushMessage";
+import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 
 type Invester = User & {
   accountCash: {
@@ -498,7 +498,6 @@ export const FundingMutation = extendType({
             },
           }),
         ]);
-
         return context.prisma.accountBond.findUnique({
           where: {
             id: investorAccountBondId,
@@ -619,7 +618,7 @@ export const FundingMutation = extendType({
 
         const round = funding?.currentSettlementRound!;
         const settlementTransaction: any = [];
-
+        const appPushTransaction: any = [];
         for (const participant of FundingParticipantsAccountBond) {
           const participantAccoutCash =
             await context.prisma.accountCash.findFirst({
@@ -678,9 +677,25 @@ export const FundingMutation = extendType({
               },
             })
           );
+          appPushTransaction.push(
+            AppPushAndCreateAlarm(
+              {
+                title: `${funding?.title} 펀딩정산`,
+                content: ` ${
+                  round + 1
+                }회차 정산금액 : ${totalSettlementedAmount} 원`,
+                sentTime: new Date(),
+                type: "FUNDING",
+              },
+              participant.ownerId,
+              context
+            )
+          );
         }
 
         await context.prisma.$transaction(settlementTransaction);
+        await Promise.all(appPushTransaction);
+        console.log("done");
         return await context.prisma.funding.update({
           where: {
             id,

@@ -77,7 +77,9 @@ export const NoticeMutation = extendType({
                 },
               },
             };
-        return await context.prisma.notice.create({ data });
+        const notice = await context.prisma.notice.create({ data });
+
+        return notice;
       },
     });
     t.field("updateNotice", {

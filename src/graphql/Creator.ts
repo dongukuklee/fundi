@@ -7,16 +7,45 @@ import {
   objectType,
   stringArg,
 } from "nexus";
+
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
+import { each } from "underscore";
 
+type CreateVariableType = {
+  [key: string]: any;
+  birthYear?: number;
+  channelTitle?: string;
+  channelUrl?: string;
+  description?: string;
+  isVisible?: boolean;
+  name?: string;
+};
+
+type CreatorInput = {
+  birthYear?: number | null | undefined;
+  channelTitle?: string | null | undefined;
+  channelUrl?: string | null | undefined;
+  description?: string | null | undefined;
+  isVisible?: boolean | null | undefined;
+  name?: string | null | undefined;
+};
+
+const makeCreatorVariables = (data: CreatorInput) => {
+  const variables = <CreateVariableType>{};
+  each(data, (el, idx) => {
+    variables[idx] = el;
+  });
+
+  return variables;
+};
 export const Creator = objectType({
   name: "Creator",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
-    t.nonNull.string("name");
+    t.string("name");
     t.nonNull.boolean("isVisible");
     t.nonNull.string("channelTitle");
     t.nonNull.string("channelUrl");
@@ -194,11 +223,12 @@ export const CreatorMutation = extendType({
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can create creator.");
         // }
-        if (!creatorInput || !imageInput) throw new Error("");
 
+        if (!creatorInput || !imageInput) throw new Error("");
+        const creatorInputVariables = makeCreatorVariables(creatorInput);
         return await context.prisma.creator.create({
           data: {
-            ...creatorInput,
+            ...creatorInputVariables,
             images: {
               create: {
                 ...imageInput,
@@ -225,13 +255,13 @@ export const CreatorMutation = extendType({
         //   throw new Error("Only the administrator can update creator.");
         // }
         if (!creatorInput) throw new Error("");
-
+        const creatorInputVariables = makeCreatorVariables(creatorInput);
         return await context.prisma.creator.update({
           where: {
             id,
           },
           data: {
-            ...creatorInput,
+            ...creatorInputVariables,
           },
         });
       },

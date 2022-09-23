@@ -131,7 +131,7 @@ model Creator{
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  name      String
+  name      String?
   channelTitle String @default("")
   channelUrl  String @default("")
   description String @default("")
