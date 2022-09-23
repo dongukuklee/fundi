@@ -59,6 +59,12 @@ export interface NexusGenInputs {
     isVisible?: boolean | null; // Boolean
     name?: string | null; // String
   }
+  CreatorMonthlyInfoInpuTypes: { // input type
+    income?: NexusGenScalars['BigInt'] | null; // BigInt
+    month?: string | null; // String
+    subscriber?: NexusGenScalars['BigInt'] | null; // BigInt
+    views?: NexusGenScalars['BigInt'] | null; // BigInt
+  }
   FundingDescriptionInputTypes: { // input type
     content: string; // String!
     id?: number | null; // Int
@@ -176,6 +182,15 @@ export interface NexusGenObjects {
     isVisible: boolean; // Boolean!
     name?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  CreatorMonthlyInfo: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    income: NexusGenScalars['BigInt']; // BigInt!
+    month: NexusGenScalars['DateTime']; // DateTime!
+    subscriber: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    views: NexusGenScalars['BigInt']; // BigInt!
   }
   FAQ: { // root type
     answer?: string | null; // String
@@ -380,6 +395,7 @@ export interface NexusGenFieldTypes {
     channelUrl: string; // String!
     contract: Array<NexusGenRootTypes['Contract'] | null> | null; // [Contract]
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    creatorMonthlyInfo: Array<NexusGenRootTypes['CreatorMonthlyInfo'] | null> | null; // [CreatorMonthlyInfo]
     description: string; // String!
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     id: number; // Int!
@@ -389,6 +405,15 @@ export interface NexusGenFieldTypes {
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     name: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  CreatorMonthlyInfo: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    income: NexusGenScalars['BigInt']; // BigInt!
+    month: NexusGenScalars['DateTime']; // DateTime!
+    subscriber: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    views: NexusGenScalars['BigInt']; // BigInt!
   }
   FAQ: { // field return type
     answer: string | null; // String
@@ -464,6 +489,7 @@ export interface NexusGenFieldTypes {
     createBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
     createCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    createCreatorMonthlyInfos: NexusGenRootTypes['CreatorMonthlyInfo'] | null; // CreatorMonthlyInfo
     createFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
     createFunding: NexusGenRootTypes['Funding'] | null; // Funding
     createImage: NexusGenRootTypes['Image'] | null; // Image
@@ -482,6 +508,7 @@ export interface NexusGenFieldTypes {
     updateBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     updateContract: NexusGenRootTypes['Contract'] | null; // Contract
     updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    updateCreatorMonthlyInfo: NexusGenRootTypes['CreatorMonthlyInfo'] | null; // CreatorMonthlyInfo
     updateFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
     updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
@@ -672,6 +699,7 @@ export interface NexusGenFieldTypeNames {
     channelUrl: 'String'
     contract: 'Contract'
     createdAt: 'DateTime'
+    creatorMonthlyInfo: 'CreatorMonthlyInfo'
     description: 'String'
     fundings: 'Funding'
     id: 'Int'
@@ -681,6 +709,15 @@ export interface NexusGenFieldTypeNames {
     likedUser: 'User'
     name: 'String'
     updatedAt: 'DateTime'
+  }
+  CreatorMonthlyInfo: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    income: 'BigInt'
+    month: 'DateTime'
+    subscriber: 'BigInt'
+    updatedAt: 'DateTime'
+    views: 'BigInt'
   }
   FAQ: { // field return type name
     answer: 'String'
@@ -756,6 +793,7 @@ export interface NexusGenFieldTypeNames {
     createBannerModule: 'BannerModule'
     createContract: 'Contract'
     createCreator: 'Creator'
+    createCreatorMonthlyInfos: 'CreatorMonthlyInfo'
     createFAQ: 'FAQ'
     createFunding: 'Funding'
     createImage: 'Image'
@@ -774,6 +812,7 @@ export interface NexusGenFieldTypeNames {
     updateBannerModule: 'BannerModule'
     updateContract: 'Contract'
     updateCreator: 'Creator'
+    updateCreatorMonthlyInfo: 'CreatorMonthlyInfo'
     updateFAQ: 'FAQ'
     updateFunding: 'Funding'
     updateNotice: 'Notice'
@@ -918,6 +957,10 @@ export interface NexusGenArgTypes {
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
+    createCreatorMonthlyInfos: { // args
+      creatorId: number; // Int!
+      creatorMonthlyInfoInput: NexusGenInputs['CreatorMonthlyInfoInpuTypes']; // CreatorMonthlyInfoInpuTypes!
+    }
     createFAQ: { // args
       answer: string; // String!
       isVisible?: boolean | null; // Boolean
@@ -992,6 +1035,10 @@ export interface NexusGenArgTypes {
       creatorId: number; // Int!
       creatorInput?: NexusGenInputs['CreatorInput'] | null; // CreatorInput
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
+    }
+    updateCreatorMonthlyInfo: { // args
+      creatorMonthlyInfoInput: NexusGenInputs['CreatorMonthlyInfoInpuTypes']; // CreatorMonthlyInfoInpuTypes!
+      id: number; // Int!
     }
     updateFAQ: { // args
       answer?: string | null; // String

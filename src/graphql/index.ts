@@ -6,6 +6,7 @@ export * from "./AccountBond";
 export * from "./Alarm";
 export * from "./Contract";
 export * from "./Creator";
+export * from "./CreatorMonthlyInfo";
 export * from "./enums";
 export * from "./FAQ";
 export * from "./Funding";
