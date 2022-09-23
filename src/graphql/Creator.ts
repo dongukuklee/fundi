@@ -58,6 +58,19 @@ export const Creator = objectType({
           .contract();
       },
     });
+    t.list.field("creatorMonthlyInfo", {
+      type: "CreatorMonthlyInfo",
+      async resolve(parent, args, context, info) {
+        return await context.prisma.creatorMonthlyInfo.findMany({
+          where: {
+            creatorId: parent.id,
+          },
+          orderBy: {
+            month: "desc",
+          },
+        });
+      },
+    });
     t.int("birthYear");
     t.nonNull.list.nonNull.field("fundings", {
       type: "Funding",

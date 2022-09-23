@@ -141,6 +141,19 @@ model Creator{
   contract Contract[]
   likedUser    CreatorOnUser[]
   images     Image[]
+  creatorMonthlyInfo CreatorMonthlyInfo[]
+}
+
+model CreatorMonthlyInfo{
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  month     DateTime
+  subscriber BigInt
+  income BigInt
+  views BigInt
+  creator Creator @relation(fields: [creatorId],references: [id])
+  creatorId Int
 }
 
 model Contract {

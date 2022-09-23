@@ -131,6 +131,7 @@ type Creator {
   channelUrl: String!
   contract: [Contract]
   createdAt: DateTime!
+  creatorMonthlyInfo: [CreatorMonthlyInfo]
   description: String!
   fundings: [Funding!]!
   id: Int!
@@ -149,6 +150,23 @@ input CreatorInput {
   description: String
   isVisible: Boolean
   name: String
+}
+
+type CreatorMonthlyInfo {
+  createdAt: DateTime!
+  id: Int!
+  income: BigInt!
+  month: DateTime!
+  subscriber: BigInt!
+  updatedAt: DateTime!
+  views: BigInt!
+}
+
+input CreatorMonthlyInfoInpuTypes {
+  income: BigInt
+  month: String
+  subscriber: BigInt
+  views: BigInt
 }
 
 """
@@ -285,6 +303,7 @@ type Mutation {
   createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, title: String!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  createCreatorMonthlyInfos(creatorId: Int!, creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!): CreatorMonthlyInfo
   createFAQ(answer: String!, isVisible: Boolean, question: String!, type: FAQTypes!): FAQ
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
@@ -303,6 +322,7 @@ type Mutation {
   updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
   updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  updateCreatorMonthlyInfo(creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!, id: Int!): CreatorMonthlyInfo
   updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
   updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
   updateNotice(content: String, id: Int!, title: String): Notice
