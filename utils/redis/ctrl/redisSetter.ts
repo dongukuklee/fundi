@@ -18,6 +18,10 @@ export const setString = async (
   await redisClient.SET(key, JSON.stringify(data), { EX });
 };
 
+export const deleteString = async (key: string) => {
+  await redisClient.DEL(key);
+};
+
 export const setHash = async (
   key: string,
   obj: ObjectAnyType
@@ -36,4 +40,8 @@ export const setHashValue = async (key: string, field: string, value: any) => {
 
 export const addToSet = async (key: string, value: string) => {
   return await redisClient.SADD(key, value);
+};
+
+export const removeFromSet = async (key: string, value: string) => {
+  return await redisClient.SREM(key, value);
 };

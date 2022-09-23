@@ -32,7 +32,9 @@ const typeChecker = (field: string, val: any) => {
 };
 
 export async function getString(key: string) {
-  return await redisClient.get(key);
+  const data = await redisClient.get(key);
+  if (!data) return null;
+  return JSON.parse(data);
 }
 
 export const getHash = async (key: string) => {

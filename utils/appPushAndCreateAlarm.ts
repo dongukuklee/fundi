@@ -1,6 +1,7 @@
 import { AlarmTypes } from "@prisma/client";
 import { Context } from "../src/context";
 import { sendMessageToDevice } from "./appPushMessage";
+import { deleteString, getSet, getString } from "./redis/ctrl";
 
 type CreateAlarmData = {
   title: string;
@@ -10,25 +11,30 @@ type CreateAlarmData = {
 };
 
 export const AppPushAndCreateAlarm = async (
-  token: string,
   createAlarmData: CreateAlarmData,
-  context?: Context
+  id: number,
+  context: Context
 ) => {
-  await sendMessageToDevice(
-    token,
-    createAlarmData.title,
-    createAlarmData.content
-  );
-  console.log(context);
-  if (!!context?.userId)
-    await context.prisma.alarm.create({
-      data: {
-        ...createAlarmData,
-        user: {
-          connect: {
-            id: context.userId,
-          },
+  const token = await getString(`user:${id}:deviceToken`);
+  await context.prisma.alarm.create({
+    data: {
+      ...createAlarmData,
+      user: {
+        connect: {
+          id,
         },
       },
-    });
+    },
+  });
+  if (token) {
+    try {
+      await sendMessageToDevice(
+        token,
+        createAlarmData.title,
+        createAlarmData.content
+      );
+    } catch (error) {
+      await deleteString(`user:${id}:deviceToken`);
+    }
+  }
 };

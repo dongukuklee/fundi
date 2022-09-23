@@ -138,16 +138,17 @@ type Creator {
   isLikedUser: Boolean
   isVisible: Boolean!
   likedUser: [User]
-  name: String!
+  name: String
   updatedAt: DateTime!
 }
 
 input CreatorInput {
-  birthYear: Int!
-  channelTitle: String!
-  channelUrl: String!
-  isVisible: Boolean!
-  name: String!
+  birthYear: Int
+  channelTitle: String
+  channelUrl: String
+  description: String
+  isVisible: Boolean
+  name: String
 }
 
 """
@@ -276,10 +277,10 @@ enum ImageTypes {
 
 type Mutation {
   IDVerification(phoneNumber: String!): Auth
-  OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
+  OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
-  checkAlaram(id: Int!, isConfirm: Boolean, isVisible: Boolean, updateData: AlarmInputData): Alarm
+  checkAlarm: Boolean
   createBanner(id: Int!, sequence: Int!): Banner
   createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, title: String!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
@@ -296,6 +297,7 @@ type Mutation {
   participateFunding(amount: Int!, id: Int!): AccountBond
   registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
   replyQueation(id: Int!, reply: String!): QnA
+  signOut: Boolean
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
   updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
@@ -350,6 +352,8 @@ type Query {
   FAQs(keyword: String, skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
+  alarmCount: Int
+  alarms(skip: Int, take: Int): [Alarm]
   balanceCash: BigInt
   bannerModule(id: Int!): BannerModule
   bannerModules: [BannerModule]

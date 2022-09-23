@@ -1,4 +1,7 @@
 import admin from "firebase-admin";
+import { each } from "underscore";
+import { deleteString, removeFromSet } from "./redis/ctrl";
+import { prisma } from "../src/context";
 require("dotenv").config();
 
 type notification = {
@@ -41,7 +44,17 @@ const multiCastMessage = (data: multiCastNotificationData) => {
     .messaging()
     .sendMulticast(data)
     .then(function (response) {
-      console.log("Successfully sent message: : ", response);
+      const result = response.responses;
+      each(result, async (el, idx) => {
+        const token = await prisma.deviceToken.findFirst({
+          where: { Token: data.tokens[idx] },
+        });
+        if (token) {
+          await prisma.deviceToken.delete({ where: { id: token.id } });
+          await removeFromSet("deviceTokens", token.Token);
+          await deleteString(`deviceToken:${token.id}`);
+        }
+      });
     })
     .catch(function (err) {
       console.log("Error Sending message!!! : ", err);
@@ -77,5 +90,5 @@ export const sendMessageToMultiDevice = async (
     tokens,
   };
 
-  multiCastMessage(data);
+  await multiCastMessage(data);
 };
