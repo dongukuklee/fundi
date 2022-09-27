@@ -58,7 +58,7 @@ export const AccountCashQuery = extendType({
   },
 });
 
-export const AccountBondMutation = extendType({
+export const AccountCashMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("chargeTheDeposit", {

@@ -58,6 +58,7 @@ type Auth {
   createdAt: DateTime!
   email: String!
   id: Int!
+  isVerified: Boolean!
   name: String
   pincode: String
   updatedAt: DateTime!
@@ -294,7 +295,6 @@ enum ImageTypes {
 }
 
 type Mutation {
-  IDVerification(phoneNumber: String!): Auth
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
@@ -314,8 +314,8 @@ type Mutation {
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
-  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
-  replyQueation(id: Int!, reply: String!): QnA
+  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): WithdrawalAccount
+  replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
