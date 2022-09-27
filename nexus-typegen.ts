@@ -141,6 +141,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
+    isVerified: boolean; // Boolean!
     name?: string | null; // String
     pincode?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -352,6 +353,7 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
+    isVerified: boolean; // Boolean!
     name: string | null; // String
     pincode: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
@@ -480,7 +482,6 @@ export interface NexusGenFieldTypes {
     width: number; // Int!
   }
   Mutation: { // field return type
-    IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     alterSequence: boolean | null; // Boolean
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
@@ -500,8 +501,8 @@ export interface NexusGenFieldTypes {
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
-    registerWithdrawalAccount: NexusGenRootTypes['Auth'] | null; // Auth
-    replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
+    registerWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
+    replyQuestion: NexusGenRootTypes['QnA'] | null; // QnA
     signOut: boolean | null; // Boolean
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
@@ -656,6 +657,7 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     email: 'String'
     id: 'Int'
+    isVerified: 'Boolean'
     name: 'String'
     pincode: 'String'
     updatedAt: 'DateTime'
@@ -784,7 +786,6 @@ export interface NexusGenFieldTypeNames {
     width: 'Int'
   }
   Mutation: { // field return type name
-    IDVerification: 'Auth'
     OAuthLogin: 'AuthPayload'
     alterSequence: 'Boolean'
     chargeTheDeposit: 'AccountCash'
@@ -804,8 +805,8 @@ export interface NexusGenFieldTypeNames {
     likeCreator: 'Creator'
     likeFunding: 'Funding'
     participateFunding: 'AccountBond'
-    registerWithdrawalAccount: 'Auth'
-    replyQueation: 'QnA'
+    registerWithdrawalAccount: 'WithdrawalAccount'
+    replyQuestion: 'QnA'
     signOut: 'Boolean'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
@@ -923,9 +924,6 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
-    IDVerification: { // args
-      phoneNumber: string; // String!
-    }
     OAuthLogin: { // args
       deviceToken: string; // String!
       email: string; // String!
@@ -1009,7 +1007,7 @@ export interface NexusGenArgTypes {
       accountNumber: string; // String!
       bankCode: number; // Int!
     }
-    replyQueation: { // args
+    replyQuestion: { // args
       id: number; // Int!
       reply: string; // String!
     }

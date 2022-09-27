@@ -40,6 +40,7 @@ export const Auth = objectType({
     t.nonNull.string("email");
     t.string("name");
     t.string("pincode");
+    t.nonNull.boolean("isVerified");
     t.field("user", {
       type: "User",
       resolve(parent, args, context, info) {
@@ -248,6 +249,10 @@ export const AuthMutation = extendType({
             "Cannot inquiry the transactions of the account without signing in."
           );
         }
+        const date = new Date();
+        date.setFullYear(date.getFullYear() + 1);
+        date.setDate(date.getDate() - 1);
+
         await context.prisma.user.update({
           where: {
             id: userId,
@@ -255,6 +260,8 @@ export const AuthMutation = extendType({
           data: {
             auth: {
               update: {
+                isVerified: true,
+                IDVerification: { create: { expiration: date } },
                 pincode,
               },
             },
@@ -287,74 +294,6 @@ export const AuthMutation = extendType({
         });
 
         return "pincode has been changed successfully";
-      },
-    });
-    t.field("registerWithdrawalAccount", {
-      type: "Auth",
-      args: {
-        bankCode: nonNull(intArg()),
-        accountNumber: nonNull(stringArg()),
-      },
-      async resolve(parent, { bankCode, accountNumber }, context, info) {
-        const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot register withdrawal account without signing in."
-          );
-        }
-        const auth = await context.prisma.auth.findFirst({
-          where: { user: { id: userId } },
-        });
-        if (!auth) {
-          throw new Error("No such user found");
-        }
-
-        return await context.prisma.auth.update({
-          where: {
-            id: auth.id,
-          },
-          data: {
-            withdrawalAccount: {
-              create: {
-                bankCode,
-                accountNumber,
-              },
-            },
-          },
-        });
-      },
-    });
-    t.field("IDVerification", {
-      type: "Auth",
-      args: {
-        phoneNumber: nonNull(stringArg()),
-      },
-      async resolve(parent, { phoneNumber }, context, info) {
-        const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot identity verification account without signing in."
-          );
-        }
-        const auth = await context.prisma.auth.findFirst({
-          where: { user: { id: userId } },
-        });
-        if (!auth) {
-          throw new Error("No such user found");
-        }
-
-        return await context.prisma.auth.update({
-          where: {
-            id: auth.id,
-          },
-          data: {
-            IDVerification: {
-              create: {
-                phoneNumber,
-              },
-            },
-          },
-        });
       },
     });
   },

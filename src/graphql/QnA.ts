@@ -116,7 +116,7 @@ export const QnAMutation = extendType({
         return await context.prisma.qnA.create({ data });
       },
     });
-    t.field("replyQueation", {
+    t.field("replyQuestion", {
       type: "QnA",
       args: {
         id: nonNull(intArg()),

@@ -11,11 +11,12 @@ datasource db {
 
 model Auth {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
   email     String   @unique
   name      String?
   pincode   String? 
+  isVerified Boolean @default(false)
   user      User?
   IDVerification IDVerification?
   withdrawalAccount withdrawalAccount?
@@ -24,8 +25,8 @@ model Auth {
 model IDVerification {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  phoneNumber String?
+  updatedAt DateTime @updatedAt  
+  expiration DateTime 
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
 }
@@ -193,6 +194,13 @@ model Funding {
   fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
   images     Image[]
+}
+
+model FundingResult {
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  recruitmentAmount BigInt
 }
 
 model FundingDescription{
