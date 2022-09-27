@@ -319,15 +319,15 @@ type Mutation {
   signOut: Boolean
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
-  updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
+  updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): Boolean
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
-  updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Boolean
   updateCreatorMonthlyInfo(creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!, id: Int!): CreatorMonthlyInfo
   updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
-  updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
-  updateNotice(content: String, id: Int!, title: String): Notice
+  updateFunding(fundingId: Int, fundingInput: FundingInput, imageInput: ImageInput): Boolean
+  updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
   updatePincode(followingPincode: String!): String
-  updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
+  updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   withdrawFunding(id: Int!): AccountCash
 }
 

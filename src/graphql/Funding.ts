@@ -12,6 +12,7 @@ import { Context } from "../context";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each, filter, map } from "underscore";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
+import { deleteImage } from "../../utils/imageDelete";
 
 type Invester = User & {
   accountCash: {
@@ -47,6 +48,47 @@ type DescriptionType = {
   title: string;
   content: string;
 };
+type CreateVariableType = {
+  [key: string]: any;
+  startDate?: Date;
+  endDate?: Date;
+  isVisible?: boolean;
+  status?:
+    | "PRE_CAMPAIGN"
+    | "CAMPAIGNING"
+    | "POST_CAMPAIGN"
+    | "EARLY_CLOSING"
+    | "FAILED_CAMPAIGN"
+    | "END";
+  title?: string;
+};
+
+type FundingInput = {
+  startDate: string;
+  endDate: string;
+  isVisible: boolean;
+  status:
+    | "PRE_CAMPAIGN"
+    | "CAMPAIGNING"
+    | "POST_CAMPAIGN"
+    | "EARLY_CLOSING"
+    | "FAILED_CAMPAIGN"
+    | "END";
+  title: string;
+};
+
+const makeCreatorVariables = (data: FundingInput) => {
+  const variables = <CreateVariableType>{};
+  each(data, (el, idx) => {
+    if (idx in ["startDate", "endDate"] && typeof el === "string") {
+      variables[idx] = new Date(el);
+    } else {
+      variables[idx] = el;
+    }
+  });
+  return variables;
+};
+
 const getInvestor = async (context: Context, fundingId: number) => {
   const { userId } = context;
 
@@ -830,26 +872,23 @@ export const FundingMutation = extendType({
       },
     });
     t.field("updateFunding", {
-      type: "Funding",
+      type: "Boolean",
       args: {
         fundingInput: "FundingInput",
         fundingId: intArg(),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { fundingInput, fundingId: id }, context) {
-        const { endDate, isVisible, startDate, status, title, description } =
-          fundingInput!;
+      async resolve(
+        parent,
+        { fundingInput, fundingId: id, imageInput },
+        context
+      ) {
         const updateTransaction = [];
-        const variables = {} as any;
+        let images = {};
         if (!id) throw new Error("funding not found");
-
-        if (title) variables.title = title;
-        if (status) variables.status = status;
-        if (endDate) variables.endDate = new Date(endDate);
-        if (startDate) variables.startDate = new Date(startDate);
-        if (isVisible !== undefined || isVisible !== null)
-          variables.isVisible = isVisible;
-        if (description) {
-          each(description, (el) => {
+        const fundingInputVariables = makeCreatorVariables(fundingInput!);
+        if (fundingInput?.description) {
+          each(fundingInput?.description, (el) => {
             updateTransaction.push(
               context.prisma.fundingDescription.upsert({
                 where: { id: el.id! },
@@ -859,20 +898,39 @@ export const FundingMutation = extendType({
             );
           });
         }
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { fundingId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
         updateTransaction.push(
           context.prisma.funding.update({
             where: {
               id,
             },
             data: {
-              ...variables,
+              ...fundingInputVariables,
+              images,
             },
           })
         );
-        const fundingUpdateResult = await context.prisma.$transaction(
-          updateTransaction
-        );
-        return fundingUpdateResult[0];
+
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "funding", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },

@@ -22,7 +22,6 @@ export const context = ({ req }: { req: Request }): Context => {
     req && req.headers.authorization
       ? decodeAuthHeader(req.headers.authorization)
       : null;
-  const deviceToken = "";
   return {
     prisma,
     userId: token?.userId,

@@ -11,6 +11,7 @@ import {
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each } from "underscore";
+import { deleteImage } from "../../utils/imageDelete";
 
 type CreateVariableType = {
   [key: string]: any;
@@ -36,7 +37,6 @@ const makeCreatorVariables = (data: CreatorInput) => {
   each(data, (el, idx) => {
     variables[idx] = el;
   });
-
   return variables;
 };
 export const Creator = objectType({
@@ -252,7 +252,7 @@ export const CreatorMutation = extendType({
       },
     });
     t.field("updateCreator", {
-      type: "Creator",
+      type: "Boolean",
       args: {
         creatorInput: "CreatorInput",
         imageInput: "ImageInput",
@@ -267,16 +267,44 @@ export const CreatorMutation = extendType({
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can update creator.");
         // }
+        const updateTransaction = [];
+        let images = {};
         if (!creatorInput) throw new Error("");
         const creatorInputVariables = makeCreatorVariables(creatorInput);
-        return await context.prisma.creator.update({
-          where: {
-            id,
-          },
-          data: {
-            ...creatorInputVariables,
-          },
-        });
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { creatorId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
+
+        updateTransaction.push(
+          context.prisma.creator.update({
+            where: {
+              id,
+            },
+            data: {
+              ...creatorInputVariables,
+              images,
+            },
+          })
+        );
+
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "creator", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },
