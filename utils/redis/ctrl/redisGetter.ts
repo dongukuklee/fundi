@@ -32,7 +32,9 @@ const typeChecker = (field: string, val: any) => {
 };
 
 export async function getString(key: string) {
-  return await redisClient.get(key);
+  const data = await redisClient.get(key);
+  if (!data) return null;
+  return JSON.parse(data);
 }
 
 export const getHash = async (key: string) => {
@@ -56,4 +58,12 @@ export const getHashValues = async (key: string, ...arg: any[]) => {
 export const getHashValue = async (key: string, field: string) => {
   const value = await redisClient.HGET(key, field);
   return typeChecker(field, value);
+};
+
+export const isInSet = async (key: string, value: string) => {
+  return await redisClient.SISMEMBER(key, value);
+};
+
+export const getSet = async (key: string) => {
+  return await redisClient.SMEMBERS(key);
 };

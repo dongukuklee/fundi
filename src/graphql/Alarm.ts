@@ -1,5 +1,7 @@
 import { AlarmTypes } from "@prisma/client";
 import { booleanArg, extendType, intArg, nonNull, objectType } from "nexus";
+import { sortOptionCreator } from "../../utils/sortOptionCreator";
+import { TAKE } from "../common/const";
 
 type UpdateAlarmDataType = {
   title?: string | null;
@@ -46,24 +48,68 @@ export const Alarm = objectType({
   },
 });
 
+export const AlarmQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.list.field("alarms", {
+      type: "Alarm",
+      args: {
+        skip: intArg(),
+        take: intArg(),
+      },
+      async resolve(parent, args, context, info) {
+        if (!context.userId) throw new Error("user not found");
+        return await context.prisma.alarm.findMany({
+          skip: args?.skip as number | undefined,
+          take: args?.take ? args.take : TAKE,
+          orderBy: {
+            createdAt: "desc",
+          },
+          where: {
+            userId: context.userId,
+          },
+          //where: { isVisible: true },
+        });
+      },
+    });
+    t.field("alarmCount", {
+      type: "Int",
+      async resolve(parent, args, context, info) {
+        if (!context.userId)
+          throw new Error(
+            "Cannot inquiry the count of the alarm without signing in."
+          );
+        return await context.prisma.alarm.count({
+          where: {
+            isConfirm: false,
+            userId: context.userId,
+          },
+        });
+      },
+    });
+  },
+});
+
 export const AlarmMutation = extendType({
   type: "Mutation",
   definition(t) {
-    t.field("checkAlaram", {
-      type: "Alarm",
-      args: {
-        id: nonNull(intArg()),
-        isConfirm: booleanArg(),
-        isVisible: booleanArg(),
-        updateData: "AlarmInputData",
-      },
-      resolve(parent, { id, updateData }, context, info) {
-        if (!updateData) throw new Error("updateData is not defined");
-        const data = makeUpdateAlarmVariables(updateData);
-        return context.prisma.alarm.update({
-          where: { id },
-          data,
-        });
+    t.field("checkAlarm", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        if (!context.userId) throw new Error("user not found");
+        //const data = makeUpdateAlarmVariables(updateData);
+        try {
+          await context.prisma.alarm.updateMany({
+            where: { userId: context.userId },
+            data: {
+              isConfirm: true,
+            },
+          });
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
       },
     });
   },

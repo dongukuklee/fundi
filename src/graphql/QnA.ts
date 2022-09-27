@@ -1,5 +1,7 @@
 import { QnATypes } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
+import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
+import { deleteImage } from "../../utils/imageDelete";
 
 export const QnA = objectType({
   name: "QnA",
@@ -68,11 +70,6 @@ export const QnAQuery = extendType({
         // if (userRole !== "ADMIN") {
         //   throw new Error("Only the admin can inquiry user QnAs.");
         // }
-        // const fundings = await context.prisma.funding.findMany({});
-        // for (const a of fundings) {
-        //   await setHash(`funding:${a.id}:${a.isVisible}:${a.status}`, a);
-        // }
-
         return await context.prisma.qnA.findMany({});
       },
     });
@@ -126,32 +123,81 @@ export const QnAMutation = extendType({
         reply: nonNull(stringArg()),
       },
       async resolve(parent, { reply, id }, context, info) {
-        return await context.prisma.qnA.update({
+        const replyQueation = await context.prisma.qnA.update({
           where: { id },
           data: {
             status: "RESPONDED",
             reply,
           },
         });
+        const user = await context.prisma.user.findUnique({
+          where: { id: replyQueation.userId },
+        });
+        if (!user) throw new Error("user not found");
+
+        await AppPushAndCreateAlarm(
+          {
+            title: `QnA 답변 등록.`,
+            content: `${user.name} 님이 문의하신 내용에 대한 답변이 등록되었습니다.`,
+            sentTime: new Date(),
+            type: "QNA",
+          },
+          user.id,
+          context
+        );
+
+        return replyQueation;
       },
     });
     t.field("updateQuestion", {
-      type: "QnA",
+      type: "Boolean",
       args: {
         id: nonNull(intArg()),
         title: stringArg(),
         content: stringArg(),
         type: arg({ type: "QnATypes" }),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { id, title, content, type }, context, info) {
-        return await context.prisma.qnA.update({
-          where: { id },
-          data: {
-            title: title ? title : undefined,
-            content: content ? content : undefined,
-            type: type ? type : undefined,
-          },
-        });
+      async resolve(
+        parent,
+        { id, title, content, type, imageInput },
+        context,
+        info
+      ) {
+        const updateTransaction = [];
+        let images = {};
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { qnaId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
+        updateTransaction.push(
+          context.prisma.qnA.update({
+            where: { id },
+            data: {
+              title: title ? title : undefined,
+              content: content ? content : undefined,
+              type: type ? type : undefined,
+              images,
+            },
+          })
+        );
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "qna", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },

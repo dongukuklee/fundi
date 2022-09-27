@@ -7,25 +7,68 @@ import {
   objectType,
   stringArg,
 } from "nexus";
+
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
+import { each } from "underscore";
+import { deleteImage } from "../../utils/imageDelete";
 
+type CreateVariableType = {
+  [key: string]: any;
+  birthYear?: number;
+  channelTitle?: string;
+  channelUrl?: string;
+  description?: string;
+  isVisible?: boolean;
+  name?: string;
+};
+
+type CreatorInput = {
+  birthYear?: number | null | undefined;
+  channelTitle?: string | null | undefined;
+  channelUrl?: string | null | undefined;
+  description?: string | null | undefined;
+  isVisible?: boolean | null | undefined;
+  name?: string | null | undefined;
+};
+
+const makeCreatorVariables = (data: CreatorInput) => {
+  const variables = <CreateVariableType>{};
+  each(data, (el, idx) => {
+    variables[idx] = el;
+  });
+  return variables;
+};
 export const Creator = objectType({
   name: "Creator",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
-    t.nonNull.string("name");
+    t.string("name");
     t.nonNull.boolean("isVisible");
     t.nonNull.string("channelTitle");
     t.nonNull.string("channelUrl");
+    t.nonNull.string("description");
     t.list.field("contract", {
       type: "Contract",
       resolve(parent, args, context, info) {
         return context.prisma.creator
           .findUnique({ where: { id: parent.id } })
           .contract();
+      },
+    });
+    t.list.field("creatorMonthlyInfo", {
+      type: "CreatorMonthlyInfo",
+      async resolve(parent, args, context, info) {
+        return await context.prisma.creatorMonthlyInfo.findMany({
+          where: {
+            creatorId: parent.id,
+          },
+          orderBy: {
+            month: "desc",
+          },
+        });
       },
     });
     t.int("birthYear");
@@ -193,11 +236,12 @@ export const CreatorMutation = extendType({
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can create creator.");
         // }
-        if (!creatorInput || !imageInput) throw new Error("");
 
+        if (!creatorInput || !imageInput) throw new Error("");
+        const creatorInputVariables = makeCreatorVariables(creatorInput);
         return await context.prisma.creator.create({
           data: {
-            ...creatorInput,
+            ...creatorInputVariables,
             images: {
               create: {
                 ...imageInput,
@@ -208,7 +252,7 @@ export const CreatorMutation = extendType({
       },
     });
     t.field("updateCreator", {
-      type: "Creator",
+      type: "Boolean",
       args: {
         creatorInput: "CreatorInput",
         imageInput: "ImageInput",
@@ -223,16 +267,44 @@ export const CreatorMutation = extendType({
         // if (context.userRole !== "ADMIN") {
         //   throw new Error("Only the administrator can update creator.");
         // }
+        const updateTransaction = [];
+        let images = {};
         if (!creatorInput) throw new Error("");
+        const creatorInputVariables = makeCreatorVariables(creatorInput);
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { creatorId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
 
-        return await context.prisma.creator.update({
-          where: {
-            id,
-          },
-          data: {
-            ...creatorInput,
-          },
-        });
+        updateTransaction.push(
+          context.prisma.creator.update({
+            where: {
+              id,
+            },
+            data: {
+              ...creatorInputVariables,
+              images,
+            },
+          })
+        );
+
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "creator", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },

@@ -60,7 +60,7 @@ export const BannerMutation = extendType({
           },
         });
         const beforeBannerIds = beforeBanner.map((el) => el.id);
-        const disconnectBannerModuls = beforeBannerIds.map((el) => {
+        const disconnectBannerModules = beforeBannerIds.map((el) => {
           return context.prisma.banner.update({
             where: {
               id: el,
@@ -93,7 +93,7 @@ export const BannerMutation = extendType({
 
         try {
           await context.prisma.$transaction([
-            ...disconnectBannerModuls,
+            ...disconnectBannerModules,
             ...updateBanners,
             ...deleteBeforeBanner,
           ]);

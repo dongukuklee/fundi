@@ -1,6 +1,11 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import * as jwt from "jsonwebtoken";
-import { getString, setString } from "../../utils/redis/ctrl";
+import {
+  addToSet,
+  deleteString,
+  getString,
+  setString,
+} from "../../utils/redis/ctrl";
 import { Context } from "../context";
 import { User } from "@prisma/client";
 
@@ -180,10 +185,16 @@ export const AuthMutation = extendType({
       type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
+        deviceToken: nonNull(stringArg()),
         nickName: stringArg(),
         type: stringArg(),
       },
-      async resolve(parent, { email, nickName, type }, context, info) {
+      async resolve(
+        parent,
+        { email, nickName, type, deviceToken },
+        context,
+        info
+      ) {
         let user;
         const parsedEmail = `${email}:${type}`;
         const auth = await context.prisma.auth.findUnique({
@@ -213,7 +224,16 @@ export const AuthMutation = extendType({
           return getTokenAndUser(user);
         }
         user = auth.user!;
+        await setString(`user:${user.id}:deviceToken`, deviceToken);
         return getTokenAndUser(user);
+      },
+    });
+    t.field("signOut", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        if (!context.userId) throw new Error("user not found");
+        await deleteString(`user:${context.userId}:deviceToken`);
+        return true;
       },
     });
     t.field("createPincode", {

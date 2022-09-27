@@ -131,7 +131,7 @@ model Creator{
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  name      String
+  name      String?
   channelTitle String @default("")
   channelUrl  String @default("")
   description String @default("")
@@ -141,6 +141,19 @@ model Creator{
   contract Contract[]
   likedUser    CreatorOnUser[]
   images     Image[]
+  creatorMonthlyInfo CreatorMonthlyInfo[]
+}
+
+model CreatorMonthlyInfo{
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  month     DateTime
+  subscriber BigInt
+  income BigInt
+  views BigInt
+  creator Creator @relation(fields: [creatorId],references: [id])
+  creatorId Int
 }
 
 model Contract {
@@ -331,6 +344,11 @@ model BannerModule {
 model Banner {
   id                       Int      @id @default(autoincrement())
   banners                  BannerModule?
+}
+
+model DeviceToken {
+  id                       Int      @id @default(autoincrement())
+  Token                    String
 }
 
 enum BannerTypes {

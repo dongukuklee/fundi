@@ -131,22 +131,42 @@ type Creator {
   channelUrl: String!
   contract: [Contract]
   createdAt: DateTime!
+  creatorMonthlyInfo: [CreatorMonthlyInfo]
+  description: String!
   fundings: [Funding!]!
   id: Int!
   images: [Image]
   isLikedUser: Boolean
   isVisible: Boolean!
   likedUser: [User]
-  name: String!
+  name: String
   updatedAt: DateTime!
 }
 
 input CreatorInput {
-  birthYear: Int!
-  channelTitle: String!
-  channelUrl: String!
-  isVisible: Boolean!
-  name: String!
+  birthYear: Int
+  channelTitle: String
+  channelUrl: String
+  description: String
+  isVisible: Boolean
+  name: String
+}
+
+type CreatorMonthlyInfo {
+  createdAt: DateTime!
+  id: Int!
+  income: BigInt!
+  month: DateTime!
+  subscriber: BigInt!
+  updatedAt: DateTime!
+  views: BigInt!
+}
+
+input CreatorMonthlyInfoInpuTypes {
+  income: BigInt
+  month: String
+  subscriber: BigInt
+  views: BigInt
 }
 
 """
@@ -202,7 +222,7 @@ input FundingDescriptionInputTypes {
 
 type FundingDescripton {
   content: String!
-  id: Int!
+  id: Int
   title: String!
 }
 
@@ -275,14 +295,15 @@ enum ImageTypes {
 
 type Mutation {
   IDVerification(phoneNumber: String!): Auth
-  OAuthLogin(email: String!, nickName: String, type: String): AuthPayload
+  OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
-  checkAlaram(id: Int!, isConfirm: Boolean, isVisible: Boolean, updateData: AlarmInputData): Alarm
+  checkAlarm: Boolean
   createBanner(id: Int!, sequence: Int!): Banner
   createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, title: String!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
   createCreator(creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  createCreatorMonthlyInfos(creatorId: Int!, creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!): CreatorMonthlyInfo
   createFAQ(answer: String!, isVisible: Boolean, question: String!, type: FAQTypes!): FAQ
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
@@ -295,16 +316,18 @@ type Mutation {
   participateFunding(amount: Int!, id: Int!): AccountBond
   registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
   replyQueation(id: Int!, reply: String!): QnA
+  signOut: Boolean
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
-  updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): BannerModule
+  updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): Boolean
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
-  updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Creator
+  updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Boolean
+  updateCreatorMonthlyInfo(creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!, id: Int!): CreatorMonthlyInfo
   updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
-  updateFunding(fundingId: Int, fundingInput: FundingInput): Funding
-  updateNotice(content: String, id: Int!, title: String): Notice
+  updateFunding(fundingId: Int, fundingInput: FundingInput, imageInput: ImageInput): Boolean
+  updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
   updatePincode(followingPincode: String!): String
-  updateQuestion(content: String, id: Int!, title: String, type: QnATypes): QnA
+  updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   withdrawFunding(id: Int!): AccountCash
 }
 
@@ -349,10 +372,13 @@ type Query {
   FAQs(keyword: String, skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
+  alarmCount: Int
+  alarms(skip: Int, take: Int): [Alarm]
   balanceCash: BigInt
   bannerModule(id: Int!): BannerModule
   bannerModules: [BannerModule]
   banners: [Banner]
+  cancellationCharge(id: Int!): BigInt
   checkPincode(pincode: String!): Boolean
   creator(id: Int!): Creator
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
