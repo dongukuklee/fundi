@@ -505,15 +505,15 @@ export interface NexusGenFieldTypes {
     signOut: boolean | null; // Boolean
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
-    updateBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
+    updateBannerModule: boolean | null; // Boolean
     updateContract: NexusGenRootTypes['Contract'] | null; // Contract
-    updateCreator: NexusGenRootTypes['Creator'] | null; // Creator
+    updateCreator: boolean | null; // Boolean
     updateCreatorMonthlyInfo: NexusGenRootTypes['CreatorMonthlyInfo'] | null; // CreatorMonthlyInfo
     updateFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
-    updateFunding: NexusGenRootTypes['Funding'] | null; // Funding
-    updateNotice: NexusGenRootTypes['Notice'] | null; // Notice
+    updateFunding: boolean | null; // Boolean
+    updateNotice: boolean | null; // Boolean
     updatePincode: string | null; // String
-    updateQuestion: NexusGenRootTypes['QnA'] | null; // QnA
+    updateQuestion: boolean | null; // Boolean
     withdrawFunding: NexusGenRootTypes['AccountCash'] | null; // AccountCash
   }
   Notice: { // field return type
@@ -809,15 +809,15 @@ export interface NexusGenFieldTypeNames {
     signOut: 'Boolean'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
-    updateBannerModule: 'BannerModule'
+    updateBannerModule: 'Boolean'
     updateContract: 'Contract'
-    updateCreator: 'Creator'
+    updateCreator: 'Boolean'
     updateCreatorMonthlyInfo: 'CreatorMonthlyInfo'
     updateFAQ: 'FAQ'
-    updateFunding: 'Funding'
-    updateNotice: 'Notice'
+    updateFunding: 'Boolean'
+    updateNotice: 'Boolean'
     updatePincode: 'String'
-    updateQuestion: 'QnA'
+    updateQuestion: 'Boolean'
     withdrawFunding: 'AccountCash'
   }
   Notice: { // field return type name
@@ -1050,10 +1050,12 @@ export interface NexusGenArgTypes {
     updateFunding: { // args
       fundingId?: number | null; // Int
       fundingInput?: NexusGenInputs['FundingInput'] | null; // FundingInput
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
     }
     updateNotice: { // args
       content?: string | null; // String
       id: number; // Int!
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title?: string | null; // String
     }
     updatePincode: { // args
@@ -1062,6 +1064,7 @@ export interface NexusGenArgTypes {
     updateQuestion: { // args
       content?: string | null; // String
       id: number; // Int!
+      imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title?: string | null; // String
       type?: NexusGenEnums['QnATypes'] | null; // QnATypes
     }

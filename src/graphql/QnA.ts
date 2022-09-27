@@ -1,6 +1,7 @@
 import { QnATypes } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
+import { deleteImage } from "../../utils/imageDelete";
 
 export const QnA = objectType({
   name: "QnA",
@@ -149,22 +150,54 @@ export const QnAMutation = extendType({
       },
     });
     t.field("updateQuestion", {
-      type: "QnA",
+      type: "Boolean",
       args: {
         id: nonNull(intArg()),
         title: stringArg(),
         content: stringArg(),
         type: arg({ type: "QnATypes" }),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { id, title, content, type }, context, info) {
-        return await context.prisma.qnA.update({
-          where: { id },
-          data: {
-            title: title ? title : undefined,
-            content: content ? content : undefined,
-            type: type ? type : undefined,
-          },
-        });
+      async resolve(
+        parent,
+        { id, title, content, type, imageInput },
+        context,
+        info
+      ) {
+        const updateTransaction = [];
+        let images = {};
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { qnaId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
+        updateTransaction.push(
+          context.prisma.qnA.update({
+            where: { id },
+            data: {
+              title: title ? title : undefined,
+              content: content ? content : undefined,
+              type: type ? type : undefined,
+              images,
+            },
+          })
+        );
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "qna", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },

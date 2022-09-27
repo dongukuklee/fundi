@@ -1,6 +1,7 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
+import { deleteImage } from "../../utils/imageDelete";
 
 export const Notice = objectType({
   name: "Notice",
@@ -83,20 +84,47 @@ export const NoticeMutation = extendType({
       },
     });
     t.field("updateNotice", {
-      type: "Notice",
+      type: "Boolean",
       args: {
         id: nonNull(intArg()),
         title: stringArg(),
         content: stringArg(),
+        imageInput: "ImageInput",
       },
-      async resolve(parent, { id, title, content }, context, info) {
-        return await context.prisma.notice.update({
-          where: { id },
-          data: {
-            title: title ? title : undefined,
-            content: content ? content : undefined,
-          },
-        });
+      async resolve(parent, { id, title, content, imageInput }, context, info) {
+        const updateTransaction = [];
+        let images = {};
+        if (imageInput) {
+          // updateTransaction.push(
+          //   context.prisma.image.deleteMany({
+          //     where: { noticeId: id },
+          //   })
+          // );
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
+        updateTransaction.push(
+          context.prisma.notice.update({
+            where: { id },
+            data: {
+              title: title ? title : undefined,
+              content: content ? content : undefined,
+              images,
+            },
+          })
+        );
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "notice", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },

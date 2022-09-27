@@ -8,6 +8,7 @@ import {
   stringArg,
 } from "nexus";
 import { BannerTypes } from "@prisma/client";
+import { deleteImage } from "../../utils/imageDelete";
 
 type ToReturnVariables = {
   types: BannerTypes;
@@ -19,21 +20,12 @@ type ToReturnVariables = {
 const makeBannerModuleVariables = (
   targetId?: number | null,
   isVisible?: boolean | null,
-  imageInput?: any | null,
   types?: BannerTypes | null
 ) => {
   const variables = <ToReturnVariables>{};
   if (types) variables.types = types;
   if (targetId) variables.targetId = targetId;
   if (isVisible) variables.isVisible = isVisible;
-  if (imageInput) {
-    variables.images = {
-      delete: true,
-      create: {
-        ...imageInput!,
-      },
-    };
-  }
   return variables;
 };
 export const BannerModule = objectType({
@@ -116,7 +108,7 @@ export const BannerModuleMutation = extendType({
       },
     });
     t.field("updateBannerModule", {
-      type: "BannerModule",
+      type: "Boolean",
       args: {
         id: nonNull(intArg()),
         types: arg({ type: "BannerTypes" }),
@@ -130,18 +122,40 @@ export const BannerModuleMutation = extendType({
         context,
         info
       ) {
-        const data = makeBannerModuleVariables(
+        let images = {};
+        const updateTransaction = [];
+        const bannerModuleVariables = makeBannerModuleVariables(
           targetId,
           isVisible,
-          imageInput,
           types
         );
-        return context.prisma.bannerModule.update({
-          where: {
-            id,
-          },
-          data,
-        });
+        if (imageInput) {
+          images = {
+            delete: true,
+            create: {
+              ...imageInput!,
+            },
+          };
+        }
+        updateTransaction.push(
+          context.prisma.bannerModule.update({
+            where: {
+              id,
+            },
+            data: {
+              ...bannerModuleVariables,
+              images,
+            },
+          })
+        );
+        try {
+          await context.prisma.$transaction(updateTransaction);
+          await deleteImage(context, { table: "banner", id });
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error("someting went wront");
+        }
       },
     });
   },
