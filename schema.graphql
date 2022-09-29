@@ -59,7 +59,7 @@ type Auth {
   email: String!
   id: Int!
   isVerified: Boolean!
-  name: String
+  nickName: String
   pincode: String
   updatedAt: DateTime!
   user: User
@@ -90,6 +90,7 @@ type BannerModule {
 """Define ContractStatus"""
 enum BannerTypes {
   FUNDING
+  NONE
   NOTICE
 }
 
@@ -255,9 +256,13 @@ enum FundingStatus {
 }
 
 type IDVerification {
+  birthDay: DateTime!
+  certificationCode: String!
   createdAt: DateTime!
+  expiration: DateTime!
+  gender: Int!
   id: Int!
-  phoneNumber: String
+  name: String!
   updatedAt: DateTime!
 }
 
@@ -308,7 +313,7 @@ type Mutation {
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
-  createPincode(pincode: String!): String
+  createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
@@ -449,7 +454,7 @@ type User {
   favoriteCreators: [Creator]
   favoriteFundings: [Funding]
   id: Int!
-  name: String
+  nickName: String
   role: Role!
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt

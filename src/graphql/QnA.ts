@@ -138,7 +138,7 @@ export const QnAMutation = extendType({
         await AppPushAndCreateAlarm(
           {
             title: `QnA 답변 등록.`,
-            content: `${user.name} 님이 문의하신 내용에 대한 답변이 등록되었습니다.`,
+            content: `${user.nickName} 님이 문의하신 내용에 대한 답변이 등록되었습니다.`,
             sentTime: new Date(),
             type: "QNA",
           },

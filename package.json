@@ -30,6 +30,7 @@
     "apollo-server": "^3.9.0",
     "apollo-server-express": "^3.10.0",
     "aws-sdk": "^2.1190.0",
+    "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.1",
     "firebase-admin": "^11.0.0",

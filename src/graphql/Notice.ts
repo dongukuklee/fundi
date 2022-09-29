@@ -2,6 +2,7 @@ import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { deleteImage } from "../../utils/imageDelete";
+import { getLocalDate } from "../../utils/Date";
 
 export const Notice = objectType({
   name: "Notice",
@@ -67,7 +68,10 @@ export const NoticeMutation = extendType({
         const defaultCreateData = {
           title,
           content,
+          createdAt: getLocalDate(),
+          updatedAt: getLocalDate(),
         };
+        console.log(defaultCreateData);
         const data = !imageInput
           ? defaultCreateData
           : {
