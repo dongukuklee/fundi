@@ -8,12 +8,31 @@ import {
 } from "../../utils/redis/ctrl";
 import { Context } from "../context";
 import { User } from "@prisma/client";
+import { getUserInfo } from "../../utils/getUserInfo";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
+const parseGenderToInt = (birthDay: string, gender: string) => {
+  const year = Number(birthDay.substring(0, 4));
+  let parseGender;
+  if (year < 2000) {
+    parseGender = gender === "male" ? 1 : 2;
+  } else {
+    parseGender = gender === "male" ? 3 : 4;
+  }
+  return parseGender;
+};
+
+type userInfo = {
+  birthday: string;
+  gender: string;
+  name: string;
+  unique_key: string;
+};
+
 const getTokenAndUser = (user: User) => {
   const token = jwt.sign(
-    { userId: user.id, userRole: user.role, userName: user.name },
+    { userId: user.id, userRole: user.role, userName: user.nickName },
     APP_SECRET
   );
   return { token, user };
@@ -38,7 +57,7 @@ export const Auth = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("email");
-    t.string("name");
+    t.string("nickName");
     t.string("pincode");
     t.nonNull.boolean("isVerified");
     t.field("user", {
@@ -132,7 +151,7 @@ export const AuthMutation = extendType({
             auth: {
               create: {
                 email,
-                name: nickName,
+                nickName,
               },
             },
             accountCash: {
@@ -210,11 +229,11 @@ export const AuthMutation = extendType({
           user = await context.prisma.user.create({
             data: {
               email: parsedEmail,
-              name: nickName,
+              nickName,
               auth: {
                 create: {
                   email: parsedEmail,
-                  name: nickName,
+                  nickName,
                 },
               },
               accountCash: {
@@ -241,18 +260,24 @@ export const AuthMutation = extendType({
       type: "String",
       args: {
         pincode: nonNull(stringArg()),
+        imp_uid: nonNull(stringArg()),
       },
-      async resolve(parent, { pincode }, context, info) {
+      async resolve(parent, { pincode, imp_uid }, context, info) {
         const { userId } = context;
-        if (!userId) {
+        if (!userId)
           throw new Error(
             "Cannot inquiry the transactions of the account without signing in."
           );
-        }
-        const date = new Date();
-        date.setFullYear(date.getFullYear() + 1);
-        date.setDate(date.getDate() - 1);
-
+        if (!imp_uid) throw new Error("imp_uid not found");
+        const userInfo = await getUserInfo(imp_uid);
+        let { birthday, gender, name, unique_key } = <userInfo>userInfo;
+        const id = await context.prisma.iDVerification.findFirst({
+          where: { certificationCode: unique_key },
+        });
+        if (id) throw new Error("id already exist");
+        const expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+        expirationDate.setDate(expirationDate.getDate() - 1);
         await context.prisma.user.update({
           where: {
             id: userId,
@@ -261,7 +286,15 @@ export const AuthMutation = extendType({
             auth: {
               update: {
                 isVerified: true,
-                IDVerification: { create: { expiration: date } },
+                IDVerification: {
+                  create: {
+                    expiration: expirationDate,
+                    birthDay: new Date(birthday),
+                    certificationCode: unique_key,
+                    name,
+                    gender: parseGenderToInt(birthday, gender),
+                  },
+                },
                 pincode,
               },
             },

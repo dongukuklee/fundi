@@ -584,7 +584,7 @@ export const FundingMutation = extendType({
 
         const totalRefundAmount = getTotalRefundAmount(investor, funding);
 
-        const investorAccountCashUpdate = context.prisma.accountCash.update({
+        const updateInvestorAccountCash = context.prisma.accountCash.update({
           where: {
             id: investorAccountCashId,
           },
@@ -603,27 +603,40 @@ export const FundingMutation = extendType({
             },
           },
         });
-        const investorAccountBondUpdate = context.prisma.accountBond.update({
-          where: {
-            id: accountBondInvestor.id,
-          },
+        const deleteInvestorAccountBond = context.prisma.accountBond.delete({
+          where: { id: accountBondInvestor.id },
+        });
+        const createTransactionBond = context.prisma.transactionBond.create({
           data: {
-            balance: {
-              decrement: accountBondInvestor.balance,
-            },
-            transactions: {
-              create: {
-                amount: accountBondInvestor.balance,
-                title: `${accountBondInvestor.funding?.title} 펀드 취소`,
-                type: "WITHDRAW",
-              },
-            },
+            accountId: accountBondInvestor.id,
+            amount: accountBondInvestor.balance,
+            title: `${accountBondInvestor.funding?.title} 펀드 취소`,
+            type: "WITHDRAW",
           },
         });
+        // const UpdateInvestorAccountBond = context.prisma.accountBond.update({
+        //   where: {
+        //     id: accountBondInvestor.id,
+        //   },
+        //   data: {
+        //     balance: {
+        //       decrement: accountBondInvestor.balance,
+        //     },
+        //     transactions: {
+        //       create: {
+        //         amount: accountBondInvestor.balance,
+        //         title: `${accountBondInvestor.funding?.title} 펀드 취소`,
+        //         type: "WITHDRAW",
+        //       },
+        //     },
+        //   },
+        // });
 
         const withdrawFundingTransactions = [
-          investorAccountCashUpdate,
-          investorAccountBondUpdate,
+          updateInvestorAccountCash,
+          //UpdateInvestorAccountBond,
+          deleteInvestorAccountBond,
+          createTransactionBond,
         ];
 
         await context.prisma.$transaction(withdrawFundingTransactions);

@@ -90,7 +90,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
-  BannerTypes: "FUNDING" | "NOTICE"
+  BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
@@ -142,7 +142,7 @@ export interface NexusGenObjects {
     email: string; // String!
     id: number; // Int!
     isVerified: boolean; // Boolean!
-    name?: string | null; // String
+    nickName?: string | null; // String
     pincode?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -228,9 +228,13 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   IDVerification: { // root type
+    birthDay: NexusGenScalars['DateTime']; // DateTime!
+    certificationCode: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expiration: NexusGenScalars['DateTime']; // DateTime!
+    gender: number; // Int!
     id: number; // Int!
-    phoneNumber?: string | null; // String
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // root type
@@ -291,7 +295,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
-    name?: string | null; // String
+    nickName?: string | null; // String
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -354,7 +358,7 @@ export interface NexusGenFieldTypes {
     email: string; // String!
     id: number; // Int!
     isVerified: boolean; // Boolean!
-    name: string | null; // String
+    nickName: string | null; // String
     pincode: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     user: NexusGenRootTypes['User'] | null; // User
@@ -461,9 +465,13 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   IDVerification: { // field return type
+    birthDay: NexusGenScalars['DateTime']; // DateTime!
+    certificationCode: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expiration: NexusGenScalars['DateTime']; // DateTime!
+    gender: number; // Int!
     id: number; // Int!
-    phoneNumber: string | null; // String
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // field return type
@@ -603,7 +611,7 @@ export interface NexusGenFieldTypes {
     favoriteCreators: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     favoriteFundings: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     id: number; // Int!
-    name: string | null; // String
+    nickName: string | null; // String
     role: NexusGenEnums['Role']; // Role!
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
@@ -658,7 +666,7 @@ export interface NexusGenFieldTypeNames {
     email: 'String'
     id: 'Int'
     isVerified: 'Boolean'
-    name: 'String'
+    nickName: 'String'
     pincode: 'String'
     updatedAt: 'DateTime'
     user: 'User'
@@ -765,9 +773,13 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   IDVerification: { // field return type name
+    birthDay: 'DateTime'
+    certificationCode: 'String'
     createdAt: 'DateTime'
+    expiration: 'DateTime'
+    gender: 'Int'
     id: 'Int'
-    phoneNumber: 'String'
+    name: 'String'
     updatedAt: 'DateTime'
   }
   Image: { // field return type name
@@ -907,7 +919,7 @@ export interface NexusGenFieldTypeNames {
     favoriteCreators: 'Creator'
     favoriteFundings: 'Funding'
     id: 'Int'
-    name: 'String'
+    nickName: 'String'
     role: 'Role'
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
@@ -981,6 +993,7 @@ export interface NexusGenArgTypes {
       title: string; // String!
     }
     createPincode: { // args
+      imp_uid: string; // String!
       pincode: string; // String!
     }
     createQnA: { // args
