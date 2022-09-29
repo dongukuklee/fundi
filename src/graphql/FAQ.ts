@@ -9,6 +9,7 @@ import {
 } from "nexus";
 import { TAKE } from "../common/const";
 import { FAQTypes } from "@prisma/client";
+import { getLocalDate } from "../../utils/Date";
 
 type ToReturnUpdateFAQDataType = {
   question?: string;
@@ -98,6 +99,8 @@ export const FAQMutation = extendType({
       resolve(parent, { question, answer, type, isVisible }, context, info) {
         return context.prisma.fAQ.create({
           data: {
+            createdAt: getLocalDate(),
+            updatedAt: getLocalDate(),
             question,
             answer,
             type,

@@ -90,7 +90,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
-  BannerTypes: "FUNDING" | "NOTICE"
+  BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
@@ -141,7 +141,8 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
-    name?: string | null; // String
+    isVerified: boolean; // Boolean!
+    nickName?: string | null; // String
     pincode?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -227,9 +228,13 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   IDVerification: { // root type
+    birthDay: NexusGenScalars['DateTime']; // DateTime!
+    certificationCode: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expiration: NexusGenScalars['DateTime']; // DateTime!
+    gender: number; // Int!
     id: number; // Int!
-    phoneNumber?: string | null; // String
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // root type
@@ -290,7 +295,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
-    name?: string | null; // String
+    nickName?: string | null; // String
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -352,7 +357,8 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string; // String!
     id: number; // Int!
-    name: string | null; // String
+    isVerified: boolean; // Boolean!
+    nickName: string | null; // String
     pincode: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     user: NexusGenRootTypes['User'] | null; // User
@@ -459,9 +465,13 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   IDVerification: { // field return type
+    birthDay: NexusGenScalars['DateTime']; // DateTime!
+    certificationCode: string; // String!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expiration: NexusGenScalars['DateTime']; // DateTime!
+    gender: number; // Int!
     id: number; // Int!
-    phoneNumber: string | null; // String
+    name: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // field return type
@@ -480,7 +490,6 @@ export interface NexusGenFieldTypes {
     width: number; // Int!
   }
   Mutation: { // field return type
-    IDVerification: NexusGenRootTypes['Auth'] | null; // Auth
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     alterSequence: boolean | null; // Boolean
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
@@ -500,8 +509,8 @@ export interface NexusGenFieldTypes {
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
     participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
-    registerWithdrawalAccount: NexusGenRootTypes['Auth'] | null; // Auth
-    replyQueation: NexusGenRootTypes['QnA'] | null; // QnA
+    registerWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
+    replyQuestion: NexusGenRootTypes['QnA'] | null; // QnA
     signOut: boolean | null; // Boolean
     signin: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     signup: NexusGenRootTypes['AuthPayload']; // AuthPayload!
@@ -602,7 +611,7 @@ export interface NexusGenFieldTypes {
     favoriteCreators: Array<NexusGenRootTypes['Creator'] | null> | null; // [Creator]
     favoriteFundings: Array<NexusGenRootTypes['Funding'] | null> | null; // [Funding]
     id: number; // Int!
-    name: string | null; // String
+    nickName: string | null; // String
     role: NexusGenEnums['Role']; // Role!
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
@@ -656,7 +665,8 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     email: 'String'
     id: 'Int'
-    name: 'String'
+    isVerified: 'Boolean'
+    nickName: 'String'
     pincode: 'String'
     updatedAt: 'DateTime'
     user: 'User'
@@ -763,9 +773,13 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   IDVerification: { // field return type name
+    birthDay: 'DateTime'
+    certificationCode: 'String'
     createdAt: 'DateTime'
+    expiration: 'DateTime'
+    gender: 'Int'
     id: 'Int'
-    phoneNumber: 'String'
+    name: 'String'
     updatedAt: 'DateTime'
   }
   Image: { // field return type name
@@ -784,7 +798,6 @@ export interface NexusGenFieldTypeNames {
     width: 'Int'
   }
   Mutation: { // field return type name
-    IDVerification: 'Auth'
     OAuthLogin: 'AuthPayload'
     alterSequence: 'Boolean'
     chargeTheDeposit: 'AccountCash'
@@ -804,8 +817,8 @@ export interface NexusGenFieldTypeNames {
     likeCreator: 'Creator'
     likeFunding: 'Funding'
     participateFunding: 'AccountBond'
-    registerWithdrawalAccount: 'Auth'
-    replyQueation: 'QnA'
+    registerWithdrawalAccount: 'WithdrawalAccount'
+    replyQuestion: 'QnA'
     signOut: 'Boolean'
     signin: 'AuthPayload'
     signup: 'AuthPayload'
@@ -906,7 +919,7 @@ export interface NexusGenFieldTypeNames {
     favoriteCreators: 'Creator'
     favoriteFundings: 'Funding'
     id: 'Int'
-    name: 'String'
+    nickName: 'String'
     role: 'Role'
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
@@ -923,9 +936,6 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
-    IDVerification: { // args
-      phoneNumber: string; // String!
-    }
     OAuthLogin: { // args
       deviceToken: string; // String!
       email: string; // String!
@@ -983,6 +993,7 @@ export interface NexusGenArgTypes {
       title: string; // String!
     }
     createPincode: { // args
+      imp_uid: string; // String!
       pincode: string; // String!
     }
     createQnA: { // args
@@ -1009,7 +1020,7 @@ export interface NexusGenArgTypes {
       accountNumber: string; // String!
       bankCode: number; // Int!
     }
-    replyQueation: { // args
+    replyQuestion: { // args
       id: number; // Int!
       reply: string; // String!
     }

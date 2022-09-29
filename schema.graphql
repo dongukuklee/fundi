@@ -58,7 +58,8 @@ type Auth {
   createdAt: DateTime!
   email: String!
   id: Int!
-  name: String
+  isVerified: Boolean!
+  nickName: String
   pincode: String
   updatedAt: DateTime!
   user: User
@@ -89,6 +90,7 @@ type BannerModule {
 """Define ContractStatus"""
 enum BannerTypes {
   FUNDING
+  NONE
   NOTICE
 }
 
@@ -254,9 +256,13 @@ enum FundingStatus {
 }
 
 type IDVerification {
+  birthDay: DateTime!
+  certificationCode: String!
   createdAt: DateTime!
+  expiration: DateTime!
+  gender: Int!
   id: Int!
-  phoneNumber: String
+  name: String!
   updatedAt: DateTime!
 }
 
@@ -294,7 +300,6 @@ enum ImageTypes {
 }
 
 type Mutation {
-  IDVerification(phoneNumber: String!): Auth
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
@@ -308,14 +313,14 @@ type Mutation {
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
-  createPincode(pincode: String!): String
+  createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): AccountBond
-  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): Auth
-  replyQueation(id: Int!, reply: String!): QnA
+  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): WithdrawalAccount
+  replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
   signin(email: String!): AuthPayload!
   signup(email: String!, nickName: String): AuthPayload!
@@ -449,7 +454,7 @@ type User {
   favoriteCreators: [Creator]
   favoriteFundings: [Funding]
   id: Int!
-  name: String
+  nickName: String
   role: Role!
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt

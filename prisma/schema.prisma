@@ -11,12 +11,13 @@ datasource db {
 
 model Auth {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
   email     String   @unique
-  name      String?
-  pincode   String? 
+  nickName      String?
   user      User?
+  pincode   String? 
+  isVerified Boolean @default(false)
   IDVerification IDVerification?
   withdrawalAccount withdrawalAccount?
 }
@@ -24,8 +25,12 @@ model Auth {
 model IDVerification {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  phoneNumber String?
+  updatedAt DateTime @updatedAt  
+  expiration DateTime 
+  birthDay  DateTime
+  gender    Int //1, 3 male && 2, 4 female
+  name      String
+  certificationCode String
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
 }
@@ -44,7 +49,7 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   email        String        @unique
-  name         String?
+  nickName         String?
   role         Role          @default(INVESTOR)
   auth         Auth          @relation(fields: [authId], references: [id] )
   authId       Int           @unique
@@ -109,7 +114,7 @@ model AccountBond {
   updatedAt    DateTime          @updatedAt
   owner        User              @relation(fields: [ownerId], references: [id])
   ownerId      Int
-  balance      BigInt            @default(0)
+  balance      BigInt            @default(0)  
   transactions TransactionBond[]
   settlementTransactions TransactionSettlement[]
   funding      Funding?          @relation(fields: [fundingId], references: [id])
@@ -193,6 +198,13 @@ model Funding {
   fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
   images     Image[]
+}
+
+model FundingResult {
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  recruitmentAmount BigInt
 }
 
 model FundingDescription{
@@ -354,6 +366,7 @@ model DeviceToken {
 enum BannerTypes {
   FUNDING
   NOTICE
+  NONE
 }
 
 enum QnATypes {

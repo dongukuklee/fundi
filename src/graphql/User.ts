@@ -8,7 +8,7 @@ export const User = objectType({
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.string("email");
-    t.string("name");
+    t.string("nickName");
     t.field("totalCumulativeInvestmentAmount", {
       type: "BigInt",
       async resolve(parent, args, context, info) {
