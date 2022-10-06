@@ -193,6 +193,7 @@ model Funding {
   endDate          DateTime
   currentSettlementRound Int     @default(0)
   bondPrice        BigInt        @default(10000)
+  lastTransactionAmount BigInt
   bondsTotalNumber BigInt        @default(10000)
   remainingBonds   BigInt        @default(10000)
   fundingSettlement FundingSettlement[]

@@ -508,7 +508,7 @@ export interface NexusGenFieldTypes {
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
-    participateFunding: NexusGenRootTypes['AccountBond'] | null; // AccountBond
+    participateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     registerWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     replyQuestion: NexusGenRootTypes['QnA'] | null; // QnA
     signOut: boolean | null; // Boolean
@@ -816,7 +816,7 @@ export interface NexusGenFieldTypeNames {
     fundingSettlement: 'Funding'
     likeCreator: 'Creator'
     likeFunding: 'Funding'
-    participateFunding: 'AccountBond'
+    participateFunding: 'Funding'
     registerWithdrawalAccount: 'WithdrawalAccount'
     replyQuestion: 'QnA'
     signOut: 'Boolean'
