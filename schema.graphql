@@ -318,7 +318,7 @@ type Mutation {
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
-  participateFunding(amount: Int!, id: Int!): AccountBond
+  participateFunding(amount: Int!, id: Int!): Funding
   registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
