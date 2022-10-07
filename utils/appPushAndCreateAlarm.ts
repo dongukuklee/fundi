@@ -1,6 +1,6 @@
 import { AlarmTypes } from "@prisma/client";
 import { Context } from "../src/context";
-import { sendMessageToDevice } from "./appPushMessage";
+import { sendMessageToDevice } from "./AppPushMessage";
 import { deleteString, getSet, getString } from "./redis/ctrl";
 
 type CreateAlarmData = {

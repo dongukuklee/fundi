@@ -10,7 +10,7 @@ import {
 } from "../utils/redis/ctrl";
 import { prisma } from "../src/context";
 import { each, filter, map } from "underscore";
-import { sendMessageToMultiDevice } from "../utils/appPushMessage";
+import { sendMessageToMultiDevice } from "../utils/AppPushMessage";
 const router = Router();
 
 const routes = (app: any) => {
