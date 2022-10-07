@@ -208,6 +208,7 @@ type Funding {
   id: Int!
   images: [Image]
   isLikedUser: Boolean
+  lastTransactionAmount: BigInt!
   likedUser: [User]
   remainingBonds: BigInt!
   startDate: DateTime
@@ -319,7 +320,7 @@ type Mutation {
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): Funding
-  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): WithdrawalAccount
+  registerWithdrawalAccount(acntNo: String!, bankCode: String!): Boolean
   replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
   signin(email: String!): AuthPayload!
@@ -333,6 +334,7 @@ type Mutation {
   updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
+  updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): Boolean
   withdrawFunding(id: Int!): AccountCash
 }
 
@@ -389,6 +391,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getWithdrawalAccount: WithdrawalAccount
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
   notice(id: Int!): Notice
@@ -462,9 +465,10 @@ type User {
 }
 
 type WithdrawalAccount {
-  accountNumber: String!
-  bankCode: Int!
+  acntNo: String!
+  bankCode: String!
   createdAt: DateTime!
   id: Int!
+  name: String
   updatedAt: DateTime!
 }

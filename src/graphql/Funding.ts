@@ -252,6 +252,7 @@ export const Funding = objectType({
     t.nonNull.bigInt("bondPrice");
     t.nonNull.bigInt("bondsTotalNumber");
     t.nonNull.bigInt("remainingBonds");
+    t.nonNull.bigInt("lastTransactionAmount");
     t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
       async resolve(parent, args, context, info) {
