@@ -1,5 +1,5 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-import { checkAcntNm } from "../../utils/infiniSoftModuls";
+import { checkAcntNm } from "../../utils/infinisoftModuls";
 import { Context } from "../context";
 export const WithdrawalAccount = objectType({
   name: "WithdrawalAccount",
