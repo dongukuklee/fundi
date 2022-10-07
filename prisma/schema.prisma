@@ -38,8 +38,8 @@ model withdrawalAccount {
    id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  bankCode Int
-  accountNumber String
+  bankCode String
+  acntNo String
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
 }
@@ -193,7 +193,7 @@ model Funding {
   endDate          DateTime
   currentSettlementRound Int     @default(0)
   bondPrice        BigInt        @default(10000)
-  lastTransactionAmount BigInt
+  lastTransactionAmount BigInt   @default(0)
   bondsTotalNumber BigInt        @default(10000)
   remainingBonds   BigInt        @default(10000)
   fundingSettlement FundingSettlement[]
