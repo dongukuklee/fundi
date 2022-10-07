@@ -320,7 +320,7 @@ type Mutation {
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
   participateFunding(amount: Int!, id: Int!): Funding
-  registerWithdrawalAccount(acntNo: String!, bankCode: String!): Boolean
+  registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
   signin(email: String!): AuthPayload!

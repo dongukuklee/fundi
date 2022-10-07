@@ -64,7 +64,7 @@ export const WithdrawalAccountMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("registerWithdrawalAccount", {
-      type: "Boolean",
+      type: "WithdrawalAccount",
       args: {
         bankCode: nonNull(stringArg()),
         acntNo: nonNull(stringArg()),
@@ -84,19 +84,17 @@ export const WithdrawalAccountMutation = extendType({
           throw new Error("No such user found");
         }
 
-        if (!accountIsExist) return false;
+        if (!accountIsExist) throw new Error("");
         try {
-          await context.prisma.withdrawalAccount.create({
+          return await context.prisma.withdrawalAccount.create({
             data: {
               bankCode,
               acntNo,
               authId: auth.id,
             },
           });
-          return true;
         } catch (error) {
-          console.log(error);
-          return false;
+          throw new Error(`someting went wrong`);
         }
       },
     });
