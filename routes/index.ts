@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction, Express } from "express";
+import { Router } from "express";
 import imageUpload from "../utils/imageUpload";
 import {
   addToSet,
@@ -17,6 +17,7 @@ const routes = (app: any) => {
   router.get("/_api_/imageUpload", (req, res) => {
     res.send("hello");
   });
+
   router.post(
     "/_api_/imageUpload",
     imageUpload.upload,
@@ -78,6 +79,71 @@ const routes = (app: any) => {
       });
     });
   });
+
+  router.post("/_api_/depositResult", async (req, res) => {
+    const data = req.body;
+    const {
+      tid,
+      shopCode,
+      moid,
+      goodsName,
+      goodsAmt,
+      buyerName,
+      buyerCode,
+      buyerPhoneNo,
+      buyerEmail,
+      pgName,
+      payMethodName,
+      pgMid,
+      status,
+      statusName,
+      cashReceiptType,
+      cashReceiptSupplyAmt,
+      cashReceiptVat,
+      pgAppDate,
+      pgAppTime,
+      pgTid,
+      vacctNo,
+      vbankBankCd,
+      vbankAcctNm,
+      vbankRefundAcctNo,
+      vbankRefundBankCd,
+      vbankRefundAcctNm,
+    } = data;
+
+    if (status === "25") {
+      const virtualAccount = await prisma.virtualAccount.findFirst({
+        where: { tid },
+      });
+
+      const { amt, userId: ownerId } = virtualAccount!;
+      const balance = Number(amt);
+      const accountCash = await prisma.accountCash.findFirst({
+        where: {
+          ownerId,
+        },
+        select: {
+          balance: true,
+        },
+      });
+      await prisma.accountCash.update({
+        where: { ownerId },
+        data: {
+          balance: { increment: BigInt(balance) },
+          transactions: {
+            create: {
+              amount: BigInt(balance),
+              type: "DEPOSIT",
+              title: `예치금 충전`,
+              accumulatedCash: accountCash?.balance! + BigInt(balance),
+            },
+          },
+        },
+      });
+      res.status(200).send("0000");
+    }
+  });
+
   return app.use("/", router);
 };
 

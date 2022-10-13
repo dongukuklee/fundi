@@ -15,8 +15,10 @@ export const checkAcntNm = async (
   idNo: string,
   acntNm: string
 ) => {
+  const moid = await incrBy("withdrawalAccountMoid");
   const data = Object.assign({}, defaultBody, {
     merkey,
+    moid,
     bankCode,
     acntNo,
     idNo,
@@ -58,7 +60,7 @@ export const createVirtualAccount = async (amt: string, context: Context) => {
     `${process.env.INFINISOFT_VIRTUAL_ACCOUNT_URL!}/vbankApi`,
     data
   );
-  vBankResult.data.authId = userInfo.auth.id;
+  vBankResult.data.userId = context.userId;
   if (vBankResult.data.resultCode !== "4100")
     throw new Error("someting went wrong");
 

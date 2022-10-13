@@ -541,7 +541,7 @@ export interface NexusGenFieldTypes {
     updateNotice: boolean | null; // Boolean
     updatePincode: string | null; // String
     updateQuestion: boolean | null; // Boolean
-    updateWithdrawalAccount: boolean | null; // Boolean
+    updateWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     withdrawFunding: NexusGenRootTypes['AccountCash'] | null; // AccountCash
   }
   Notice: { // field return type
@@ -870,7 +870,7 @@ export interface NexusGenFieldTypeNames {
     updateNotice: 'Boolean'
     updatePincode: 'String'
     updateQuestion: 'Boolean'
-    updateWithdrawalAccount: 'Boolean'
+    updateWithdrawalAccount: 'WithdrawalAccount'
     withdrawFunding: 'AccountCash'
   }
   Notice: { // field return type name
