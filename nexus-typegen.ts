@@ -300,6 +300,21 @@ export interface NexusGenObjects {
     role: NexusGenEnums['Role']; // Role!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
+  VirtualAccount: { // root type
+    amt: string; // String!
+    authDate: string; // String!
+    buyerName: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    currency: string; // String!
+    goodsName: string; // String!
+    id: number; // Int!
+    moid: string; // String!
+    tid: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    vbankBankNm: string; // String!
+    vbankExpDate: string; // String!
+    vbankNum: string; // String!
+  }
   WithdrawalAccount: { // root type
     acntNo: string; // String!
     bankCode: string; // String!
@@ -507,6 +522,7 @@ export interface NexusGenFieldTypes {
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
+    createVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -566,6 +582,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myQnA: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
@@ -620,6 +637,21 @@ export interface NexusGenFieldTypes {
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  VirtualAccount: { // field return type
+    amt: string; // String!
+    authDate: string; // String!
+    buyerName: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    currency: string; // String!
+    goodsName: string; // String!
+    id: number; // Int!
+    moid: string; // String!
+    tid: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    vbankBankNm: string; // String!
+    vbankExpDate: string; // String!
+    vbankNum: string; // String!
   }
   WithdrawalAccount: { // field return type
     acntNo: string; // String!
@@ -819,6 +851,7 @@ export interface NexusGenFieldTypeNames {
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
+    createVirtualAccount: 'VirtualAccount'
     fundingSettlement: 'Funding'
     likeCreator: 'Creator'
     likeFunding: 'Funding'
@@ -878,6 +911,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
+    getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
     myFundings: 'Funding'
     myQnA: 'QnA'
@@ -932,6 +966,21 @@ export interface NexusGenFieldTypeNames {
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
     updatedAt: 'DateTime'
+  }
+  VirtualAccount: { // field return type name
+    amt: 'String'
+    authDate: 'String'
+    buyerName: 'String'
+    createdAt: 'DateTime'
+    currency: 'String'
+    goodsName: 'String'
+    id: 'Int'
+    moid: 'String'
+    tid: 'String'
+    updatedAt: 'DateTime'
+    vbankBankNm: 'String'
+    vbankExpDate: 'String'
+    vbankNum: 'String'
   }
   WithdrawalAccount: { // field return type name
     acntNo: 'String'
@@ -1010,6 +1059,9 @@ export interface NexusGenArgTypes {
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title: string; // String!
       type: NexusGenEnums['QnATypes']; // QnATypes!
+    }
+    createVirtualAccount: { // args
+      amt: string; // String!
     }
     fundingSettlement: { // args
       amount: number; // Int!

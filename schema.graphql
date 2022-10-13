@@ -316,6 +316,7 @@ type Mutation {
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
   createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
+  createVirtualAccount(amt: String!): VirtualAccount
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
@@ -391,6 +392,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
@@ -462,6 +464,22 @@ type User {
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt
   updatedAt: DateTime!
+}
+
+type VirtualAccount {
+  amt: String!
+  authDate: String!
+  buyerName: String!
+  createdAt: DateTime!
+  currency: String!
+  goodsName: String!
+  id: Int!
+  moid: String!
+  tid: String!
+  updatedAt: DateTime!
+  vbankBankNm: String!
+  vbankExpDate: String!
+  vbankNum: String!
 }
 
 type WithdrawalAccount {
