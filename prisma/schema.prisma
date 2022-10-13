@@ -20,7 +20,7 @@ model Auth {
   isVerified Boolean @default(false)
   IDVerification IDVerification?
   withdrawalAccount WithdrawalAccount?
-  virtualAccount VirtualAccount[]
+ 
 }
 
 model IDVerification {
@@ -59,8 +59,8 @@ model VirtualAccount {
   authDate String
   vbankNum String
   vbankBankNm String
-  auth Auth @relation(fields: [authId] ,references: [id])
-  authId Int
+  user User @relation(fields: [userId] ,references: [id])
+  userId Int
 }
 
 model User {
@@ -78,6 +78,7 @@ model User {
   accountsBond AccountBond[]
   qna              QnA[]
   alarm       Alarm[]
+   virtualAccount VirtualAccount[]
 }
 
 model Alarm{
