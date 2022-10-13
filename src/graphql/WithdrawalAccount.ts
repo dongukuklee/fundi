@@ -99,7 +99,7 @@ export const WithdrawalAccountMutation = extendType({
       },
     });
     t.field("updateWithdrawalAccount", {
-      type: "Boolean",
+      type: "WithdrawalAccount",
       args: {
         id: nonNull(intArg()),
         bankCode: nonNull(stringArg()),
@@ -120,26 +120,17 @@ export const WithdrawalAccountMutation = extendType({
           throw new Error("No such user found");
         }
 
-        if (!accountIsExist) return false;
+        if (!accountIsExist) throw new Error("account not found");
+
         try {
-          const deleteWithdrawalAccount =
-            context.prisma.withdrawalAccount.delete({ where: { id } });
-          const createWithdrawalAccount =
-            context.prisma.withdrawalAccount.create({
-              data: {
-                bankCode,
-                acntNo,
-                authId: auth.id,
-              },
-            });
-          await context.prisma.$transaction([
-            deleteWithdrawalAccount,
-            createWithdrawalAccount,
-          ]);
-          return true;
+          const updateResult = await context.prisma.withdrawalAccount.update({
+            where: { id },
+            data: { bankCode, acntNo },
+          });
+
+          return updateResult;
         } catch (error) {
-          console.log(error);
-          return false;
+          throw new Error("");
         }
       },
     });

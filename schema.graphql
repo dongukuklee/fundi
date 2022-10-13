@@ -335,7 +335,7 @@ type Mutation {
   updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
-  updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): Boolean
+  updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
   withdrawFunding(id: Int!): AccountCash
 }
 

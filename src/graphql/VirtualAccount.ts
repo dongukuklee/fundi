@@ -41,7 +41,15 @@ export const VirtualAccountQuery = extendType({
     t.field("getVirtualAccount", {
       type: "VirtualAccount",
       resolve(parent, args, context, info) {
-        return context.prisma.virtualAccount.findFirst({ where: {} });
+        const id = context.userId;
+        if (!id)
+          throw new Error(
+            "Cannot inquiry the virtual account without signing in."
+          );
+
+        return context.prisma.virtualAccount.findFirst({
+          where: { userId: context.userId },
+        });
       },
     });
   },
@@ -64,9 +72,8 @@ export const VirtualAccountMutation = extendType({
           "authDate",
           "vbankNum",
           "vbankBankNm",
-          "authId",
+          "userId",
         ];
-
         const {
           data,
           vbankExpDate,
