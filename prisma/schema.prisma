@@ -19,7 +19,8 @@ model Auth {
   pincode   String? 
   isVerified Boolean @default(false)
   IDVerification IDVerification?
-  withdrawalAccount withdrawalAccount?
+  withdrawalAccount WithdrawalAccount?
+  virtualAccount VirtualAccount[]
 }
 
 model IDVerification {
@@ -34,7 +35,7 @@ model IDVerification {
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
 }
-model withdrawalAccount {
+model WithdrawalAccount {
    id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,6 +43,24 @@ model withdrawalAccount {
   acntNo String
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
+}
+
+model VirtualAccount {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vbankExpDate String @default("")
+  tid String
+  goodsName String
+  amt String
+  moid String
+  currency String
+  buyerName String
+  authDate String
+  vbankNum String
+  vbankBankNm String
+  auth Auth @relation(fields: [authId] ,references: [id])
+  authId Int
 }
 
 model User {
