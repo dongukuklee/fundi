@@ -40,14 +40,14 @@ export const VirtualAccountQuery = extendType({
   definition(t) {
     t.field("getVirtualAccount", {
       type: "VirtualAccount",
-      resolve(parent, args, context, info) {
+      async resolve(parent, args, context, info) {
         const id = context.userId;
         if (!id)
           throw new Error(
             "Cannot inquiry the virtual account without signing in."
           );
 
-        return context.prisma.virtualAccount.findFirst({
+        return await context.prisma.virtualAccount.findFirst({
           where: { userId: context.userId },
         });
       },
@@ -80,8 +80,15 @@ export const VirtualAccountMutation = extendType({
         }: { data: VirtualAccountType; vbankExpDate: string } =
           await createVirtualAccount(amt, context);
         const virtualAccountData: any = pick(data, ...keys);
-
-        return await context.prisma.virtualAccount.create({
+        const userVirualAccount = await context.prisma.virtualAccount.findFirst(
+          { where: { userId: context.userId } }
+        );
+        if (!userVirualAccount)
+          throw new Error("user virtual account not found");
+        const deleteVirtualAccount = context.prisma.virtualAccount.delete({
+          where: { id: userVirualAccount.id },
+        });
+        const createVirtualAccountInDb = context.prisma.virtualAccount.create({
           data: {
             createdAt: getLocalDate(),
             updatedAt: getLocalDate(),
@@ -89,6 +96,11 @@ export const VirtualAccountMutation = extendType({
             ...virtualAccountData,
           },
         });
+        const virtualAccountTransaction = await context.prisma.$transaction([
+          deleteVirtualAccount,
+          createVirtualAccountInDb,
+        ]);
+        return virtualAccountTransaction[1];
       },
     });
   },
