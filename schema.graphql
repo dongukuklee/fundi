@@ -400,6 +400,7 @@ type Query {
   notices(skip: Int, take: Int): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
+  tt: Boolean
   user: User
   users: [User]
   verificationCode(email: String!, verificationCode: String!): Boolean!

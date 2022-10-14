@@ -1,5 +1,8 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-import { checkAcntNm } from "../../utils/infinisoftModules";
+import {
+  checkAcntNm,
+  makingMoneyTransfers,
+} from "../../utils/infinisoftModules";
 import { Context } from "../context";
 export const WithdrawalAccount = objectType({
   name: "WithdrawalAccount",
@@ -46,15 +49,22 @@ export const WithdrawalAccountQuery = extendType({
   definition(t) {
     t.field("getWithdrawalAccount", {
       type: "WithdrawalAccount",
-      resolve(parent, args, context, info) {
+      async resolve(parent, args, context, info) {
         if (!context.userId)
           throw new Error(
             "Cannot inquery withdrawal account without signing in."
           );
 
-        return context.prisma.withdrawalAccount.findFirst({
+        return await context.prisma.withdrawalAccount.findFirst({
           where: { auth: { user: { id: context.userId } } },
         });
+      },
+    });
+    t.field("tt", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        await makingMoneyTransfers("004", "84790201262840", "이동욱", "1000");
+        return false;
       },
     });
   },
