@@ -115,8 +115,9 @@ const routes = (app: any) => {
       const virtualAccount = await prisma.virtualAccount.findFirst({
         where: { tid },
       });
+      if (!virtualAccount) throw new Error("virtual account not found");
 
-      const { amt, userId: ownerId } = virtualAccount!;
+      const { amt, userId: ownerId } = virtualAccount;
       const balance = Number(amt);
       const accountCash = await prisma.accountCash.findFirst({
         where: {
@@ -126,7 +127,7 @@ const routes = (app: any) => {
           balance: true,
         },
       });
-      await prisma.accountCash.update({
+      const updateAccountCash = prisma.accountCash.update({
         where: { ownerId },
         data: {
           balance: { increment: BigInt(balance) },
@@ -140,6 +141,10 @@ const routes = (app: any) => {
           },
         },
       });
+      const deleteVirtualAccount = prisma.virtualAccount.delete({
+        where: { id: virtualAccount.id },
+      });
+      await prisma.$transaction([updateAccountCash, deleteVirtualAccount]);
       res.status(200).send("0000");
     } else {
       res.status(200).send("0000");

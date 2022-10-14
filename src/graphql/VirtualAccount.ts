@@ -46,10 +46,23 @@ export const VirtualAccountQuery = extendType({
           throw new Error(
             "Cannot inquiry the virtual account without signing in."
           );
+        const userVirtualAccount =
+          await context.prisma.virtualAccount.findFirst({
+            where: { userId: context.userId },
+          });
+        if (!userVirtualAccount) return null;
 
-        return await context.prisma.virtualAccount.findFirst({
-          where: { userId: context.userId },
-        });
+        const { vbankExpDate } = userVirtualAccount;
+        const today = new Date();
+        const vbankFormatDate = `${vbankExpDate.substring(
+          0,
+          4
+        )}-${vbankExpDate.substring(4, 6)}-${vbankExpDate.substring(
+          6,
+          8
+        )} 23:59:59`;
+        const expDate = new Date(vbankFormatDate);
+        return today > expDate ? null : userVirtualAccount;
       },
     });
   },
