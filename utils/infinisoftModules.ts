@@ -28,8 +28,6 @@ export const checkAcntNm = async (
     `${process.env.INFINISOFT_URL!}/AcctNmReq.acct`,
     data
   );
-  console.log("result");
-  console.log(result.data);
   return result.data.resultCode === "0000";
 };
 
@@ -41,7 +39,7 @@ export const createVirtualAccount = async (amt: string, context: Context) => {
   if (!userInfo) throw new Error("user not found");
 
   const date = getLocalDate();
-  date.setMinutes(date.getDate() + 1);
+  date.setDate(date.getDate() + 1);
   const vbankExpDate = getFormatDate(date);
   const moid = await incrBy("virtualAccountMoid");
   const data = Object.assign({}, defaultBody, {
