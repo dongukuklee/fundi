@@ -141,6 +141,8 @@ const routes = (app: any) => {
         },
       });
       res.status(200).send("0000");
+    } else {
+      res.status(200).send("0000");
     }
   });
 

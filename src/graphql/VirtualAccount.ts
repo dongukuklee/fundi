@@ -83,24 +83,36 @@ export const VirtualAccountMutation = extendType({
         const userVirualAccount = await context.prisma.virtualAccount.findFirst(
           { where: { userId: context.userId } }
         );
-        if (!userVirualAccount)
-          throw new Error("user virtual account not found");
-        const deleteVirtualAccount = context.prisma.virtualAccount.delete({
-          where: { id: userVirualAccount.id },
-        });
-        const createVirtualAccountInDb = context.prisma.virtualAccount.create({
-          data: {
-            createdAt: getLocalDate(),
-            updatedAt: getLocalDate(),
-            vbankExpDate,
-            ...virtualAccountData,
-          },
-        });
-        const virtualAccountTransaction = await context.prisma.$transaction([
-          deleteVirtualAccount,
-          createVirtualAccountInDb,
-        ]);
-        return virtualAccountTransaction[1];
+        if (!userVirualAccount) {
+          return await context.prisma.virtualAccount.create({
+            data: {
+              createdAt: getLocalDate(),
+              updatedAt: getLocalDate(),
+              vbankExpDate,
+              ...virtualAccountData,
+            },
+          });
+        } else {
+          const deleteVirtualAccount = context.prisma.virtualAccount.delete({
+            where: { id: userVirualAccount.id },
+          });
+
+          const createVirtualAccountInDb = context.prisma.virtualAccount.create(
+            {
+              data: {
+                createdAt: getLocalDate(),
+                updatedAt: getLocalDate(),
+                vbankExpDate,
+                ...virtualAccountData,
+              },
+            }
+          );
+          const virtualAccountTransaction = await context.prisma.$transaction([
+            deleteVirtualAccount,
+            createVirtualAccountInDb,
+          ]);
+          return virtualAccountTransaction[1];
+        }
       },
     });
   },
