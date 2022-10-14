@@ -590,6 +590,7 @@ export interface NexusGenFieldTypes {
     notices: Array<NexusGenRootTypes['Notice'] | null> | null; // [Notice]
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
+    tt: boolean | null; // Boolean
     user: NexusGenRootTypes['User'] | null; // User
     users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     verificationCode: boolean; // Boolean!
@@ -919,6 +920,7 @@ export interface NexusGenFieldTypeNames {
     notices: 'Notice'
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
+    tt: 'Boolean'
     user: 'User'
     users: 'User'
     verificationCode: 'Boolean'

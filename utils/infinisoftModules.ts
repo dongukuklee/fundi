@@ -6,6 +6,8 @@ import { incrBy } from "./redis/ctrl";
 
 config();
 const merkey = process.env.MERKEY;
+const depAcntNo = process.env.DEPACNTNO;
+const depAcntNm = process.env.DEPACNTNM;
 const defaultBody = {
   mid: process.env.MID,
 };
@@ -63,4 +65,28 @@ export const createVirtualAccount = async (amt: string, context: Context) => {
     throw new Error("someting went wrong");
 
   return { data: vBankResult.data, vbankExpDate };
+};
+
+export const makingMoneyTransfers = async (
+  bankCode: string,
+  acntNo: string,
+  acntNm: string,
+  amt: string
+) => {
+  const moid = await incrBy("makingMoneyTransferMoid");
+  const data = Object.assign({}, defaultBody, {
+    merkey,
+    moid,
+    bankCode,
+    acntNo,
+    acntNm,
+    amt,
+    depAcntNo,
+    depAcntNm,
+  });
+  const d = await axios.post(
+    `${process.env.INFINISOFT_URL!}/AcctOutTransReq.acct`,
+    data
+  );
+  console.log(d);
 };
