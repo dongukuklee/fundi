@@ -252,6 +252,7 @@ export const Funding = objectType({
     t.nonNull.bigInt("bondPrice");
     t.nonNull.bigInt("bondsTotalNumber");
     t.nonNull.bigInt("remainingBonds");
+    t.nonNull.bigInt("lastTransactionAmount");
     t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
       async resolve(parent, args, context, info) {
@@ -401,6 +402,7 @@ export const FundingQuery = extendType({
         if (!userId) {
           throw new Error("Cannot inquiry my funding list without signing in.");
         }
+
         const myFunding = await context.prisma.funding.findMany({
           where: {
             accountsBond: {
@@ -422,7 +424,7 @@ export const FundingMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.field("participateFunding", {
-      type: "AccountBond",
+      type: "Funding",
       args: {
         id: nonNull(intArg()),
         amount: nonNull(intArg()),
@@ -540,17 +542,7 @@ export const FundingMutation = extendType({
             },
           }),
         ]);
-        return context.prisma.accountBond.findUnique({
-          where: {
-            id: investorAccountBondId,
-          },
-          include: {
-            transactions: {
-              skip: 0,
-              take: TAKE,
-            },
-          },
-        });
+        return context.prisma.funding.findUnique({ where: { id } });
       },
     });
     t.field("withdrawFunding", {
@@ -580,7 +572,7 @@ export const FundingMutation = extendType({
         }
 
         const investorAccountCashId = investor.accountCash?.id;
-        const accountBondInvestor = investor.accountsBond[0];
+        const investorAccountBond = investor.accountsBond[0];
 
         const totalRefundAmount = getTotalRefundAmount(investor, funding);
 
@@ -596,21 +588,30 @@ export const FundingMutation = extendType({
               create: {
                 amount: totalRefundAmount,
                 type: "DEPOSIT",
-                title: `${accountBondInvestor.funding?.title} 펀드 환불 금액`,
+                title: `${investorAccountBond.funding?.title} 펀드 환불 금액`,
                 accumulatedCash:
                   investor.accountCash?.balance + totalRefundAmount,
               },
             },
           },
         });
+
         const deleteInvestorAccountBond = context.prisma.accountBond.delete({
-          where: { id: accountBondInvestor.id },
+          where: { id: investorAccountBond.id },
+        });
+        const increaseFundingRemainingBone = context.prisma.funding.update({
+          where: { id },
+          data: {
+            remainingBonds: {
+              increment: investorAccountBond.balance,
+            },
+          },
         });
         const createTransactionBond = context.prisma.transactionBond.create({
           data: {
-            accountId: accountBondInvestor.id,
-            amount: accountBondInvestor.balance,
-            title: `${accountBondInvestor.funding?.title} 펀드 취소`,
+            accountId: investorAccountBond.id,
+            amount: investorAccountBond.balance,
+            title: `${investorAccountBond.funding?.title} 펀드 취소`,
             type: "WITHDRAW",
           },
         });
@@ -634,8 +635,8 @@ export const FundingMutation = extendType({
 
         const withdrawFundingTransactions = [
           updateInvestorAccountCash,
-          //UpdateInvestorAccountBond,
           deleteInvestorAccountBond,
+          increaseFundingRemainingBone,
           createTransactionBond,
         ];
 

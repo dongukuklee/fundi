@@ -1,13 +1,72 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-
+import {
+  checkAcntNm,
+  makingMoneyTransfers,
+} from "../../utils/infinisoftModules";
+import { Context } from "../context";
 export const WithdrawalAccount = objectType({
   name: "WithdrawalAccount",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
-    t.nonNull.int("bankCode");
-    t.nonNull.string("accountNumber");
+    t.nonNull.string("bankCode");
+    t.nonNull.string("acntNo");
+    t.field("name", {
+      type: "String",
+      async resolve(parent, args, context, info) {
+        const result = await context.prisma.iDVerification.findFirst({
+          where: { auth: { user: { id: context.userId } } },
+          select: { name: true },
+        });
+        return result!.name;
+      },
+    });
+  },
+});
+
+const checkAccount = async (
+  context: Context,
+  bankCode: string,
+  acntNo: string
+) => {
+  const userIDVerification = await context.prisma.iDVerification.findFirst({
+    where: { auth: { user: { id: context.userId } } },
+  });
+  if (!userIDVerification)
+    throw new Error("user IDVerification data not found");
+  const { birthDay, name } = userIDVerification;
+  const birthDayFormat = `${birthDay.getFullYear() % 100}${
+    birthDay.getMonth() + 1 < 10
+      ? "0" + (birthDay.getMonth() + 1)
+      : birthDay.getMonth() + 1
+  }${birthDay.getDate()}`;
+  return await checkAcntNm(bankCode, acntNo, birthDayFormat, name);
+};
+
+export const WithdrawalAccountQuery = extendType({
+  type: "Query",
+  definition(t) {
+    t.field("getWithdrawalAccount", {
+      type: "WithdrawalAccount",
+      async resolve(parent, args, context, info) {
+        if (!context.userId)
+          throw new Error(
+            "Cannot inquery withdrawal account without signing in."
+          );
+
+        return await context.prisma.withdrawalAccount.findFirst({
+          where: { auth: { user: { id: context.userId } } },
+        });
+      },
+    });
+    t.field("tt", {
+      type: "Boolean",
+      async resolve(parent, args, context, info) {
+        await makingMoneyTransfers("004", "84790201262840", "이동욱", "1000");
+        return false;
+      },
+    });
   },
 });
 
@@ -17,29 +76,72 @@ export const WithdrawalAccountMutation = extendType({
     t.field("registerWithdrawalAccount", {
       type: "WithdrawalAccount",
       args: {
-        bankCode: nonNull(intArg()),
-        accountNumber: nonNull(stringArg()),
+        bankCode: nonNull(stringArg()),
+        acntNo: nonNull(stringArg()),
       },
-      async resolve(parent, { bankCode, accountNumber }, context, info) {
+      async resolve(parent, { bankCode, acntNo }, context, info) {
         const { userId } = context;
         if (!userId) {
           throw new Error(
             "Cannot register withdrawal account without signing in."
           );
         }
+        const accountIsExist = await checkAccount(context, bankCode, acntNo);
         const auth = await context.prisma.auth.findFirst({
           where: { user: { id: userId } },
         });
         if (!auth) {
           throw new Error("No such user found");
         }
-        return await context.prisma.withdrawalAccount.create({
-          data: {
-            bankCode,
-            accountNumber,
-            authId: auth.id,
-          },
+
+        if (!accountIsExist) throw new Error("");
+        try {
+          return await context.prisma.withdrawalAccount.create({
+            data: {
+              bankCode,
+              acntNo,
+              authId: auth.id,
+            },
+          });
+        } catch (error) {
+          throw new Error(`someting went wrong`);
+        }
+      },
+    });
+    t.field("updateWithdrawalAccount", {
+      type: "WithdrawalAccount",
+      args: {
+        id: nonNull(intArg()),
+        bankCode: nonNull(stringArg()),
+        acntNo: nonNull(stringArg()),
+      },
+      async resolve(parent, { id, bankCode, acntNo }, context, info) {
+        const { userId } = context;
+        if (!userId) {
+          throw new Error(
+            "Cannot update withdrawal account without signing in."
+          );
+        }
+        const accountIsExist = await checkAccount(context, bankCode, acntNo);
+        const auth = await context.prisma.auth.findFirst({
+          where: { user: { id: userId } },
         });
+        if (!auth) {
+          throw new Error("No such user found");
+        }
+
+        if (!accountIsExist) throw new Error("account not found");
+
+        try {
+          const updateResult = await context.prisma.withdrawalAccount.update({
+            where: { id },
+            data: { bankCode, acntNo },
+          });
+
+          return updateResult;
+        } catch (error) {
+          throw new Error("");
+        }
       },
     });
   },

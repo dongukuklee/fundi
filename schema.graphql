@@ -208,6 +208,7 @@ type Funding {
   id: Int!
   images: [Image]
   isLikedUser: Boolean
+  lastTransactionAmount: BigInt!
   likedUser: [User]
   remainingBonds: BigInt!
   startDate: DateTime
@@ -315,11 +316,12 @@ type Mutation {
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
   createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
+  createVirtualAccount(amt: String!): VirtualAccount
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
-  participateFunding(amount: Int!, id: Int!): AccountBond
-  registerWithdrawalAccount(accountNumber: String!, bankCode: Int!): WithdrawalAccount
+  participateFunding(amount: Int!, id: Int!): Funding
+  registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
   signin(email: String!): AuthPayload!
@@ -333,6 +335,7 @@ type Mutation {
   updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
+  updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
   withdrawFunding(id: Int!): AccountCash
 }
 
@@ -389,12 +392,15 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getVirtualAccount: VirtualAccount
+  getWithdrawalAccount: WithdrawalAccount
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
   notice(id: Int!): Notice
   notices(skip: Int, take: Int): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
+  tt: Boolean
   user: User
   users: [User]
   verificationCode(email: String!, verificationCode: String!): Boolean!
@@ -461,10 +467,27 @@ type User {
   updatedAt: DateTime!
 }
 
+type VirtualAccount {
+  amt: String!
+  authDate: String!
+  buyerName: String!
+  createdAt: DateTime!
+  currency: String!
+  goodsName: String!
+  id: Int!
+  moid: String!
+  tid: String!
+  updatedAt: DateTime!
+  vbankBankNm: String!
+  vbankExpDate: String!
+  vbankNum: String!
+}
+
 type WithdrawalAccount {
-  accountNumber: String!
-  bankCode: Int!
+  acntNo: String!
+  bankCode: String!
   createdAt: DateTime!
   id: Int!
+  name: String
   updatedAt: DateTime!
 }

@@ -45,3 +45,7 @@ export const addToSet = async (key: string, value: string) => {
 export const removeFromSet = async (key: string, value: string) => {
   return await redisClient.SREM(key, value);
 };
+
+export const incrBy = async (key: string) => {
+  return await redisClient.INCRBY(key, 1);
+};

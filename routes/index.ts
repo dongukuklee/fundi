@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction, Express } from "express";
+import { Router } from "express";
 import imageUpload from "../utils/imageUpload";
 import {
   addToSet,
@@ -10,13 +10,14 @@ import {
 } from "../utils/redis/ctrl";
 import { prisma } from "../src/context";
 import { each, filter, map } from "underscore";
-import { sendMessageToMultiDevice } from "../utils/appPushMessage";
+import { sendMessageToMultiDevice } from "../utils/AppPushMessage";
 const router = Router();
 
 const routes = (app: any) => {
   router.get("/_api_/imageUpload", (req, res) => {
     res.send("hello");
   });
+
   router.post(
     "/_api_/imageUpload",
     imageUpload.upload,
@@ -78,6 +79,78 @@ const routes = (app: any) => {
       });
     });
   });
+
+  router.post("/_api_/depositResult", async (req, res) => {
+    const data = req.body;
+    const {
+      tid,
+      shopCode,
+      moid,
+      goodsName,
+      goodsAmt,
+      buyerName,
+      buyerCode,
+      buyerPhoneNo,
+      buyerEmail,
+      pgName,
+      payMethodName,
+      pgMid,
+      status,
+      statusName,
+      cashReceiptType,
+      cashReceiptSupplyAmt,
+      cashReceiptVat,
+      pgAppDate,
+      pgAppTime,
+      pgTid,
+      vacctNo,
+      vbankBankCd,
+      vbankAcctNm,
+      vbankRefundAcctNo,
+      vbankRefundBankCd,
+      vbankRefundAcctNm,
+    } = data;
+
+    if (status === "25") {
+      const virtualAccount = await prisma.virtualAccount.findFirst({
+        where: { tid },
+      });
+      if (!virtualAccount) throw new Error("virtual account not found");
+
+      const { amt, userId: ownerId } = virtualAccount;
+      const balance = Number(amt);
+      const accountCash = await prisma.accountCash.findFirst({
+        where: {
+          ownerId,
+        },
+        select: {
+          balance: true,
+        },
+      });
+      const updateAccountCash = prisma.accountCash.update({
+        where: { ownerId },
+        data: {
+          balance: { increment: BigInt(balance) },
+          transactions: {
+            create: {
+              amount: BigInt(balance),
+              type: "DEPOSIT",
+              title: `예치금 충전`,
+              accumulatedCash: accountCash?.balance! + BigInt(balance),
+            },
+          },
+        },
+      });
+      const deleteVirtualAccount = prisma.virtualAccount.delete({
+        where: { id: virtualAccount.id },
+      });
+      await prisma.$transaction([updateAccountCash, deleteVirtualAccount]);
+      res.status(200).send("0000");
+    } else {
+      res.status(200).send("0000");
+    }
+  });
+
   return app.use("/", router);
 };
 

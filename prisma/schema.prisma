@@ -19,7 +19,8 @@ model Auth {
   pincode   String? 
   isVerified Boolean @default(false)
   IDVerification IDVerification?
-  withdrawalAccount withdrawalAccount?
+  withdrawalAccount WithdrawalAccount?
+ 
 }
 
 model IDVerification {
@@ -34,14 +35,32 @@ model IDVerification {
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
 }
-model withdrawalAccount {
+model WithdrawalAccount {
    id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  bankCode Int
-  accountNumber String
+  bankCode String
+  acntNo String
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
+}
+
+model VirtualAccount {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vbankExpDate String @default("")
+  tid String
+  goodsName String
+  amt String
+  moid String
+  currency String
+  buyerName String
+  authDate String
+  vbankNum String
+  vbankBankNm String
+  user User @relation(fields: [userId] ,references: [id])
+  userId Int
 }
 
 model User {
@@ -59,6 +78,7 @@ model User {
   accountsBond AccountBond[]
   qna              QnA[]
   alarm       Alarm[]
+   virtualAccount VirtualAccount[]
 }
 
 model Alarm{
@@ -193,6 +213,7 @@ model Funding {
   endDate          DateTime
   currentSettlementRound Int     @default(0)
   bondPrice        BigInt        @default(10000)
+  lastTransactionAmount BigInt   @default(0)
   bondsTotalNumber BigInt        @default(10000)
   remainingBonds   BigInt        @default(10000)
   fundingSettlement FundingSettlement[]

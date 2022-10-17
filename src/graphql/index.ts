@@ -19,6 +19,7 @@ export * from "./TransactionBond";
 export * from "./FundingSettlement";
 export * from "./TransactionSettlement";
 export * from "./User";
+export * from "./VirtualAccount";
 export * from "./WithdrawalAccount";
 export * from "./InputTypes";
 export * from "./BannerModule";
