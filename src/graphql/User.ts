@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
+import { getUser } from "../../utils/getUserInfo";
 
 export const User = objectType({
   name: "User",
@@ -132,20 +133,11 @@ export const UserQuery = extendType({
     t.field("user", {
       type: "User",
       async resolve(parent, args, context, info) {
-        const { userId, userRole } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry user information without signing in."
-          );
-        }
+        const { userRole } = context;
         if (userRole === Role.ADMIN) {
           throw new Error("Only the owner can inquiry user information.");
         }
-        return await context.prisma.user.findUnique({
-          where: {
-            id: userId,
-          },
-        });
+        return getUser(context);
       },
     });
     t.list.field("users", {

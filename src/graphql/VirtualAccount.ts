@@ -1,6 +1,7 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { pick } from "underscore";
 import { getLocalDate } from "../../utils/Date";
+import { signinCheck } from "../../utils/getUserInfo";
 import { createVirtualAccount } from "../../utils/infinisoftModules";
 
 type VirtualAccountType = {
@@ -41,14 +42,11 @@ export const VirtualAccountQuery = extendType({
     t.field("getVirtualAccount", {
       type: "VirtualAccount",
       async resolve(parent, args, context, info) {
-        const id = context.userId;
-        if (!id)
-          throw new Error(
-            "Cannot inquiry the virtual account without signing in."
-          );
+        const { userId } = context;
+        signinCheck(userId);
         const userVirtualAccount =
           await context.prisma.virtualAccount.findFirst({
-            where: { userId: context.userId },
+            where: { userId },
           });
         if (!userVirtualAccount) return null;
 

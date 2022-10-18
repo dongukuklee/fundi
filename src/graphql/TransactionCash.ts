@@ -1,5 +1,6 @@
 import { TransactionType } from "@prisma/client";
 import { arg, extendType, intArg, objectType, stringArg } from "nexus";
+import { signinCheck } from "../../utils/getUserInfo";
 import { TAKE } from "../common/const";
 
 export const TransactionCash = objectType({
@@ -35,12 +36,7 @@ export const TransactionCashQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the transactions of the account without signing in."
-          );
-        }
-
+        signinCheck(userId);
         const userAccountCash = await context.prisma.accountCash.findUnique({
           where: { ownerId: userId },
         });

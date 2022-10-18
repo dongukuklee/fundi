@@ -3,6 +3,7 @@ export * from "./scalars/BigInt";
 export * from "./Auth";
 export * from "./AccountCash";
 export * from "./AccountBond";
+export * from "./AccountTransfer";
 export * from "./Alarm";
 export * from "./Contract";
 export * from "./Creator";

@@ -26,6 +26,19 @@ type AccountCash {
   updatedAt: DateTime!
 }
 
+type AccountTransfer {
+  accountTransfer(id: Int!): AccountTransfer
+  accountTransfers: [AccountTransfer]
+  acntNo: String!
+  amt: String!
+  bankCode: String!
+  createdAt: DateTime!
+  id: Int!
+  myAccountTransfer: AccountTransfer
+  myAccountTransfers: [AccountTransfer]
+  updatedAt: DateTime!
+}
+
 type Alarm {
   content: String!
   createdAt: DateTime!
@@ -320,6 +333,7 @@ type Mutation {
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
+  makingMoneyTransfers(id: Int!): Boolean
   participateFunding(amount: Int!, id: Int!): Funding
   registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
@@ -337,6 +351,7 @@ type Mutation {
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
   withdrawFunding(id: Int!): AccountCash
+  withdrawalApplication(amt: Int!): AccountTransfer
 }
 
 type Notice {
@@ -400,7 +415,6 @@ type Query {
   notices(skip: Int, take: Int): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
-  tt: Boolean
   user: User
   users: [User]
   verificationCode(email: String!, verificationCode: String!): Boolean!

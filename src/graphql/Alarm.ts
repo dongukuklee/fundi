@@ -1,5 +1,6 @@
 import { AlarmTypes } from "@prisma/client";
 import { booleanArg, extendType, intArg, nonNull, objectType } from "nexus";
+import { signinCheck } from "../../utils/getUserInfo";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { TAKE } from "../common/const";
 
@@ -75,14 +76,12 @@ export const AlarmQuery = extendType({
     t.field("alarmCount", {
       type: "Int",
       async resolve(parent, args, context, info) {
-        if (!context.userId)
-          throw new Error(
-            "Cannot inquiry the count of the alarm without signing in."
-          );
+        const { userId } = context;
+        signinCheck(userId);
         return await context.prisma.alarm.count({
           where: {
             isConfirm: false,
-            userId: context.userId,
+            userId: userId,
           },
         });
       },
