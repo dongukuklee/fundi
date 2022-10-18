@@ -111,6 +111,7 @@ export const AccountTransferMutation = extendType({
         const createAccountTransfer = context.prisma.accountTransfer.create({
           data: { acntNo, amt: String(amt), bankCode, userId: userId! },
         });
+
         const result = await context.prisma.$transaction([
           updateAccountCash,
           createAccountTransfer,
@@ -139,13 +140,15 @@ export const AccountTransferMutation = extendType({
           if (await checkAcntNm(bankCode, acntNo, userBirthDay, name))
             throw new Error("The account does not match.");
 
-          await makingMoneyTransfers(
+          const isSuccess = await makingMoneyTransfers(
             bankCode,
             acntNo,
             name,
             String(Number(amt) - Number(fee))
           );
-          return true;
+          if (isSuccess) {
+            return true;
+          } else return false;
         } catch (error) {
           console.log(error);
           return false;
