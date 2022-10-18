@@ -6,6 +6,7 @@ import {
   queryType,
   stringArg,
 } from "nexus";
+import { getUserAccountCash } from "../../utils/getUserInfo";
 
 export const AccountCash = objectType({
   name: "AccountCash",
@@ -39,18 +40,7 @@ export const AccountCashQuery = extendType({
     t.field("balanceCash", {
       type: "BigInt",
       async resolve(parent, args, context, info) {
-        const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the balance of the account without signing in."
-          );
-        }
-        const account = await context.prisma.user
-          .findUnique({ where: { id: userId } })
-          .accountCash();
-        if (!account) {
-          throw new Error("You don't have a cash account.");
-        }
+        const account = await getUserAccountCash(context);
 
         return account.balance;
       },
@@ -68,19 +58,8 @@ export const AccountCashMutation = extendType({
       },
       async resolve(parent, { amount }, context, info) {
         const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the balance of the account without signing in."
-          );
-        }
-        const accountCash = await context.prisma.accountCash.findFirst({
-          where: {
-            ownerId: context.userId,
-          },
-          select: {
-            balance: true,
-          },
-        });
+        const accountCash = await getUserAccountCash(context);
+
         const updatedAccountCash = await context.prisma.accountCash.update({
           where: { ownerId: userId },
           data: {
@@ -90,7 +69,7 @@ export const AccountCashMutation = extendType({
                 amount: BigInt(amount),
                 type: "DEPOSIT",
                 title: `${context.userName}님의 예치금 충전 내역`,
-                accumulatedCash: accountCash?.balance! + BigInt(amount),
+                accumulatedCash: accountCash.balance + BigInt(amount),
               },
             },
           },

@@ -17,7 +17,7 @@ export const checkAcntNm = async (
   idNo: string,
   acntNm: string
 ) => {
-  const moid = await incrBy("withdrawalAccountMoid");
+  const moid = await incrBy("checkAccountNameMoid");
   const data = Object.assign({}, defaultBody, {
     merkey,
     moid,

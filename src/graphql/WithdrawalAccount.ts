@@ -1,4 +1,9 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
+import { getFormatDate } from "../../utils/Date";
+import {
+  getUserIDVerificationData,
+  signinCheck,
+} from "../../utils/getUserInfo";
 import {
   checkAcntNm,
   makingMoneyTransfers,
@@ -30,17 +35,9 @@ const checkAccount = async (
   bankCode: string,
   acntNo: string
 ) => {
-  const userIDVerification = await context.prisma.iDVerification.findFirst({
-    where: { auth: { user: { id: context.userId } } },
-  });
-  if (!userIDVerification)
-    throw new Error("user IDVerification data not found");
+  const userIDVerification = await getUserIDVerificationData(context);
   const { birthDay, name } = userIDVerification;
-  const birthDayFormat = `${birthDay.getFullYear() % 100}${
-    birthDay.getMonth() + 1 < 10
-      ? "0" + (birthDay.getMonth() + 1)
-      : birthDay.getMonth() + 1
-  }${birthDay.getDate()}`;
+  const birthDayFormat = getFormatDate(birthDay).substring(2);
   return await checkAcntNm(bankCode, acntNo, birthDayFormat, name);
 };
 
@@ -50,21 +47,11 @@ export const WithdrawalAccountQuery = extendType({
     t.field("getWithdrawalAccount", {
       type: "WithdrawalAccount",
       async resolve(parent, args, context, info) {
-        if (!context.userId)
-          throw new Error(
-            "Cannot inquery withdrawal account without signing in."
-          );
-
+        const { userId } = context;
+        signinCheck(userId);
         return await context.prisma.withdrawalAccount.findFirst({
-          where: { auth: { user: { id: context.userId } } },
+          where: { auth: { user: { id: userId } } },
         });
-      },
-    });
-    t.field("tt", {
-      type: "Boolean",
-      async resolve(parent, args, context, info) {
-        await makingMoneyTransfers("004", "84790201262840", "이동욱", "1000");
-        return false;
       },
     });
   },
