@@ -84,9 +84,9 @@ export const makingMoneyTransfers = async (
     depAcntNo,
     depAcntNm,
   });
-  const d = await axios.post(
+  const result = await axios.post(
     `${process.env.INFINISOFT_URL!}/AcctOutTransReq.acct`,
     data
   );
-  console.log(d);
+  return result.data.resultCode === "0000";
 };
