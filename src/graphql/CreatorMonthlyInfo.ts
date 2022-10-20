@@ -88,5 +88,16 @@ export const CreatorMonthlyInfoQuery = extendType({
         });
       },
     });
+    t.field("deleteCreatorMonthlyInfo", {
+      type: "CreatorMonthlyInfo",
+      args: {
+        id: nonNull(intArg()),
+      },
+      async resolve(parent, { id }, context, info) {
+        return await context.prisma.creatorMonthlyInfo.delete({
+          where: { id },
+        });
+      },
+    });
   },
 });
