@@ -1,6 +1,7 @@
 import { QnATypes } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
+import { signinCheck } from "../../utils/getUserInfo";
 import { deleteImage } from "../../utils/imageDelete";
 
 export const QnA = objectType({
@@ -50,13 +51,9 @@ export const QnAQuery = extendType({
       type: "QnA",
       async resolve(parent, args, context, info) {
         const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry user information without signing in."
-          );
-        }
+        signinCheck(userId);
         return await context.prisma.qnA.findMany({
-          where: { userId: userId },
+          where: { userId },
           orderBy: {
             updatedAt: "desc",
           },

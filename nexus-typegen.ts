@@ -89,6 +89,7 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
+  AccountTransferTypes: "CANCELLATION" | "DONE" | "PENDING"
   AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
   BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
@@ -124,6 +125,17 @@ export interface NexusGenObjects {
     balance: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  AccountTransfer: { // root type
+    acntNo: string; // String!
+    amt: string; // String!
+    bankCode: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    resultMsg: string; // String!
+    status: NexusGenEnums['AccountTransferTypes']; // AccountTransferTypes!
+    transDt: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Alarm: { // root type
@@ -267,6 +279,12 @@ export interface NexusGenObjects {
     userId: number; // Int!
   }
   Query: {};
+  Trade: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    price: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
   TransactionBond: { // root type
     amount: NexusGenScalars['BigInt']; // BigInt!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -356,6 +374,18 @@ export interface NexusGenFieldTypes {
     owner: NexusGenRootTypes['User'] | null; // User
     transactions: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  AccountTransfer: { // field return type
+    acntNo: string; // String!
+    amt: string; // String!
+    bankCode: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    resultMsg: string; // String!
+    status: NexusGenEnums['AccountTransferTypes']; // AccountTransferTypes!
+    transDt: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    user: NexusGenRootTypes['User'] | null; // User
   }
   Alarm: { // field return type
     content: string; // String!
@@ -523,9 +553,12 @@ export interface NexusGenFieldTypes {
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
     createVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
+    deleteCreatorMonthlyInfo: NexusGenRootTypes['CreatorMonthlyInfo'] | null; // CreatorMonthlyInfo
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
+    moneyTransfer: boolean | null; // Boolean
+    multipleMoneyTransfers: Array<NexusGenRootTypes['AccountTransfer'] | null> | null; // [AccountTransfer]
     participateFunding: NexusGenRootTypes['Funding'] | null; // Funding
     registerWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     replyQuestion: NexusGenRootTypes['QnA'] | null; // QnA
@@ -543,6 +576,7 @@ export interface NexusGenFieldTypes {
     updateQuestion: boolean | null; // Boolean
     updateWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     withdrawFunding: NexusGenRootTypes['AccountCash'] | null; // AccountCash
+    withdrawalApplication: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
   }
   Notice: { // field return type
     content: string | null; // String
@@ -570,6 +604,8 @@ export interface NexusGenFieldTypes {
     FAQs: Array<NexusGenRootTypes['FAQ'] | null> | null; // [FAQ]
     QnA: NexusGenRootTypes['QnA'] | null; // QnA
     QnAs: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
+    accountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
+    accountTransfers: Array<NexusGenRootTypes['AccountTransfer'] | null> | null; // [AccountTransfer]
     alarmCount: number | null; // Int
     alarms: Array<NexusGenRootTypes['Alarm'] | null> | null; // [Alarm]
     balanceCash: NexusGenScalars['BigInt'] | null; // BigInt
@@ -584,16 +620,23 @@ export interface NexusGenFieldTypes {
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
+    myAccountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
+    myAccountTransfers: Array<NexusGenRootTypes['AccountTransfer'] | null> | null; // [AccountTransfer]
     myFundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
     myQnA: Array<NexusGenRootTypes['QnA'] | null> | null; // [QnA]
     notice: NexusGenRootTypes['Notice'] | null; // Notice
     notices: Array<NexusGenRootTypes['Notice'] | null> | null; // [Notice]
     transactionsBond: NexusGenRootTypes['TransactionBond'][]; // [TransactionBond!]!
     transactionsCash: NexusGenRootTypes['TransactionCash'][]; // [TransactionCash!]!
-    tt: boolean | null; // Boolean
     user: NexusGenRootTypes['User'] | null; // User
     users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     verificationCode: boolean; // Boolean!
+  }
+  Trade: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    price: NexusGenScalars['BigInt']; // BigInt!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TransactionBond: { // field return type
     account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -686,6 +729,18 @@ export interface NexusGenFieldTypeNames {
     owner: 'User'
     transactions: 'TransactionCash'
     updatedAt: 'DateTime'
+  }
+  AccountTransfer: { // field return type name
+    acntNo: 'String'
+    amt: 'String'
+    bankCode: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    resultMsg: 'String'
+    status: 'AccountTransferTypes'
+    transDt: 'String'
+    updatedAt: 'DateTime'
+    user: 'User'
   }
   Alarm: { // field return type name
     content: 'String'
@@ -853,9 +908,12 @@ export interface NexusGenFieldTypeNames {
     createPincode: 'String'
     createQnA: 'QnA'
     createVirtualAccount: 'VirtualAccount'
+    deleteCreatorMonthlyInfo: 'CreatorMonthlyInfo'
     fundingSettlement: 'Funding'
     likeCreator: 'Creator'
     likeFunding: 'Funding'
+    moneyTransfer: 'Boolean'
+    multipleMoneyTransfers: 'AccountTransfer'
     participateFunding: 'Funding'
     registerWithdrawalAccount: 'WithdrawalAccount'
     replyQuestion: 'QnA'
@@ -873,6 +931,7 @@ export interface NexusGenFieldTypeNames {
     updateQuestion: 'Boolean'
     updateWithdrawalAccount: 'WithdrawalAccount'
     withdrawFunding: 'AccountCash'
+    withdrawalApplication: 'AccountTransfer'
   }
   Notice: { // field return type name
     content: 'String'
@@ -900,6 +959,8 @@ export interface NexusGenFieldTypeNames {
     FAQs: 'FAQ'
     QnA: 'QnA'
     QnAs: 'QnA'
+    accountTransfer: 'AccountTransfer'
+    accountTransfers: 'AccountTransfer'
     alarmCount: 'Int'
     alarms: 'Alarm'
     balanceCash: 'BigInt'
@@ -914,16 +975,23 @@ export interface NexusGenFieldTypeNames {
     fundings: 'Funding'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
+    myAccountTransfer: 'AccountTransfer'
+    myAccountTransfers: 'AccountTransfer'
     myFundings: 'Funding'
     myQnA: 'QnA'
     notice: 'Notice'
     notices: 'Notice'
     transactionsBond: 'TransactionBond'
     transactionsCash: 'TransactionCash'
-    tt: 'Boolean'
     user: 'User'
     users: 'User'
     verificationCode: 'Boolean'
+  }
+  Trade: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    price: 'BigInt'
+    updatedAt: 'DateTime'
   }
   TransactionBond: { // field return type name
     account: 'AccountBond'
@@ -1065,6 +1133,9 @@ export interface NexusGenArgTypes {
     createVirtualAccount: { // args
       amt: string; // String!
     }
+    deleteCreatorMonthlyInfo: { // args
+      id: number; // Int!
+    }
     fundingSettlement: { // args
       amount: number; // Int!
       id: number; // Int!
@@ -1074,6 +1145,12 @@ export interface NexusGenArgTypes {
     }
     likeFunding: { // args
       id: number; // Int!
+    }
+    moneyTransfer: { // args
+      id: number; // Int!
+    }
+    multipleMoneyTransfers: { // args
+      ids: number[]; // [Int!]!
     }
     participateFunding: { // args
       amount: number; // Int!
@@ -1150,6 +1227,9 @@ export interface NexusGenArgTypes {
     withdrawFunding: { // args
       id: number; // Int!
     }
+    withdrawalApplication: { // args
+      amt: number; // Int!
+    }
   }
   Query: {
     FAQs: { // args
@@ -1160,6 +1240,14 @@ export interface NexusGenArgTypes {
     }
     QnA: { // args
       id: number; // Int!
+    }
+    accountTransfer: { // args
+      id: number; // Int!
+    }
+    accountTransfers: { // args
+      skip?: number | null; // Int
+      status?: NexusGenEnums['AccountTransferTypes'] | null; // AccountTransferTypes
+      take?: number | null; // Int
     }
     alarms: { // args
       skip?: number | null; // Int
@@ -1190,6 +1278,11 @@ export interface NexusGenArgTypes {
       skip?: number | null; // Int
       sort?: string | null; // String
       status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
+      take?: number | null; // Int
+    }
+    myAccountTransfers: { // args
+      skip?: number | null; // Int
+      status?: NexusGenEnums['AccountTransferTypes'] | null; // AccountTransferTypes
       take?: number | null; // Int
     }
     myFundings: { // args

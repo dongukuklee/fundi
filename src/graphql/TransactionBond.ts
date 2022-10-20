@@ -1,5 +1,6 @@
 import { Prisma, TransactionType } from "@prisma/client";
 import { arg, extendType, intArg, list, objectType } from "nexus";
+import { signinCheck } from "../../utils/getUserInfo";
 import { TAKE } from "../common/const";
 
 export const TransactionBond = objectType({
@@ -35,11 +36,7 @@ export const TransactionBondQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the transactions of the account without signing in."
-          );
-        }
+        signinCheck(userId);
         const transactions = await context.prisma.transactionBond.findMany({
           where: {
             account: {

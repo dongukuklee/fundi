@@ -26,6 +26,26 @@ type AccountCash {
   updatedAt: DateTime!
 }
 
+type AccountTransfer {
+  acntNo: String!
+  amt: String!
+  bankCode: String!
+  createdAt: DateTime!
+  id: Int!
+  resultMsg: String!
+  status: AccountTransferTypes!
+  transDt: String!
+  updatedAt: DateTime!
+  user: User
+}
+
+"""Define AccountTransfer types"""
+enum AccountTransferTypes {
+  CANCELLATION
+  DONE
+  PENDING
+}
+
 type Alarm {
   content: String!
   createdAt: DateTime!
@@ -317,9 +337,12 @@ type Mutation {
   createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   createVirtualAccount(amt: String!): VirtualAccount
+  deleteCreatorMonthlyInfo(id: Int!): CreatorMonthlyInfo
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
+  moneyTransfer(id: Int!): Boolean
+  multipleMoneyTransfers(ids: [Int!]!): [AccountTransfer]
   participateFunding(amount: Int!, id: Int!): Funding
   registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
@@ -337,6 +360,7 @@ type Mutation {
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
   withdrawFunding(id: Int!): AccountCash
+  withdrawalApplication(amt: Int!): AccountTransfer
 }
 
 type Notice {
@@ -380,6 +404,8 @@ type Query {
   FAQs(keyword: String, skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
+  accountTransfer(id: Int!): AccountTransfer
+  accountTransfers(skip: Int, status: AccountTransferTypes, take: Int): [AccountTransfer]
   alarmCount: Int
   alarms(skip: Int, take: Int): [Alarm]
   balanceCash: BigInt
@@ -394,13 +420,14 @@ type Query {
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
+  myAccountTransfer: AccountTransfer
+  myAccountTransfers(skip: Int, status: AccountTransferTypes, take: Int): [AccountTransfer]
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
   notice(id: Int!): Notice
   notices(skip: Int, take: Int): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
-  tt: Boolean
   user: User
   users: [User]
   verificationCode(email: String!, verificationCode: String!): Boolean!
@@ -411,6 +438,13 @@ enum Role {
   ADMIN
   INVESTOR
   MANAGER
+}
+
+type Trade {
+  createdAt: DateTime!
+  id: Int!
+  price: BigInt!
+  updatedAt: DateTime!
 }
 
 type TransactionBond {

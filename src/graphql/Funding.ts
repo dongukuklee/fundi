@@ -13,6 +13,7 @@ import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each, filter, map } from "underscore";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 import { deleteImage } from "../../utils/imageDelete";
+import { signinCheck } from "../../utils/getUserInfo";
 
 type Invester = User & {
   accountCash: {
@@ -398,11 +399,7 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const { userId } = context;
-
-        if (!userId) {
-          throw new Error("Cannot inquiry my funding list without signing in.");
-        }
-
+        signinCheck(userId);
         const myFunding = await context.prisma.funding.findMany({
           where: {
             accountsBond: {

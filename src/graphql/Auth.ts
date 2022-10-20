@@ -8,7 +8,12 @@ import {
 } from "../../utils/redis/ctrl";
 import { Context } from "../context";
 import { User } from "@prisma/client";
-import { getUserInfo } from "../../utils/getUserInfo";
+import {
+  getAuthIdByuserId,
+  getUserInfo,
+  signinCheck,
+} from "../../utils/getUserInfo";
+import { getCreateDateFormat } from "../../utils/Date";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
@@ -36,18 +41,6 @@ const getTokenAndUser = (user: User) => {
     APP_SECRET
   );
   return { token, user };
-};
-const getAuthIdByuserId = async (context: Context) => {
-  const user = await context.prisma.user.findUnique({
-    select: {
-      authId: true,
-    },
-    where: {
-      id: context.userId,
-    },
-  });
-
-  return user?.authId;
 };
 
 export const Auth = objectType({
@@ -117,11 +110,7 @@ export const AuthQuery = extendType({
       },
       async resolve(parent, { pincode }, context, info) {
         const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the transactions of the account without signing in."
-          );
-        }
+        signinCheck(userId);
         const authId = await getAuthIdByuserId(context);
         const auth = await context.prisma.auth.findUnique({
           where: {
@@ -147,11 +136,13 @@ export const AuthMutation = extendType({
         const { email, nickName } = args;
         const user = await context.prisma.user.create({
           data: {
+            ...getCreateDateFormat(),
             email,
             auth: {
               create: {
                 email,
                 nickName,
+                ...getCreateDateFormat(),
               },
             },
             accountCash: {
@@ -228,10 +219,12 @@ export const AuthMutation = extendType({
         if (!auth) {
           user = await context.prisma.user.create({
             data: {
+              ...getCreateDateFormat(),
               email: parsedEmail,
               nickName,
               auth: {
                 create: {
+                  ...getCreateDateFormat(),
                   email: parsedEmail,
                   nickName,
                 },
@@ -264,10 +257,7 @@ export const AuthMutation = extendType({
       },
       async resolve(parent, { pincode, imp_uid }, context, info) {
         const { userId } = context;
-        if (!userId)
-          throw new Error(
-            "Cannot inquiry the transactions of the account without signing in."
-          );
+        signinCheck(userId);
         if (!imp_uid) throw new Error("imp_uid not found");
         const userInfo = await getUserInfo(imp_uid);
         let { birthday, gender, name, unique_key } = <userInfo>userInfo;
@@ -310,12 +300,6 @@ export const AuthMutation = extendType({
         followingPincode: nonNull(stringArg()),
       },
       async resolve(parent, { followingPincode }, context, info) {
-        const { userId } = context;
-        if (!userId) {
-          throw new Error(
-            "Cannot inquiry the transactions of the account without signing in."
-          );
-        }
         const authId = await getAuthIdByuserId(context);
         await context.prisma.auth.update({
           where: {

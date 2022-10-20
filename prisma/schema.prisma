@@ -78,7 +78,9 @@ model User {
   accountsBond AccountBond[]
   qna              QnA[]
   alarm       Alarm[]
-   virtualAccount VirtualAccount[]
+  virtualAccount VirtualAccount[]
+  accountTransfer AccountTransfer[]
+  trade   Trade[]
 }
 
 model Alarm{
@@ -139,6 +141,21 @@ model AccountBond {
   settlementTransactions TransactionSettlement[]
   funding      Funding?          @relation(fields: [fundingId], references: [id])
   fundingId    Int
+}
+
+model AccountTransfer{
+  id           Int               @id @default(autoincrement())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  status       AccountTransferTypes @default(PENDING)
+  bankCode     String
+  acntNo       String
+  amt          String
+  user         User @relation(fields: [userId], references: [id])
+  userId       Int
+  userBirthDay String @default("")
+  transDt String @default("")
+  resultMsg String @default("")
 }
 
 model TransactionBond {
@@ -219,6 +236,18 @@ model Funding {
   fundingSettlement FundingSettlement[]
   accountsBond     AccountBond[]  
   images     Image[]
+  trade   Trade[]
+}
+
+model Trade{
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  price            BigInt
+  funding   Funding  @relation(fields: [fundingId],references: [id])
+  fundingId Int
+  user   User  @relation(fields: [userId],references: [id])
+  userId Int
 }
 
 model FundingResult {
@@ -388,6 +417,12 @@ enum BannerTypes {
   FUNDING
   NOTICE
   NONE
+}
+
+enum AccountTransferTypes {
+  PENDING
+  DONE
+  CANCELLATION
 }
 
 enum QnATypes {

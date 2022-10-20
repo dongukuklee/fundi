@@ -17,7 +17,7 @@ export const checkAcntNm = async (
   idNo: string,
   acntNm: string
 ) => {
-  const moid = await incrBy("withdrawalAccountMoid");
+  const moid = await incrBy("checkAccountNameMoid");
   const data = Object.assign({}, defaultBody, {
     merkey,
     moid,
@@ -84,9 +84,11 @@ export const makingMoneyTransfers = async (
     depAcntNo,
     depAcntNm,
   });
-  const d = await axios.post(
+  const result = await axios.post(
     `${process.env.INFINISOFT_URL!}/AcctOutTransReq.acct`,
     data
   );
-  console.log(d);
+  console.log(result.data);
+  const { resultMsg, transDt, resultCode } = result.data;
+  return { resultMsg, transDt, resultCode };
 };

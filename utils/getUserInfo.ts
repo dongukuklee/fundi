@@ -1,6 +1,8 @@
 import axios from "axios";
+import { Context } from "../src/context";
 
 // 아임포트 api
+/////////////////////////
 const fetchIdToken = async () => {
   try {
     const getTokenResult = await axios({
@@ -38,4 +40,55 @@ export const getUserInfo = async (imp_uid: string) => {
     console.log(error);
     throw new Error("someting went wrong");
   }
+};
+/////////////////////////////////
+
+//펀디 user info
+const signinCheck = (userId: number | undefined) => {
+  if (!userId) throw new Error("Cannot inquery user info without signing in");
+};
+
+const getUser = async (context: Context) => {
+  const { userId } = context;
+  signinCheck(userId);
+  const user = await context.prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!user) throw new Error("user not found");
+  return user;
+};
+
+const getUserIDVerificationData = async (context: Context) => {
+  const { userId } = context;
+  signinCheck(userId);
+  const userIDVerificationData = await context.prisma.iDVerification.findFirst({
+    where: { auth: { user: { id: userId } } },
+  });
+  if (!userIDVerificationData) throw new Error("user info not found");
+  return userIDVerificationData;
+};
+
+const getUserAccountCash = async (context: Context) => {
+  const { userId } = context;
+  signinCheck(userId);
+  const userAccountCash = await context.prisma.accountCash.findFirst({
+    where: { ownerId: userId },
+  });
+  if (!userAccountCash) throw new Error("user account cash not found");
+  return userAccountCash;
+};
+
+const getAuthIdByuserId = async (context: Context) => {
+  const user = await getUser(context);
+  return user.authId;
+};
+
+export {
+  signinCheck,
+  getUserIDVerificationData,
+  getUserAccountCash,
+  getAuthIdByuserId,
+  getUser,
 };
