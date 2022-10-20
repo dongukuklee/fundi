@@ -15,6 +15,7 @@ export * from "./IDVerification";
 export * from "./Image";
 export * from "./Notice";
 export * from "./QnA";
+export * from "./Trade";
 export * from "./TransactionCash";
 export * from "./TransactionBond";
 export * from "./FundingSettlement";
