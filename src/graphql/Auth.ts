@@ -13,6 +13,7 @@ import {
   getUserInfo,
   signinCheck,
 } from "../../utils/getUserInfo";
+import { getCreateDateFormat } from "../../utils/Date";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
@@ -135,11 +136,13 @@ export const AuthMutation = extendType({
         const { email, nickName } = args;
         const user = await context.prisma.user.create({
           data: {
+            ...getCreateDateFormat(),
             email,
             auth: {
               create: {
                 email,
                 nickName,
+                ...getCreateDateFormat(),
               },
             },
             accountCash: {
@@ -216,10 +219,12 @@ export const AuthMutation = extendType({
         if (!auth) {
           user = await context.prisma.user.create({
             data: {
+              ...getCreateDateFormat(),
               email: parsedEmail,
               nickName,
               auth: {
                 create: {
+                  ...getCreateDateFormat(),
                   email: parsedEmail,
                   nickName,
                 },

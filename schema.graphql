@@ -27,16 +27,23 @@ type AccountCash {
 }
 
 type AccountTransfer {
-  accountTransfer(id: Int!): AccountTransfer
-  accountTransfers: [AccountTransfer]
   acntNo: String!
   amt: String!
   bankCode: String!
   createdAt: DateTime!
   id: Int!
-  myAccountTransfer: AccountTransfer
-  myAccountTransfers: [AccountTransfer]
+  resultMsg: String!
+  status: AccountTransferTypes!
+  transDt: String!
   updatedAt: DateTime!
+  user: User
+}
+
+"""Define AccountTransfer types"""
+enum AccountTransferTypes {
+  CANCELLATION
+  DONE
+  PENDING
 }
 
 type Alarm {
@@ -330,10 +337,12 @@ type Mutation {
   createPincode(imp_uid: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   createVirtualAccount(amt: String!): VirtualAccount
+  deleteCreatorMonthlyInfo(id: Int!): CreatorMonthlyInfo
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
-  makingMoneyTransfers(id: Int!): Boolean
+  moneyTransfer(id: Int!): Boolean
+  multipleMoneyTransfers(ids: [Int!]!): [AccountTransfer]
   participateFunding(amount: Int!, id: Int!): Funding
   registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
@@ -395,6 +404,8 @@ type Query {
   FAQs(keyword: String, skip: Int, take: Int, type: FAQTypes): [FAQ]
   QnA(id: Int!): QnA
   QnAs: [QnA]
+  accountTransfer(id: Int!): AccountTransfer
+  accountTransfers(skip: Int, status: AccountTransferTypes, take: Int): [AccountTransfer]
   alarmCount: Int
   alarms(skip: Int, take: Int): [Alarm]
   balanceCash: BigInt
@@ -409,6 +420,8 @@ type Query {
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
+  myAccountTransfer: AccountTransfer
+  myAccountTransfers(skip: Int, status: AccountTransferTypes, take: Int): [AccountTransfer]
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
   notice(id: Int!): Notice
@@ -425,6 +438,13 @@ enum Role {
   ADMIN
   INVESTOR
   MANAGER
+}
+
+type Trade {
+  createdAt: DateTime!
+  id: Int!
+  price: BigInt!
+  updatedAt: DateTime!
 }
 
 type TransactionBond {
