@@ -88,5 +88,7 @@ export const makingMoneyTransfers = async (
     `${process.env.INFINISOFT_URL!}/AcctOutTransReq.acct`,
     data
   );
-  return result.data.resultCode === "0000";
+  console.log(result.data);
+  const { resultMsg, transDt, resultCode } = result.data;
+  return { resultMsg, transDt, resultCode };
 };
