@@ -4,6 +4,8 @@ export * from "./FundingStatus";
 export * from "./QnAStatus";
 export * from "./QnATypes";
 export * from "./Role";
+export * from "./TradeStatus";
+export * from "./TradeType";
 export * from "./TransactionType";
 export * from "./AlarmTypes";
 export * from "./ImageTypes";
