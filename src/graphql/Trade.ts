@@ -20,9 +20,10 @@ export const TradeQuery = extendType({
       async resolve(parent, args, context, info) {
         const trade = await context.prisma.trade.groupBy({
           by: ["price"],
+          where: { status: "SELLING" },
           _count: true,
         });
-        console.log(trade);
+
         return [true];
       },
     });
@@ -39,18 +40,17 @@ export const TradeMutation = extendType({
         quantity: nonNull(intArg()),
         price: nonNull(intArg()),
         types: arg({ type: "TradeType" }),
-        status: arg({ type: "TradeStatus" }),
       },
       async resolve(
         parent,
-        { types, status, fundingId, price, quantity },
+        { types, fundingId, price, quantity },
         context,
         info
       ) {
         // const { userId } = context;
         // signinCheck(userId);
         const userId = 3;
-        const redisListKey = `funding:${fundingId}:price:${price}`;
+        const redisListKey = `funding:${fundingId}:price:${price}:${types}`;
 
         for (let i = 0; i < quantity; i++) {
           const newTrade = await context.prisma.trade.create({
@@ -59,7 +59,6 @@ export const TradeMutation = extendType({
               fundingId,
               userId: userId!,
               type: types!,
-              status: status!,
             },
           });
 

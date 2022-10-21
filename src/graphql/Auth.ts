@@ -140,6 +140,7 @@ export const AuthMutation = extendType({
           data: {
             ...getCreateDateFormat(),
             email,
+            nickName,
             auth: {
               create: {
                 email,

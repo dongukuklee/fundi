@@ -1153,7 +1153,6 @@ export interface NexusGenArgTypes {
       fundingId: number; // Int!
       price: number; // Int!
       quantity: number; // Int!
-      status?: NexusGenEnums['TradeStatus'] | null; // TradeStatus
       types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     createVirtualAccount: { // args

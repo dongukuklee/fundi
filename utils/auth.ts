@@ -30,7 +30,7 @@ export function send_gmail(data: EmailData) {
     host: "smtp.gmail.com",
     auth: {
       user: "nuart.inform@gmail.com",
-      pass: process.env.password,
+      pass: process.env.PASSWORD,
     },
     secure: true,
   });
