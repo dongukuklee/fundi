@@ -1,5 +1,8 @@
 import redisClient from "../index";
 
+//참조
+//http://redisgate.kr/redis/introduction/redis_intro.php
+
 const typeChecker = (value: any) => {
   return typeof value === "bigint"
     ? `BigInt:${value.toString()}`
@@ -48,4 +51,11 @@ export const removeFromSet = async (key: string, value: string) => {
 
 export const incrBy = async (key: string) => {
   return await redisClient.INCRBY(key, 1);
+};
+
+//list 를 Queue 로 사용하기 위함임.
+export const listRightPush = async (key: string, element: any) => {
+  const parsedElement =
+    typeof element === "string" ? element : JSON.stringify(element);
+  return await redisClient.RPUSH(key, parsedElement);
 };

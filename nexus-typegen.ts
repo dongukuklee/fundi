@@ -99,6 +99,8 @@ export interface NexusGenEnums {
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
+  TradeStatus: "SELLING" | "SOLD"
+  TradeType: "BUY" | "SELL"
   TransactionType: "DEPOSIT" | "WITHDRAW"
 }
 
@@ -248,6 +250,7 @@ export interface NexusGenObjects {
     gender: number; // Int!
     id: number; // Int!
     name: string; // String!
+    phoneNumber: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // root type
@@ -519,6 +522,7 @@ export interface NexusGenFieldTypes {
     gender: number; // Int!
     id: number; // Int!
     name: string; // String!
+    phoneNumber: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Image: { // field return type
@@ -541,6 +545,7 @@ export interface NexusGenFieldTypes {
     alterSequence: boolean | null; // Boolean
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     checkAlarm: boolean | null; // Boolean
+    checkEmail: boolean | null; // Boolean
     createBanner: NexusGenRootTypes['Banner'] | null; // Banner
     createBannerModule: NexusGenRootTypes['BannerModule'] | null; // BannerModule
     createContract: NexusGenRootTypes['Contract'] | null; // Contract
@@ -552,8 +557,10 @@ export interface NexusGenFieldTypes {
     createNotice: NexusGenRootTypes['Notice'] | null; // Notice
     createPincode: string | null; // String
     createQnA: NexusGenRootTypes['QnA'] | null; // QnA
+    createTrade: boolean | null; // Boolean
     createVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     deleteCreatorMonthlyInfo: NexusGenRootTypes['CreatorMonthlyInfo'] | null; // CreatorMonthlyInfo
+    emailVerification: boolean | null; // Boolean
     fundingSettlement: NexusGenRootTypes['Funding'] | null; // Funding
     likeCreator: NexusGenRootTypes['Creator'] | null; // Creator
     likeFunding: NexusGenRootTypes['Funding'] | null; // Funding
@@ -572,6 +579,7 @@ export interface NexusGenFieldTypes {
     updateFAQ: NexusGenRootTypes['FAQ'] | null; // FAQ
     updateFunding: boolean | null; // Boolean
     updateNotice: boolean | null; // Boolean
+    updatePassword: boolean | null; // Boolean
     updatePincode: string | null; // String
     updateQuestion: boolean | null; // Boolean
     updateWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
@@ -618,6 +626,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    getTradeList: Array<boolean | null> | null; // [Boolean]
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     myAccountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
@@ -874,6 +883,7 @@ export interface NexusGenFieldTypeNames {
     gender: 'Int'
     id: 'Int'
     name: 'String'
+    phoneNumber: 'String'
     updatedAt: 'DateTime'
   }
   Image: { // field return type name
@@ -896,6 +906,7 @@ export interface NexusGenFieldTypeNames {
     alterSequence: 'Boolean'
     chargeTheDeposit: 'AccountCash'
     checkAlarm: 'Boolean'
+    checkEmail: 'Boolean'
     createBanner: 'Banner'
     createBannerModule: 'BannerModule'
     createContract: 'Contract'
@@ -907,8 +918,10 @@ export interface NexusGenFieldTypeNames {
     createNotice: 'Notice'
     createPincode: 'String'
     createQnA: 'QnA'
+    createTrade: 'Boolean'
     createVirtualAccount: 'VirtualAccount'
     deleteCreatorMonthlyInfo: 'CreatorMonthlyInfo'
+    emailVerification: 'Boolean'
     fundingSettlement: 'Funding'
     likeCreator: 'Creator'
     likeFunding: 'Funding'
@@ -927,6 +940,7 @@ export interface NexusGenFieldTypeNames {
     updateFAQ: 'FAQ'
     updateFunding: 'Boolean'
     updateNotice: 'Boolean'
+    updatePassword: 'Boolean'
     updatePincode: 'String'
     updateQuestion: 'Boolean'
     updateWithdrawalAccount: 'WithdrawalAccount'
@@ -973,6 +987,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
+    getTradeList: 'Boolean'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
     myAccountTransfer: 'AccountTransfer'
@@ -1076,6 +1091,9 @@ export interface NexusGenArgTypes {
     chargeTheDeposit: { // args
       amount: number; // Int!
     }
+    checkEmail: { // args
+      email: string; // String!
+    }
     createBanner: { // args
       id: number; // Int!
       sequence: number; // Int!
@@ -1122,6 +1140,7 @@ export interface NexusGenArgTypes {
     }
     createPincode: { // args
       imp_uid: string; // String!
+      phoneNumber: string; // String!
       pincode: string; // String!
     }
     createQnA: { // args
@@ -1130,11 +1149,22 @@ export interface NexusGenArgTypes {
       title: string; // String!
       type: NexusGenEnums['QnATypes']; // QnATypes!
     }
+    createTrade: { // args
+      fundingId: number; // Int!
+      price: number; // Int!
+      quantity: number; // Int!
+      status?: NexusGenEnums['TradeStatus'] | null; // TradeStatus
+      types?: NexusGenEnums['TradeType'] | null; // TradeType
+    }
     createVirtualAccount: { // args
       amt: string; // String!
     }
     deleteCreatorMonthlyInfo: { // args
       id: number; // Int!
+    }
+    emailVerification: { // args
+      email: string; // String!
+      verificationCode: string; // String!
     }
     fundingSettlement: { // args
       amount: number; // Int!
@@ -1165,11 +1195,14 @@ export interface NexusGenArgTypes {
       reply: string; // String!
     }
     signin: { // args
+      deviceToken: string; // String!
       email: string; // String!
+      password: string; // String!
     }
     signup: { // args
       email: string; // String!
       nickName?: string | null; // String
+      password: string; // String!
     }
     updateBannerModule: { // args
       id: number; // Int!
@@ -1208,6 +1241,10 @@ export interface NexusGenArgTypes {
       id: number; // Int!
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title?: string | null; // String
+    }
+    updatePassword: { // args
+      email: string; // String!
+      password: string; // String!
     }
     updatePincode: { // args
       followingPincode: string; // String!

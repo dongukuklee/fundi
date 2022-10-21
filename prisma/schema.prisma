@@ -14,13 +14,13 @@ model Auth {
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
   email     String   @unique
+  password String?
   nickName      String?
   user      User?
   pincode   String? 
   isVerified Boolean @default(false)
   IDVerification IDVerification?
   withdrawalAccount WithdrawalAccount?
- 
 }
 
 model IDVerification {
@@ -31,6 +31,7 @@ model IDVerification {
   birthDay  DateTime
   gender    Int //1, 3 male && 2, 4 female
   name      String
+  phoneNumber String
   certificationCode String
   auth         Auth          @relation(fields: [authId], references: [id])
   authId       Int           @unique
@@ -248,6 +249,8 @@ model Trade{
   fundingId Int
   user   User  @relation(fields: [userId],references: [id])
   userId Int
+  status TradeStatus
+  type TradeType
 }
 
 model FundingResult {
@@ -287,6 +290,16 @@ enum FundingStatus {
 enum ContractTypes {
   OWENERSHIP_TRANSFER
   LOANS
+}
+
+enum TradeStatus {
+  SELLING
+  SOLD
+}
+
+enum TradeType {
+  BUY
+  SELL
 }
 
 model TransactionSettlement{

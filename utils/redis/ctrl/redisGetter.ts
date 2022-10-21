@@ -1,6 +1,9 @@
 import { mapObject, reduce } from "underscore";
 import redisClient from "../index";
 
+//참조
+//http://redisgate.kr/redis/introduction/redis_intro.php
+
 const typeChecker = (field: string, val: any) => {
   const BigIntList = new Set([
     "balance",
@@ -67,3 +70,10 @@ export const isInSet = async (key: string, value: string) => {
 export const getSet = async (key: string) => {
   return await redisClient.SMEMBERS(key);
 };
+
+//list 를 Queue 로 사용하기 위함임.
+export const listLeftPop = async (key: string) => {
+  return await redisClient.LPOP(key);
+};
+
+export const listLength = () => {};
