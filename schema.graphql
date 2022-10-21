@@ -284,6 +284,7 @@ type IDVerification {
   gender: Int!
   id: Int!
   name: String!
+  phoneNumber: String!
   updatedAt: DateTime!
 }
 
@@ -334,8 +335,9 @@ type Mutation {
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
-  createPincode(imp_uid: String!, pincode: String!): String
+  createPincode(imp_uid: String!, phoneNumber: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
+  createTrade(fundingId: Int!, price: Int!, quantity: Int!, status: TradeStatus, types: TradeType): Boolean
   createVirtualAccount(amt: String!): VirtualAccount
   deleteCreatorMonthlyInfo(id: Int!): CreatorMonthlyInfo
   fundingSettlement(amount: Int!, id: Int!): Funding
@@ -347,8 +349,8 @@ type Mutation {
   registerWithdrawalAccount(acntNo: String!, bankCode: String!): WithdrawalAccount
   replyQuestion(id: Int!, reply: String!): QnA
   signOut: Boolean
-  signin(email: String!): AuthPayload!
-  signup(email: String!, nickName: String): AuthPayload!
+  signin(deviceToken: String!, email: String!, password: String!): AuthPayload!
+  signup(email: String!, nickName: String, password: String!): AuthPayload!
   updateBannerModule(id: Int!, imageInput: ImageInput, isVisible: Boolean, targetId: Int, types: BannerTypes): Boolean
   updateContract(contractId: Int!, contractInput: ContractInput): Contract
   updateCreator(creatorId: Int!, creatorInput: CreatorInput, imageInput: ImageInput): Boolean
@@ -418,6 +420,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getTradeList: [Boolean]
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
   myAccountTransfer: AccountTransfer
@@ -445,6 +448,18 @@ type Trade {
   id: Int!
   price: BigInt!
   updatedAt: DateTime!
+}
+
+"""Define Trade status"""
+enum TradeStatus {
+  SELLING
+  SOLD
+}
+
+"""Define trade types"""
+enum TradeType {
+  BUY
+  SELL
 }
 
 type TransactionBond {
