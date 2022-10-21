@@ -10,6 +10,7 @@ export const IDVerification = objectType({
     t.nonNull.dateTime("birthDay");
     t.nonNull.int("gender");
     t.nonNull.string("name");
+    t.nonNull.string("phoneNumber");
     t.nonNull.string("certificationCode");
   },
 });
