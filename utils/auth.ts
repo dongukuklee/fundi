@@ -37,14 +37,14 @@ export function send_gmail(data: EmailData) {
 
   const { email, verificationCode } = data;
   let mailData = {
-    from: "nuart.inform@gmail.com",
+    from: "info@fundi.co.kr",
     to: email,
-    subject: `Bigpot 인증번호입니다.`,
-    text: ` Sent from: BIGPOT`,
+    subject: `Fundi 인증번호입니다.`,
+    text: ` Sent from: Fundi`,
     html: `
       <div style="font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 540px; height: 600px; border-top: 4px solid #c4ac6f; margin: 100px auto; padding: 30px 0; box-sizing: border-box;">
       <h1 style="margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;">
-        <span style="font-size: 15px; margin: 0 0 10px 3px;">BIGPOT</span><br />
+        <span style="font-size: 15px; margin: 0 0 10px 3px;">Fundi</span><br />
         <span style="color: #c4ac6f;">인증번호</span> 안내입니다.
       </h1>
       <p style="font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;">

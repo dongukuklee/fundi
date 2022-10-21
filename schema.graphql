@@ -326,6 +326,7 @@ type Mutation {
   alterSequence(ids: [Int!]!): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlarm: Boolean
+  checkEmail(email: String!): Boolean
   createBanner(id: Int!, sequence: Int!): Banner
   createBannerModule(imageInput: ImageInput, isVisible: Boolean!, targetId: Int!, title: String!, types: BannerTypes!): BannerModule
   createContract(contractInput: ContractInput, creatorId: Int!): Contract
@@ -340,6 +341,7 @@ type Mutation {
   createTrade(fundingId: Int!, price: Int!, quantity: Int!, status: TradeStatus, types: TradeType): Boolean
   createVirtualAccount(amt: String!): VirtualAccount
   deleteCreatorMonthlyInfo(id: Int!): CreatorMonthlyInfo
+  emailVerification(email: String!, verificationCode: String!): Boolean
   fundingSettlement(amount: Int!, id: Int!): Funding
   likeCreator(id: Int!): Creator
   likeFunding(id: Int!): Funding
@@ -358,6 +360,7 @@ type Mutation {
   updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
   updateFunding(fundingId: Int, fundingInput: FundingInput, imageInput: ImageInput): Boolean
   updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
+  updatePassword(email: String!, password: String!): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount

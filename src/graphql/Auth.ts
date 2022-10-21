@@ -14,6 +14,7 @@ import {
   signinCheck,
 } from "../../utils/getUserInfo";
 import { getCreateDateFormat } from "../../utils/Date";
+import { send_gmail } from "../../utils/auth";
 
 const APP_SECRET = process.env.APP_SECRET!;
 
@@ -130,10 +131,11 @@ export const AuthMutation = extendType({
       type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
+        password: nonNull(stringArg()),
         nickName: stringArg(),
       },
       async resolve(parent, args, context, info) {
-        const { email, nickName } = args;
+        const { email, nickName, password } = args;
         const user = await context.prisma.user.create({
           data: {
             ...getCreateDateFormat(),
@@ -141,6 +143,7 @@ export const AuthMutation = extendType({
             auth: {
               create: {
                 email,
+                password,
                 nickName,
                 ...getCreateDateFormat(),
               },
@@ -151,23 +154,21 @@ export const AuthMutation = extendType({
           },
         });
 
-        const token = jwt.sign(
-          { userId: user.id, userRole: user.role },
-          APP_SECRET
-        );
-        return { token, user };
+        return getTokenAndUser(user);
       },
     });
     t.nonNull.field("signin", {
       type: "AuthPayload",
       args: {
         email: nonNull(stringArg()),
+        deviceToken: nonNull(stringArg()),
+        password: nonNull(stringArg()),
       },
-      async resolve(parent, args, context, info) {
-        let token;
-        const auth = await context.prisma.auth.findUnique({
+      async resolve(parent, { deviceToken, email, password }, context, info) {
+        const auth = await context.prisma.auth.findFirst({
           where: {
-            email: args.email,
+            email,
+            password,
           },
           include: {
             user: {},
@@ -177,19 +178,10 @@ export const AuthMutation = extendType({
         if (!auth) {
           throw new Error("No such user found");
         } else {
-          token = jwt.sign(
-            {
-              userId: auth.user?.id,
-              userRole: auth.user?.role,
-            },
-            APP_SECRET
-          );
+          const user = auth.user!;
+          await setString(`user:${user.id}:deviceToken`, deviceToken);
+          return getTokenAndUser(user!);
         }
-
-        return {
-          token,
-          user: auth.user!,
-        };
       },
     });
     t.field("OAuthLogin", {
@@ -254,8 +246,9 @@ export const AuthMutation = extendType({
       args: {
         pincode: nonNull(stringArg()),
         imp_uid: nonNull(stringArg()),
+        phoneNumber: nonNull(stringArg()),
       },
-      async resolve(parent, { pincode, imp_uid }, context, info) {
+      async resolve(parent, { pincode, imp_uid, phoneNumber }, context, info) {
         const { userId } = context;
         signinCheck(userId);
         if (!imp_uid) throw new Error("imp_uid not found");
@@ -282,6 +275,7 @@ export const AuthMutation = extendType({
                     birthDay: new Date(birthday),
                     certificationCode: unique_key,
                     name,
+                    phoneNumber,
                     gender: parseGenderToInt(birthday, gender),
                   },
                 },
@@ -311,6 +305,48 @@ export const AuthMutation = extendType({
         });
 
         return "pincode has been changed successfully";
+      },
+    });
+    t.field("checkEmail", {
+      type: "Boolean",
+      args: {
+        email: nonNull(stringArg()),
+      },
+      async resolve(parent, { email }, context, info) {
+        const isExist = await context.prisma.auth.findFirst({
+          where: { email },
+        });
+        return !!isExist;
+      },
+    });
+    t.field("emailVerification", {
+      type: "Boolean",
+      args: {
+        email: nonNull(stringArg()),
+        verificationCode: nonNull(stringArg()),
+      },
+      async resolve(parent, { email, verificationCode }, context, info) {
+        try {
+          send_gmail({ email, verificationCode });
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+      },
+    });
+    t.field("updatePassword", {
+      type: "Boolean",
+      args: {
+        email: nonNull(stringArg()),
+        password: nonNull(stringArg()),
+      },
+      async resolve(parent, { email, password }, context, info) {
+        await context.prisma.auth.update({
+          where: { email },
+          data: { password },
+        });
+        return true;
       },
     });
   },
