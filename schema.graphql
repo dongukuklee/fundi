@@ -338,7 +338,7 @@ type Mutation {
   createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
   createPincode(imp_uid: String!, phoneNumber: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
-  createTrade(fundingId: Int!, price: Int!, quantity: Int!, status: TradeStatus, types: TradeType): Boolean
+  createTrade(fundingId: Int!, price: Int!, quantity: Int!, types: TradeType): Boolean
   createVirtualAccount(amt: String!): VirtualAccount
   deleteCreatorMonthlyInfo(id: Int!): CreatorMonthlyInfo
   emailVerification(email: String!, verificationCode: String!): Boolean
