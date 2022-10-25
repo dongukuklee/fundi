@@ -90,7 +90,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   AccountTransferTypes: "CANCELLATION" | "DONE" | "PENDING"
-  AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
+  AlarmTypes: "ETC" | "FUNDING" | "NOTICE" | "QNA"
   BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
@@ -287,6 +287,10 @@ export interface NexusGenObjects {
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TradeList: { // root type
+    price: number; // Int!
+    quantity: number; // Int!
   }
   TransactionBond: { // root type
     amount: NexusGenScalars['BigInt']; // BigInt!
@@ -626,7 +630,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
-    getTradeList: Array<boolean | null> | null; // [Boolean]
+    getTradeList: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     myAccountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
@@ -646,6 +650,10 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TradeList: { // field return type
+    price: number; // Int!
+    quantity: number; // Int!
   }
   TransactionBond: { // field return type
     account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -987,7 +995,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
-    getTradeList: 'Boolean'
+    getTradeList: 'TradeList'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
     myAccountTransfer: 'AccountTransfer'
@@ -1007,6 +1015,10 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     price: 'BigInt'
     updatedAt: 'DateTime'
+  }
+  TradeList: { // field return type name
+    price: 'Int'
+    quantity: 'Int'
   }
   TransactionBond: { // field return type name
     account: 'AccountBond'
@@ -1315,6 +1327,10 @@ export interface NexusGenArgTypes {
       sort?: string | null; // String
       status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
       take?: number | null; // Int
+    }
+    getTradeList: { // args
+      fundingId: number; // Int!
+      types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     myAccountTransfers: { // args
       skip?: number | null; // Int

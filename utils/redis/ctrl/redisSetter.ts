@@ -59,3 +59,7 @@ export const listRightPush = async (key: string, element: any) => {
     typeof element === "string" ? element : JSON.stringify(element);
   return await redisClient.RPUSH(key, parsedElement);
 };
+
+export const zAdd = async (key: string, score: number, value: string) => {
+  return await redisClient.ZADD(key, { score, value });
+};

@@ -8,6 +8,7 @@ import {
   stringArg,
 } from "nexus";
 import { each } from "underscore";
+import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 import {
   getCreateDateFormat,
   getFormatDate,
@@ -236,11 +237,12 @@ export const AccountTransferMutation = extendType({
         const accountTransfers = await context.prisma.accountTransfer.findMany({
           where: { id: { in: ids } },
         });
+
         if (!accountTransfers || !accountTransfers.length) {
           throw new Error("account Transfer not found");
         }
         const UpdateAccountTransfer: any[] = [];
-
+        const appPushAndCreateAlarms: any[] = [];
         for (const accountTransfer of accountTransfers) {
           const { id, acntNo, amt, bankCode, userBirthDay, userId } =
             accountTransfer;
@@ -275,6 +277,19 @@ export const AccountTransferMutation = extendType({
                 },
               })
             );
+
+            appPushAndCreateAlarms.push(
+              AppPushAndCreateAlarm(
+                {
+                  content: `${accountTransfer.amt}원 이체 완료.`,
+                  sentTime: getLocalDate(),
+                  title: "입금 이체 완료",
+                  type: "ETC",
+                },
+                accountTransfer.userId,
+                context
+              )
+            );
           } else {
             UpdateAccountTransfer.push(
               context.prisma.accountTransfer.update({
@@ -287,9 +302,21 @@ export const AccountTransferMutation = extendType({
                 },
               })
             );
+            appPushAndCreateAlarms.push(
+              AppPushAndCreateAlarm(
+                {
+                  content: `fundi 앱에서 자세한 내용을 확인하세요.`,
+                  sentTime: getLocalDate(),
+                  title: "입금 이체 실패",
+                  type: "ETC",
+                },
+                accountTransfer.userId,
+                context
+              )
+            );
           }
         }
-
+        Promise.all(appPushAndCreateAlarms);
         return await context.prisma.$transaction(UpdateAccountTransfer);
       },
     });

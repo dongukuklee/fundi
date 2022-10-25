@@ -68,6 +68,7 @@ input AlarmInputData {
 
 """Define alarm types"""
 enum AlarmTypes {
+  ETC
   FUNDING
   NOTICE
   QNA
@@ -423,7 +424,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
-  getTradeList: [Boolean]
+  getTradeList(fundingId: Int!, types: TradeType): [TradeList]
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
   myAccountTransfer: AccountTransfer
@@ -451,6 +452,11 @@ type Trade {
   id: Int!
   price: BigInt!
   updatedAt: DateTime!
+}
+
+type TradeList {
+  price: Int!
+  quantity: Int!
 }
 
 """Define Trade status"""
