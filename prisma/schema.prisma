@@ -460,5 +460,6 @@ enum AlarmTypes {
   NOTICE
   FUNDING
   QNA
+  ETC
 }
 
