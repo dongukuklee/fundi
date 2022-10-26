@@ -1,6 +1,7 @@
 import { AlarmTypes } from "@prisma/client";
 import { Context } from "../src/context";
 import { sendMessageToDevice } from "./AppPushMessage";
+import { getCreateDateFormat } from "./Date";
 import { deleteString, getSet, getString } from "./redis/ctrl";
 
 type CreateAlarmData = {
@@ -19,6 +20,7 @@ export const AppPushAndCreateAlarm = async (
   await context.prisma.alarm.create({
     data: {
       ...createAlarmData,
+      ...getCreateDateFormat(),
       user: {
         connect: {
           id,

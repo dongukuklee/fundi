@@ -14,6 +14,7 @@ import { each, filter, map } from "underscore";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 import { deleteImage } from "../../utils/imageDelete";
 import { signinCheck } from "../../utils/getUserInfo";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 type Invester = User & {
   accountCash: {
@@ -855,6 +856,7 @@ export const FundingMutation = extendType({
         );
         return await context.prisma.funding.create({
           data: {
+            ...getCreateDateFormat(),
             startDate: new Date(startDate),
             endDate: new Date(endDate),
             title,
@@ -875,6 +877,7 @@ export const FundingMutation = extendType({
             status,
             images: {
               create: {
+                ...getCreateDateFormat(),
                 ...imageInput,
               },
             },
@@ -910,11 +913,6 @@ export const FundingMutation = extendType({
           });
         }
         if (imageInput) {
-          // updateTransaction.push(
-          //   context.prisma.image.deleteMany({
-          //     where: { fundingId: id },
-          //   })
-          // );
           images = {
             delete: true,
             create: {
@@ -928,6 +926,7 @@ export const FundingMutation = extendType({
               id,
             },
             data: {
+              updatedAt: getLocalDate(),
               ...fundingInputVariables,
               images,
             },

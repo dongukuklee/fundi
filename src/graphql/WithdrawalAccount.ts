@@ -1,5 +1,9 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-import { getFormatDate } from "../../utils/Date";
+import {
+  getCreateDateFormat,
+  getFormatDate,
+  getLocalDate,
+} from "../../utils/Date";
 import {
   getUserIDVerificationData,
   signinCheck,
@@ -85,6 +89,7 @@ export const WithdrawalAccountMutation = extendType({
         try {
           return await context.prisma.withdrawalAccount.create({
             data: {
+              ...getCreateDateFormat(),
               bankCode,
               acntNo,
               authId: auth.id,
@@ -122,7 +127,7 @@ export const WithdrawalAccountMutation = extendType({
         try {
           const updateResult = await context.prisma.withdrawalAccount.update({
             where: { id },
-            data: { bankCode, acntNo },
+            data: { updatedAt: getLocalDate(), bankCode, acntNo },
           });
 
           return updateResult;

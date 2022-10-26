@@ -6,6 +6,7 @@ import {
   queryType,
   stringArg,
 } from "nexus";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 import { getUserAccountCash } from "../../utils/getUserInfo";
 
 export const AccountCash = objectType({
@@ -64,12 +65,14 @@ export const AccountCashMutation = extendType({
           where: { ownerId: userId },
           data: {
             balance: { increment: BigInt(amount) },
+            updatedAt: getLocalDate(),
             transactions: {
               create: {
                 amount: BigInt(amount),
                 type: "DEPOSIT",
                 title: `${context.userName}님의 예치금 충전 내역`,
                 accumulatedCash: accountCash.balance + BigInt(amount),
+                ...getCreateDateFormat(),
               },
             },
           },

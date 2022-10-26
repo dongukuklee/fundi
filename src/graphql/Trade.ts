@@ -1,6 +1,7 @@
 import { TradeType } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType } from "nexus";
 import { each, filter, map, reduce, where } from "underscore";
+import { getCreateDateFormat } from "../../utils/Date";
 import { getUserAccountCash, signinCheck } from "../../utils/getUserInfo";
 import {
   listLeftPop,
@@ -167,6 +168,7 @@ export const TradeMutation = extendType({
         for (let i = 0; i < quantity; i++) {
           const newTrade = await context.prisma.trade.create({
             data: {
+              ...getCreateDateFormat(),
               price,
               fundingId,
               userId: userId!,
