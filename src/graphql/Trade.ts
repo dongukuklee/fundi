@@ -12,6 +12,10 @@ import {
 } from "../../utils/redis/ctrl";
 import { Context } from "../context";
 
+const tradeTypeCheck = (types: TradeType) => {
+  return types === "BUY";
+};
+
 const getTradingList = async (
   fundingId: number,
   types: TradeType,
@@ -58,17 +62,23 @@ const checkMarketList = async (
   context: Context
 ) => {
   if (!types) throw new Error("types not found");
-  const contraryTypes: TradeType = types === "BUY" ? "SELL" : "BUY";
-  const list = await getTradingList(fundingId, contraryTypes, true);
-  if (types === "BUY") {
+
+  const contraryTypes: TradeType = tradeTypeCheck(types) ? "SELL" : "BUY";
+  const list = await getTradingList(
+    fundingId,
+    contraryTypes,
+    tradeTypeCheck(types)
+  );
+  let quantityCount = 0;
+  let amount = 0;
+  if (tradeTypeCheck(types)) {
     //SELL 의 리스트를 확인한다.
     //리스트 중 구매하려는 금액보다 낮은 물품이 있는지 확인한다.
     //금액이 작은 순서대로 수량 * 금액 해서 맞춘다.
     //수량을 우선으로 체크
     const filteredList = filter(list, (el) => el.price <= price);
-    const soldList: number[] = [];
-    let quantityCount = 0;
-    let amount = 0;
+    const sellingList: number[] = [];
+
     for (let i = 0; i < filteredList.length; i++) {
       if (quantityCount === quantity) break;
       const { price, quantity: saleQuantity } = filteredList[i];
@@ -78,7 +88,7 @@ const checkMarketList = async (
           const pop = await listLeftPop(redisListKey);
           if (!pop) return j;
 
-          soldList.push(Number(pop));
+          sellingList.push(Number(pop));
         }
         return quantity;
       };
@@ -95,11 +105,38 @@ const checkMarketList = async (
     }
 
     await context.prisma.trade.updateMany({
-      where: { id: { in: soldList } },
+      where: { id: { in: sellingList } },
       data: { status: "SOLD" },
     });
-    return quantity - soldList.length;
-  } else if (types === "SELL") {
+    return quantity - sellingList.length;
+  } else {
+    const filteredList = filter(list, (el) => el.price >= price);
+    const buyList: number[] = [];
+
+    for (let i = 0; i < filteredList.length; i++) {
+      if (quantityCount === quantity) break;
+      const { price, quantity: saleQuantity } = filteredList[i];
+      const redisListKey = `funding:${fundingId}:${price}:${contraryTypes}`;
+      const popList = async (quantity: number) => {
+        for (let j = 0; j < quantity; j++) {
+          const pop = await listLeftPop(redisListKey);
+          if (!pop) return j;
+
+          buyList.push(Number(pop));
+        }
+        return quantity;
+      };
+      if (quantityCount + saleQuantity < quantity) {
+        const count = await popList(saleQuantity);
+        amount = price * count;
+        quantityCount = quantityCount + count;
+      } else {
+        const tmp = quantity - quantityCount;
+        const count = await popList(tmp);
+        quantityCount = quantityCount + count;
+        amount = price * count;
+      }
+    }
   }
 };
 
