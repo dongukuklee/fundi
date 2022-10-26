@@ -1,6 +1,6 @@
 import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { pick } from "underscore";
-import { getLocalDate } from "../../utils/Date";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 import { signinCheck } from "../../utils/getUserInfo";
 import { createVirtualAccount } from "../../utils/infinisoftModules";
 
@@ -90,6 +90,7 @@ export const VirtualAccountMutation = extendType({
           vbankExpDate,
         }: { data: VirtualAccountType; vbankExpDate: string } =
           await createVirtualAccount(amt, context);
+
         const virtualAccountData: any = pick(data, ...keys);
         const userVirualAccount = await context.prisma.virtualAccount.findFirst(
           { where: { userId: context.userId } }
@@ -97,8 +98,7 @@ export const VirtualAccountMutation = extendType({
         if (!userVirualAccount) {
           return await context.prisma.virtualAccount.create({
             data: {
-              createdAt: getLocalDate(),
-              updatedAt: getLocalDate(),
+              ...getCreateDateFormat(),
               vbankExpDate,
               ...virtualAccountData,
             },
@@ -111,8 +111,7 @@ export const VirtualAccountMutation = extendType({
           const createVirtualAccountInDb = context.prisma.virtualAccount.create(
             {
               data: {
-                createdAt: getLocalDate(),
-                updatedAt: getLocalDate(),
+                ...getCreateDateFormat(),
                 vbankExpDate,
                 ...virtualAccountData,
               },

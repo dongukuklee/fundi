@@ -150,6 +150,7 @@ export const AccountTransferMutation = extendType({
             balance: {
               decrement: amt,
             },
+            updatedAt: getLocalDate(),
             transactions: {
               create: {
                 amount: amt,

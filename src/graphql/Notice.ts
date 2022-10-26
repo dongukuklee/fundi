@@ -2,7 +2,7 @@ import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { deleteImage } from "../../utils/imageDelete";
-import { getLocalDate } from "../../utils/Date";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 export const Notice = objectType({
   name: "Notice",
@@ -68,10 +68,8 @@ export const NoticeMutation = extendType({
         const defaultCreateData = {
           title,
           content,
-          createdAt: getLocalDate(),
-          updatedAt: getLocalDate(),
+          ...getCreateDateFormat(),
         };
-        console.log(defaultCreateData);
         const data = !imageInput
           ? defaultCreateData
           : {
@@ -99,11 +97,6 @@ export const NoticeMutation = extendType({
         const updateTransaction = [];
         let images = {};
         if (imageInput) {
-          // updateTransaction.push(
-          //   context.prisma.image.deleteMany({
-          //     where: { noticeId: id },
-          //   })
-          // );
           images = {
             delete: true,
             create: {
@@ -115,6 +108,7 @@ export const NoticeMutation = extendType({
           context.prisma.notice.update({
             where: { id },
             data: {
+              updatedAt: getLocalDate(),
               title: title ? title : undefined,
               content: content ? content : undefined,
               images,

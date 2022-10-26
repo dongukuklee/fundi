@@ -1,6 +1,7 @@
 import { QnATypes } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 import { signinCheck } from "../../utils/getUserInfo";
 import { deleteImage } from "../../utils/imageDelete";
 
@@ -99,6 +100,7 @@ export const QnAMutation = extendType({
           content,
           type,
           userId: userId,
+          ...getCreateDateFormat(),
         };
         const data = !imageInput
           ? defaultCreateData
@@ -123,6 +125,7 @@ export const QnAMutation = extendType({
         const replyQueation = await context.prisma.qnA.update({
           where: { id },
           data: {
+            updatedAt: getLocalDate(),
             status: "RESPONDED",
             reply,
           },
@@ -136,7 +139,7 @@ export const QnAMutation = extendType({
           {
             title: `QnA 답변 등록.`,
             content: `${user.nickName} 님이 문의하신 내용에 대한 답변이 등록되었습니다.`,
-            sentTime: new Date(),
+            sentTime: getLocalDate(),
             type: "QNA",
           },
           user.id,
@@ -180,6 +183,7 @@ export const QnAMutation = extendType({
           context.prisma.qnA.update({
             where: { id },
             data: {
+              updatedAt: getLocalDate(),
               title: title ? title : undefined,
               content: content ? content : undefined,
               type: type ? type : undefined,

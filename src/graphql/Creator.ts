@@ -12,6 +12,7 @@ import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { each } from "underscore";
 import { deleteImage } from "../../utils/imageDelete";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 type CreateVariableType = {
   [key: string]: any;
@@ -188,6 +189,7 @@ export const CreatorMutation = extendType({
           return await context.prisma.creator.update({
             where,
             data: {
+              updatedAt: getLocalDate(),
               likedUser,
             },
           });
@@ -241,9 +243,11 @@ export const CreatorMutation = extendType({
         const creatorInputVariables = makeCreatorVariables(creatorInput);
         return await context.prisma.creator.create({
           data: {
+            ...getCreateDateFormat(),
             ...creatorInputVariables,
             images: {
               create: {
+                ...getCreateDateFormat(),
                 ...imageInput,
               },
             },
@@ -291,6 +295,7 @@ export const CreatorMutation = extendType({
               id,
             },
             data: {
+              updatedAt: getLocalDate(),
               ...creatorInputVariables,
               images,
             },
