@@ -145,8 +145,9 @@ const getFunding = async (context: Context, fundingId: number) => {
 
 const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
   const investmentPrice = funding.bondPrice * investor.accountsBond[0].balance;
+  console.log(investmentPrice);
   const totalRefundAmount =
-    funding.status === "PRE_CAMPAIGN"
+    funding.status === "PRE_CAMPAIGN" || funding.status === "EARLY_CLOSING"
       ? investmentPrice
       : BigInt(
           Math.ceil(
@@ -156,7 +157,7 @@ const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
               0.7
           )
         );
-
+  console.log(totalRefundAmount);
   return totalRefundAmount;
 };
 
@@ -492,7 +493,7 @@ export const FundingMutation = extendType({
         const investorAccountCashId = investor.accountCash?.id;
         const investorAccountBondId = investor.accountsBond[0].id;
 
-        await context.prisma.$transaction([
+        const result = await context.prisma.$transaction([
           context.prisma.accountCash.update({
             where: {
               id: investorAccountCashId,
@@ -540,6 +541,12 @@ export const FundingMutation = extendType({
             },
           }),
         ]);
+        if (result[2].remainingBonds === BigInt(0)) {
+          await context.prisma.funding.update({
+            where: { id },
+            data: { status: "EARLY_CLOSING" },
+          });
+        }
         return context.prisma.funding.findUnique({ where: { id } });
       },
     });
@@ -568,7 +575,7 @@ export const FundingMutation = extendType({
         if (!funding) {
           throw new Error("Invalid funding");
         }
-
+        const { status } = funding;
         const investorAccountCashId = investor.accountCash?.id;
         const investorAccountBond = investor.accountsBond[0];
 
@@ -603,6 +610,7 @@ export const FundingMutation = extendType({
             remainingBonds: {
               increment: investorAccountBond.balance,
             },
+            status: status === "EARLY_CLOSING" ? "PRE_CAMPAIGN" : status,
           },
         });
         const createTransactionBond = context.prisma.transactionBond.create({
@@ -613,23 +621,6 @@ export const FundingMutation = extendType({
             type: "WITHDRAW",
           },
         });
-        // const UpdateInvestorAccountBond = context.prisma.accountBond.update({
-        //   where: {
-        //     id: accountBondInvestor.id,
-        //   },
-        //   data: {
-        //     balance: {
-        //       decrement: accountBondInvestor.balance,
-        //     },
-        //     transactions: {
-        //       create: {
-        //         amount: accountBondInvestor.balance,
-        //         title: `${accountBondInvestor.funding?.title} 펀드 취소`,
-        //         type: "WITHDRAW",
-        //       },
-        //     },
-        //   },
-        // });
 
         const withdrawFundingTransactions = [
           updateInvestorAccountCash,
