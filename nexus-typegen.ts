@@ -282,6 +282,10 @@ export interface NexusGenObjects {
     userId: number; // Int!
   }
   Query: {};
+  SortByTradeType: { // root type
+    buy?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    sell?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+  }
   Trade: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
@@ -499,6 +503,7 @@ export interface NexusGenFieldTypes {
     images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isLikedUser: boolean | null; // Boolean
     lastTransactionAmount: NexusGenScalars['BigInt']; // BigInt!
+    latestPrice: Array<NexusGenRootTypes['Trade'] | null> | null; // [Trade]
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     remainingBonds: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime'] | null; // DateTime
@@ -630,7 +635,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
-    getTradeList: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    getTradeList: NexusGenRootTypes['SortByTradeType'] | null; // SortByTradeType
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     myAccountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
@@ -644,6 +649,10 @@ export interface NexusGenFieldTypes {
     user: NexusGenRootTypes['User'] | null; // User
     users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     verificationCode: boolean; // Boolean!
+  }
+  SortByTradeType: { // field return type
+    buy: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    sell: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
   }
   Trade: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -864,6 +873,7 @@ export interface NexusGenFieldTypeNames {
     images: 'Image'
     isLikedUser: 'Boolean'
     lastTransactionAmount: 'BigInt'
+    latestPrice: 'Trade'
     likedUser: 'User'
     remainingBonds: 'BigInt'
     startDate: 'DateTime'
@@ -995,7 +1005,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
-    getTradeList: 'TradeList'
+    getTradeList: 'SortByTradeType'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
     myAccountTransfer: 'AccountTransfer'
@@ -1009,6 +1019,10 @@ export interface NexusGenFieldTypeNames {
     user: 'User'
     users: 'User'
     verificationCode: 'Boolean'
+  }
+  SortByTradeType: { // field return type name
+    buy: 'TradeList'
+    sell: 'TradeList'
   }
   Trade: { // field return type name
     createdAt: 'DateTime'
@@ -1330,7 +1344,6 @@ export interface NexusGenArgTypes {
     }
     getTradeList: { // args
       fundingId: number; // Int!
-      types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     myAccountTransfers: { // args
       skip?: number | null; // Int
