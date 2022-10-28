@@ -94,7 +94,7 @@ export interface NexusGenEnums {
   BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
-  FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
+  FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   ImageTypes: "creator" | "funding" | "notice" | "qna"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
@@ -503,7 +503,6 @@ export interface NexusGenFieldTypes {
     images: Array<NexusGenRootTypes['Image'] | null> | null; // [Image]
     isLikedUser: boolean | null; // Boolean
     lastTransactionAmount: NexusGenScalars['BigInt']; // BigInt!
-    latestPrice: Array<NexusGenRootTypes['Trade'] | null> | null; // [Trade]
     likedUser: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     remainingBonds: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime'] | null; // DateTime
@@ -873,7 +872,6 @@ export interface NexusGenFieldTypeNames {
     images: 'Image'
     isLikedUser: 'Boolean'
     lastTransactionAmount: 'BigInt'
-    latestPrice: 'Trade'
     likedUser: 'User'
     remainingBonds: 'BigInt'
     startDate: 'DateTime'

@@ -272,7 +272,6 @@ enum FundingStatus {
   CAMPAIGNING
   EARLY_CLOSING
   END
-  FAILED_CAMPAIGN
   POST_CAMPAIGN
   PRE_CAMPAIGN
 }
@@ -424,7 +423,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
-  getTradeList(fundingId: Int!, types: TradeType): [TradeList]
+  getTradeList(fundingId: Int!): SortByTradeType
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
   myAccountTransfer: AccountTransfer
@@ -445,6 +444,11 @@ enum Role {
   ADMIN
   INVESTOR
   MANAGER
+}
+
+type SortByTradeType {
+  buy: [TradeList]
+  sell: [TradeList]
 }
 
 type Trade {

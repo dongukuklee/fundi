@@ -279,12 +279,11 @@ model FundingSettlement {
 }
 
 enum FundingStatus {
-  PRE_CAMPAIGN
-  CAMPAIGNING
-  POST_CAMPAIGN
-  EARLY_CLOSING
-  FAILED_CAMPAIGN
-  END
+  PRE_CAMPAIGN // startDate 이전
+  CAMPAIGNING // 펀딩 모집 중
+  POST_CAMPAIGN // endDate 후, 정산 진행 중 
+  EARLY_CLOSING // 조기 마감, endDate 이전에 100% 가 됐을 시
+  END // endDate 이후 계약 만료 시 (정산 완료)
 }
 
 enum ContractTypes {
@@ -424,6 +423,14 @@ model Banner {
 model DeviceToken {
   id                       Int      @id @default(autoincrement())
   Token                    String
+}
+
+model SchedulerBackUp {
+  id                       Int      @id @default(autoincrement())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  fundingId                Int
+  endDate                  DateTime
 }
 
 enum BannerTypes {

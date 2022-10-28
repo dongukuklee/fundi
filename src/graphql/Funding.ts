@@ -15,6 +15,7 @@ import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 import { deleteImage } from "../../utils/imageDelete";
 import { signinCheck } from "../../utils/getUserInfo";
 import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
+import axios from "axios";
 
 type Invester = User & {
   accountCash: {
@@ -60,7 +61,6 @@ type CreateVariableType = {
     | "CAMPAIGNING"
     | "POST_CAMPAIGN"
     | "EARLY_CLOSING"
-    | "FAILED_CAMPAIGN"
     | "END";
   title?: string;
 };
@@ -74,7 +74,6 @@ type FundingInput = {
     | "CAMPAIGNING"
     | "POST_CAMPAIGN"
     | "EARLY_CLOSING"
-    | "FAILED_CAMPAIGN"
     | "END";
   title: string;
 };
@@ -147,7 +146,7 @@ const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
   const investmentPrice = funding.bondPrice * investor.accountsBond[0].balance;
   console.log(investmentPrice);
   const totalRefundAmount =
-    funding.status === "PRE_CAMPAIGN" || funding.status === "EARLY_CLOSING"
+    funding.status === "CAMPAIGNING" || funding.status === "EARLY_CLOSING"
       ? investmentPrice
       : BigInt(
           Math.ceil(
@@ -454,7 +453,7 @@ export const FundingMutation = extendType({
         }
 
         //펀딩 모집기간이 아닌 경우.
-        if (funding.status !== "PRE_CAMPAIGN") {
+        if (funding.status !== "CAMPAIGNING") {
           throw new Error("funding is closed");
         }
 
@@ -822,7 +821,7 @@ export const FundingMutation = extendType({
         context,
         info
       ) {
-        const { endDate, isVisible, startDate, status, title, description } =
+        let { endDate, isVisible, startDate, status, title, description } =
           fundingInput!;
         const bondPrice = 10000;
         const contract = await context.prisma.contract.findUnique({
@@ -845,11 +844,12 @@ export const FundingMutation = extendType({
             };
           }
         );
-        return await context.prisma.funding.create({
+        const tmpEndDate = new Date(endDate);
+        const createdFunding = await context.prisma.funding.create({
           data: {
             ...getCreateDateFormat(),
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: tmpEndDate,
             title,
             bondsTotalNumber,
             remainingBonds: bondsTotalNumber,
@@ -874,6 +874,16 @@ export const FundingMutation = extendType({
             },
           },
         });
+
+        const backupSchedule = await context.prisma.schedulerBackUp.create({
+          data: { endDate: tmpEndDate, fundingId: createdFunding.id },
+        });
+        axios.post("https://nu-art.kr/_admin_/setSchedule", {
+          fundingId: createdFunding.id,
+          endDate: tmpEndDate,
+          backupScheduleId: backupSchedule.id,
+        });
+        return createdFunding;
       },
     });
     t.field("updateFunding", {
