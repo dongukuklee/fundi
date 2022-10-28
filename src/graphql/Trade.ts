@@ -158,18 +158,31 @@ export const TradeList = objectType({
   },
 });
 
+export const SortByTradeType = objectType({
+  name: "SortByTradeType",
+  definition(t) {
+    t.list.field("buy", {
+      type: "TradeList",
+    });
+    t.list.field("sell", {
+      type: "TradeList",
+    });
+  },
+});
+
 export const TradeQuery = extendType({
   type: "Query",
   definition(t) {
-    t.list.field("getTradeList", {
-      type: "TradeList",
+    t.field("getTradeList", {
+      type: "SortByTradeType",
       args: {
         fundingId: nonNull(intArg()),
-        types: arg({ type: "TradeType" }),
       },
-      async resolve(parent, { fundingId, types }, context, info) {
-        const isSort = types === "BUY" ? true : false;
-        return await getTradingList(fundingId, types!, isSort);
+      async resolve(parent, { fundingId }, context, info) {
+        return {
+          buy: await getTradingList(fundingId, "BUY", true),
+          sell: await getTradingList(fundingId, "SELL", false),
+        };
       },
     });
   },
