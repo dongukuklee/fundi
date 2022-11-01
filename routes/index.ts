@@ -164,14 +164,24 @@ const routes = (app: any) => {
   //1. 펀딩 상태 변경 및 스케줄러 백업 지우는 API
 
   //2. 서버 재시작 시 스케줄러 백업 정보 가져오는 API
-  router.post("/_api_/updateFunding", (req, res) => {
+  router.post("/_api_/updateFunding", async (req, res) => {
     const { fundingId, backupScheduleId } = req.body;
-    prisma.funding.update({
-      where: { id: fundingId },
-      data: { status: "POST_CAMPAIGN" },
-    });
-    prisma.schedulerBackUp.delete({ where: { id: backupScheduleId } });
-    res.status(200);
+    try {
+      await prisma.funding.update({
+        where: { id: fundingId },
+        data: { status: "POST_CAMPAIGN" },
+      });
+      const backupData = await prisma.schedulerBackUp.findUnique({
+        where: { id: backupScheduleId },
+      });
+      if (backupData)
+        await prisma.schedulerBackUp.delete({
+          where: { id: backupScheduleId },
+        });
+      res.status(200).json({ payload: "success" });
+    } catch (error) {
+      res.status(400).json({ payload: "fail", error });
+    }
   });
 
   router.get("/_api_/getBackupScheduleData", async (_, res) => {
