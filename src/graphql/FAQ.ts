@@ -9,13 +9,14 @@ import {
 } from "nexus";
 import { TAKE } from "../common/const";
 import { FAQTypes } from "@prisma/client";
-import { getLocalDate } from "../../utils/Date";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 type ToReturnUpdateFAQDataType = {
   question?: string;
   answer?: string;
   type?: FAQTypes;
   isVisible?: boolean;
+  updatedAt?: Date;
 };
 
 const makeUpdateFAQVariables = (
@@ -29,7 +30,7 @@ const makeUpdateFAQVariables = (
   if (answer) variables.answer = answer;
   if (type) variables.type = type;
   if (isVisible) variables.isVisible = isVisible;
-
+  variables.updatedAt = getLocalDate();
   return variables;
 };
 
@@ -99,8 +100,7 @@ export const FAQMutation = extendType({
       resolve(parent, { question, answer, type, isVisible }, context, info) {
         return context.prisma.fAQ.create({
           data: {
-            createdAt: getLocalDate(),
-            updatedAt: getLocalDate(),
+            ...getCreateDateFormat(),
             question,
             answer,
             type,

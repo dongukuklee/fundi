@@ -9,6 +9,7 @@ import {
 } from "nexus";
 import { BannerTypes } from "@prisma/client";
 import { deleteImage } from "../../utils/imageDelete";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 type ToReturnVariables = {
   types: BannerTypes;
@@ -93,11 +94,13 @@ export const BannerModuleMutation = extendType({
         if (!imageInput) throw new Error("image not found");
         const newBannerModule = await context.prisma.bannerModule.create({
           data: {
+            ...getCreateDateFormat(),
             title,
             targetId,
             types,
             images: {
               create: {
+                ...getCreateDateFormat(),
                 ...imageInput,
               },
             },
@@ -133,6 +136,7 @@ export const BannerModuleMutation = extendType({
           images = {
             delete: true,
             create: {
+              ...getCreateDateFormat(),
               ...imageInput!,
             },
           };
@@ -143,6 +147,7 @@ export const BannerModuleMutation = extendType({
               id,
             },
             data: {
+              updatedAt: getLocalDate(),
               ...bannerModuleVariables,
               images,
             },

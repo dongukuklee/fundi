@@ -1,4 +1,4 @@
-import { mapObject, reduce } from "underscore";
+import { isFunction, mapObject, reduce } from "underscore";
 import redisClient from "../index";
 
 //참조
@@ -76,4 +76,12 @@ export const listLeftPop = async (key: string) => {
   return await redisClient.LPOP(key);
 };
 
-export const listLength = () => {};
+export const listLength = async (key: string) => {
+  return await redisClient.LLEN(key);
+};
+
+export const zSetRange = async (key: string, option: boolean) => {
+  return option
+    ? await redisClient.ZRANGE(key, 0, -1, { REV: true })
+    : await redisClient.ZRANGE(key, 0, -1);
+};

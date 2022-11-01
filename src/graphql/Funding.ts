@@ -14,6 +14,8 @@ import { each, filter, map } from "underscore";
 import { AppPushAndCreateAlarm } from "../../utils/appPushAndCreateAlarm";
 import { deleteImage } from "../../utils/imageDelete";
 import { signinCheck } from "../../utils/getUserInfo";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
+import axios from "axios";
 
 type Invester = User & {
   accountCash: {
@@ -59,7 +61,6 @@ type CreateVariableType = {
     | "CAMPAIGNING"
     | "POST_CAMPAIGN"
     | "EARLY_CLOSING"
-    | "FAILED_CAMPAIGN"
     | "END";
   title?: string;
 };
@@ -73,7 +74,6 @@ type FundingInput = {
     | "CAMPAIGNING"
     | "POST_CAMPAIGN"
     | "EARLY_CLOSING"
-    | "FAILED_CAMPAIGN"
     | "END";
   title: string;
 };
@@ -144,8 +144,9 @@ const getFunding = async (context: Context, fundingId: number) => {
 
 const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
   const investmentPrice = funding.bondPrice * investor.accountsBond[0].balance;
+  console.log(investmentPrice);
   const totalRefundAmount =
-    funding.status === "PRE_CAMPAIGN"
+    funding.status === "CAMPAIGNING" || funding.status === "EARLY_CLOSING"
       ? investmentPrice
       : BigInt(
           Math.ceil(
@@ -155,7 +156,7 @@ const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
               0.7
           )
         );
-
+  console.log(totalRefundAmount);
   return totalRefundAmount;
 };
 
@@ -452,7 +453,7 @@ export const FundingMutation = extendType({
         }
 
         //펀딩 모집기간이 아닌 경우.
-        if (funding.status !== "PRE_CAMPAIGN") {
+        if (funding.status !== "CAMPAIGNING") {
           throw new Error("funding is closed");
         }
 
@@ -491,7 +492,7 @@ export const FundingMutation = extendType({
         const investorAccountCashId = investor.accountCash?.id;
         const investorAccountBondId = investor.accountsBond[0].id;
 
-        await context.prisma.$transaction([
+        const result = await context.prisma.$transaction([
           context.prisma.accountCash.update({
             where: {
               id: investorAccountCashId,
@@ -539,6 +540,12 @@ export const FundingMutation = extendType({
             },
           }),
         ]);
+        if (result[2].remainingBonds === BigInt(0)) {
+          await context.prisma.funding.update({
+            where: { id },
+            data: { status: "EARLY_CLOSING" },
+          });
+        }
         return context.prisma.funding.findUnique({ where: { id } });
       },
     });
@@ -567,7 +574,7 @@ export const FundingMutation = extendType({
         if (!funding) {
           throw new Error("Invalid funding");
         }
-
+        const { status } = funding;
         const investorAccountCashId = investor.accountCash?.id;
         const investorAccountBond = investor.accountsBond[0];
 
@@ -602,6 +609,7 @@ export const FundingMutation = extendType({
             remainingBonds: {
               increment: investorAccountBond.balance,
             },
+            status: status === "EARLY_CLOSING" ? "PRE_CAMPAIGN" : status,
           },
         });
         const createTransactionBond = context.prisma.transactionBond.create({
@@ -612,23 +620,6 @@ export const FundingMutation = extendType({
             type: "WITHDRAW",
           },
         });
-        // const UpdateInvestorAccountBond = context.prisma.accountBond.update({
-        //   where: {
-        //     id: accountBondInvestor.id,
-        //   },
-        //   data: {
-        //     balance: {
-        //       decrement: accountBondInvestor.balance,
-        //     },
-        //     transactions: {
-        //       create: {
-        //         amount: accountBondInvestor.balance,
-        //         title: `${accountBondInvestor.funding?.title} 펀드 취소`,
-        //         type: "WITHDRAW",
-        //       },
-        //     },
-        //   },
-        // });
 
         const withdrawFundingTransactions = [
           updateInvestorAccountCash,
@@ -830,7 +821,7 @@ export const FundingMutation = extendType({
         context,
         info
       ) {
-        const { endDate, isVisible, startDate, status, title, description } =
+        let { endDate, isVisible, startDate, status, title, description } =
           fundingInput!;
         const bondPrice = 10000;
         const contract = await context.prisma.contract.findUnique({
@@ -853,10 +844,12 @@ export const FundingMutation = extendType({
             };
           }
         );
-        return await context.prisma.funding.create({
+        const tmpEndDate = new Date(endDate);
+        const createdFunding = await context.prisma.funding.create({
           data: {
+            ...getCreateDateFormat(),
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: tmpEndDate,
             title,
             bondsTotalNumber,
             remainingBonds: bondsTotalNumber,
@@ -875,11 +868,22 @@ export const FundingMutation = extendType({
             status,
             images: {
               create: {
+                ...getCreateDateFormat(),
                 ...imageInput,
               },
             },
           },
         });
+
+        const backupSchedule = await context.prisma.schedulerBackUp.create({
+          data: { endDate: tmpEndDate, fundingId: createdFunding.id },
+        });
+        axios.post("https://nu-art.kr/_admin_/setSchedule", {
+          fundingId: createdFunding.id,
+          endDate: tmpEndDate,
+          backupScheduleId: backupSchedule.id,
+        });
+        return createdFunding;
       },
     });
     t.field("updateFunding", {
@@ -910,11 +914,6 @@ export const FundingMutation = extendType({
           });
         }
         if (imageInput) {
-          // updateTransaction.push(
-          //   context.prisma.image.deleteMany({
-          //     where: { fundingId: id },
-          //   })
-          // );
           images = {
             delete: true,
             create: {
@@ -928,6 +927,7 @@ export const FundingMutation = extendType({
               id,
             },
             data: {
+              updatedAt: getLocalDate(),
               ...fundingInputVariables,
               images,
             },

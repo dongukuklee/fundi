@@ -1,4 +1,5 @@
 import { arg, extendType, intArg, nonNull, objectType } from "nexus";
+import { getCreateDateFormat } from "../../utils/Date";
 
 type ConnectType =
   | {
@@ -107,7 +108,11 @@ export const ImageMutation = extendType({
         if (!createImageInput || !type || !id) throw new Error("");
         const connectAttr: ImageConnectType = { [type]: { connect: { id } } };
         return context.prisma.image.create({
-          data: { ...connectAttr, ...createImageInput },
+          data: {
+            ...connectAttr,
+            ...createImageInput,
+            ...getCreateDateFormat(),
+          },
         });
       },
     });

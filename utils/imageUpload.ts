@@ -4,6 +4,7 @@ import sharp from "sharp";
 import path from "path";
 import { Context, prisma } from "../src/context";
 import { Request, Response } from "express";
+import { getCreateDateFormat } from "./Date";
 
 require("dotenv").config();
 
@@ -141,7 +142,7 @@ const result = async (req: Request, res: Response) => {
   }
   for (const CreateImageData of req.body.results) {
     await prisma.image.create({
-      data: { ...CreateImageData },
+      data: { ...getCreateDateFormat(), ...CreateImageData },
     });
   }
 

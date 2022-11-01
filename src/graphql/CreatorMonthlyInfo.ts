@@ -1,4 +1,5 @@
 import { extendType, intArg, nonNull, objectType } from "nexus";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 export const CreatorMonthlyInfo = objectType({
   name: "CreatorMonthlyInfo",
@@ -55,6 +56,7 @@ export const CreatorMonthlyInfoQuery = extendType({
         const data = makeCreateVariables(creatorMonthlyInfoInput);
         return await context.prisma.creatorMonthlyInfo.create({
           data: {
+            ...getCreateDateFormat(),
             ...data,
             creator: {
               connect: {
@@ -82,6 +84,7 @@ export const CreatorMonthlyInfoQuery = extendType({
         return context.prisma.creatorMonthlyInfo.update({
           where: { id },
           data: {
+            updatedAt: getLocalDate(),
             ...data,
             month,
           },

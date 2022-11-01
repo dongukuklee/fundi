@@ -1,5 +1,6 @@
 import { AlarmTypes } from "@prisma/client";
 import { booleanArg, extendType, intArg, nonNull, objectType } from "nexus";
+import { getLocalDate } from "../../utils/Date";
 import { signinCheck } from "../../utils/getUserInfo";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { TAKE } from "../common/const";
@@ -102,6 +103,7 @@ export const AlarmMutation = extendType({
             where: { userId: context.userId },
             data: {
               isConfirm: true,
+              updatedAt: getLocalDate(),
             },
           });
           return true;

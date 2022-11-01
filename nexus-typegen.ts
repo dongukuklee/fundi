@@ -90,11 +90,11 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   AccountTransferTypes: "CANCELLATION" | "DONE" | "PENDING"
-  AlarmTypes: "FUNDING" | "NOTICE" | "QNA"
+  AlarmTypes: "ETC" | "FUNDING" | "NOTICE" | "QNA"
   BannerTypes: "FUNDING" | "NONE" | "NOTICE"
   ContractTypes: "LOANS" | "OWENERSHIP_TRANSFER"
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
-  FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "FAILED_CAMPAIGN" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
+  FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   ImageTypes: "creator" | "funding" | "notice" | "qna"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
@@ -282,11 +282,19 @@ export interface NexusGenObjects {
     userId: number; // Int!
   }
   Query: {};
+  SortByTradeType: { // root type
+    buy?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    sell?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+  }
   Trade: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TradeList: { // root type
+    price: number; // Int!
+    quantity: number; // Int!
   }
   TransactionBond: { // root type
     amount: NexusGenScalars['BigInt']; // BigInt!
@@ -626,7 +634,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
-    getTradeList: Array<boolean | null> | null; // [Boolean]
+    getTradeList: NexusGenRootTypes['SortByTradeType'] | null; // SortByTradeType
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
     myAccountTransfer: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
@@ -641,11 +649,19 @@ export interface NexusGenFieldTypes {
     users: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     verificationCode: boolean; // Boolean!
   }
+  SortByTradeType: { // field return type
+    buy: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    sell: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+  }
   Trade: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  TradeList: { // field return type
+    price: number; // Int!
+    quantity: number; // Int!
   }
   TransactionBond: { // field return type
     account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -987,7 +1003,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
-    getTradeList: 'Boolean'
+    getTradeList: 'SortByTradeType'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
     myAccountTransfer: 'AccountTransfer'
@@ -1002,11 +1018,19 @@ export interface NexusGenFieldTypeNames {
     users: 'User'
     verificationCode: 'Boolean'
   }
+  SortByTradeType: { // field return type name
+    buy: 'TradeList'
+    sell: 'TradeList'
+  }
   Trade: { // field return type name
     createdAt: 'DateTime'
     id: 'Int'
     price: 'BigInt'
     updatedAt: 'DateTime'
+  }
+  TradeList: { // field return type name
+    price: 'Int'
+    quantity: 'Int'
   }
   TransactionBond: { // field return type name
     account: 'AccountBond'
@@ -1315,6 +1339,9 @@ export interface NexusGenArgTypes {
       sort?: string | null; // String
       status?: NexusGenEnums['FundingStatus'] | null; // FundingStatus
       take?: number | null; // Int
+    }
+    getTradeList: { // args
+      fundingId: number; // Int!
     }
     myAccountTransfers: { // args
       skip?: number | null; // Int

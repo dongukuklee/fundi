@@ -13,7 +13,7 @@ import {
   getUserInfo,
   signinCheck,
 } from "../../utils/getUserInfo";
-import { getCreateDateFormat } from "../../utils/Date";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 import { send_gmail } from "../../utils/auth";
 
 const APP_SECRET = process.env.APP_SECRET!;
@@ -223,7 +223,7 @@ export const AuthMutation = extendType({
                 },
               },
               accountCash: {
-                create: {},
+                create: { ...getCreateDateFormat() },
               },
             },
           });
@@ -267,11 +267,14 @@ export const AuthMutation = extendType({
             id: userId,
           },
           data: {
+            updatedAt: getLocalDate(),
             auth: {
               update: {
                 isVerified: true,
+                updatedAt: getLocalDate(),
                 IDVerification: {
                   create: {
+                    ...getCreateDateFormat(),
                     expiration: expirationDate,
                     birthDay: new Date(birthday),
                     certificationCode: unique_key,
@@ -301,6 +304,7 @@ export const AuthMutation = extendType({
             id: authId,
           },
           data: {
+            updatedAt: getLocalDate(),
             pincode: followingPincode,
           },
         });
@@ -345,7 +349,7 @@ export const AuthMutation = extendType({
       async resolve(parent, { email, password }, context, info) {
         await context.prisma.auth.update({
           where: { email },
-          data: { password },
+          data: { password, updatedAt: getLocalDate() },
         });
         return true;
       },

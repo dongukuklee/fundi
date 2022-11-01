@@ -1,4 +1,5 @@
 import { objectType, intArg, nonNull, extendType } from "nexus";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 
 const makeContractVariable = (
   contractInput: any,
@@ -8,7 +9,12 @@ const makeContractVariable = (
   const { lastYearEarning, startDate, endDate, terms, type } = contractInput;
   const fundingAmount = Math.floor((lastYearEarning * 0.3) / 10000) * 10000;
   const amountRecieved = fundingAmount * 0.9;
+  const date =
+    transactionType === "create"
+      ? { ...getCreateDateFormat() }
+      : { updatedAt: getLocalDate() };
   let data = {
+    ...date,
     ...contractInput,
     startDate: new Date(startDate),
     endDate: new Date(endDate),

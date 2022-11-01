@@ -11,11 +11,21 @@ import {
 import { prisma } from "../src/context";
 import { each, filter, map } from "underscore";
 import { sendMessageToMultiDevice } from "../utils/AppPushMessage";
+import axios from "axios";
 const router = Router();
 
 const routes = (app: any) => {
-  router.get("/_api_/imageUpload", (req, res) => {
+  router.get("/_api_/imageUpload", async (req, res) => {
+    const a = await axios.get(
+      "http://172.30.1.1:8080/_api_/getBackupScheduleData"
+    );
+    console.log(a.data);
     res.send("hello");
+  });
+
+  router.post("/_api_/imageUploads", (req, res) => {
+    console.log(req.body);
+    res.status(200).json({ a: "1" });
   });
 
   router.post(
@@ -151,6 +161,34 @@ const routes = (app: any) => {
     }
   });
 
+  //1. 펀딩 상태 변경 및 스케줄러 백업 지우는 API
+
+  //2. 서버 재시작 시 스케줄러 백업 정보 가져오는 API
+  router.post("/_api_/updateFunding", async (req, res) => {
+    const { fundingId, backupScheduleId } = req.body;
+    try {
+      await prisma.funding.update({
+        where: { id: fundingId },
+        data: { status: "POST_CAMPAIGN" },
+      });
+      const backupData = await prisma.schedulerBackUp.findUnique({
+        where: { id: backupScheduleId },
+      });
+      if (backupData)
+        await prisma.schedulerBackUp.delete({
+          where: { id: backupScheduleId },
+        });
+      res.status(200).json({ payload: "success" });
+    } catch (error) {
+      res.status(400).json({ payload: "fail", error });
+    }
+  });
+
+  router.get("/_api_/getBackupScheduleData", async (_, res) => {
+    const backupSchedules = await prisma.schedulerBackUp.findMany({});
+    console.log(backupSchedules);
+    res.status(200).json({ backupSchedules });
+  });
   return app.use("/", router);
 };
 
