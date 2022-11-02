@@ -348,6 +348,7 @@ model Notice{
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
   isVisible                  Boolean  @default(false)
+  type                       NoticeType @default(NOTICE)
   title                      String
   content                    String
   images     Image[]
@@ -457,6 +458,10 @@ enum FAQTypes {
   ETC
 }
 
+enum NoticeType {
+  NOTICE
+  MAGAZINE
+}
 
 enum QnAStatus {
   AWAITING_RESPONSE

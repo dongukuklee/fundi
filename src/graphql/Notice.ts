@@ -1,4 +1,4 @@
-import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
+import { arg, extendType, intArg, nonNull, objectType, stringArg } from "nexus";
 import { TAKE } from "../common/const";
 import { sortOptionCreator } from "../../utils/sortOptionCreator";
 import { deleteImage } from "../../utils/imageDelete";
@@ -63,11 +63,18 @@ export const NoticeMutation = extendType({
         title: nonNull(stringArg()),
         content: nonNull(stringArg()),
         imageInput: "ImageInput",
+        types: arg({ type: "NoticeTypes" }),
       },
-      async resolve(parent, { title, content, imageInput }, context, info) {
+      async resolve(
+        parent,
+        { title, content, imageInput, types },
+        context,
+        info
+      ) {
         const defaultCreateData = {
           title,
           content,
+          types,
           ...getCreateDateFormat(),
         };
         const data = !imageInput
@@ -92,8 +99,14 @@ export const NoticeMutation = extendType({
         title: stringArg(),
         content: stringArg(),
         imageInput: "ImageInput",
+        types: arg({ type: "NoticeTypes" }),
       },
-      async resolve(parent, { id, title, content, imageInput }, context, info) {
+      async resolve(
+        parent,
+        { id, title, content, imageInput, types },
+        context,
+        info
+      ) {
         const updateTransaction = [];
         let images = {};
         if (imageInput) {
