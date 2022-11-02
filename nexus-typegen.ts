@@ -1361,6 +1361,7 @@ export interface NexusGenArgTypes {
     notices: { // args
       skip?: number | null; // Int
       take?: number | null; // Int
+      types?: NexusGenEnums['NoticeTypes'] | null; // NoticeTypes
     }
     transactionsBond: { // args
       ids?: Array<number | null> | null; // [Int]
