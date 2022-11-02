@@ -11,3 +11,4 @@ export * from "./AlarmTypes";
 export * from "./ImageTypes";
 export * from "./BannerTypes";
 export * from "./FAQTypes";
+export * from "./NoticeTypes";
