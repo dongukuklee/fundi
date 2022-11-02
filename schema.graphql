@@ -335,7 +335,7 @@ type Mutation {
   createFAQ(answer: String!, isVisible: Boolean, question: String!, type: FAQTypes!): FAQ
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
-  createNotice(content: String!, imageInput: ImageInput, title: String!, types: NoticeTypes): Notice
+  createNotice(content: String!, imageInput: ImageInput, title: String!, types: NoticeTypes!): Notice
   createPincode(imp_uid: String!, phoneNumber: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   createTrade(fundingId: Int!, price: Int!, quantity: Int!, types: TradeType): Boolean

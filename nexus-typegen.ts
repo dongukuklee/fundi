@@ -1162,7 +1162,7 @@ export interface NexusGenArgTypes {
       content: string; // String!
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title: string; // String!
-      types?: NexusGenEnums['NoticeTypes'] | null; // NoticeTypes
+      types: NexusGenEnums['NoticeTypes']; // NoticeTypes!
     }
     createPincode: { // args
       imp_uid: string; // String!
