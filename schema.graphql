@@ -437,7 +437,7 @@ type Query {
   myFundings(skip: Int, take: Int): [Funding!]!
   myQnA: [QnA]
   notice(id: Int!): Notice
-  notices(skip: Int, take: Int): [Notice]
+  notices(skip: Int, take: Int, types: NoticeTypes): [Notice]
   transactionsBond(ids: [Int], skip: Int, take: Int, type: TransactionType): [TransactionBond!]!
   transactionsCash(skip: Int, take: Int, type: TransactionType): [TransactionCash!]!
   user: User

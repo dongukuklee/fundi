@@ -41,6 +41,7 @@ export const NoticeQuery = extendType({
       args: {
         skip: intArg(),
         take: intArg(),
+        types: arg({ type: "NoticeTypes" }),
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator("latest");
@@ -48,6 +49,7 @@ export const NoticeQuery = extendType({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
           orderBy,
+          where: { type: args?.types ? args?.types : "NOTICE" },
         });
       },
     });
