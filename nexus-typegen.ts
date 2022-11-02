@@ -96,6 +96,7 @@ export interface NexusGenEnums {
   FAQTypes: "ETC" | "PAYMENT" | "USAGE"
   FundingStatus: "CAMPAIGNING" | "EARLY_CLOSING" | "END" | "POST_CAMPAIGN" | "PRE_CAMPAIGN"
   ImageTypes: "creator" | "funding" | "notice" | "qna"
+  NoticeTypes: "MAGAZINE" | "NOTICE"
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
@@ -1161,6 +1162,7 @@ export interface NexusGenArgTypes {
       content: string; // String!
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title: string; // String!
+      types?: NexusGenEnums['NoticeTypes'] | null; // NoticeTypes
     }
     createPincode: { // args
       imp_uid: string; // String!
@@ -1264,6 +1266,7 @@ export interface NexusGenArgTypes {
       id: number; // Int!
       imageInput?: NexusGenInputs['ImageInput'] | null; // ImageInput
       title?: string | null; // String
+      types?: NexusGenEnums['NoticeTypes'] | null; // NoticeTypes
     }
     updatePassword: { // args
       email: string; // String!

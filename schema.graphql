@@ -335,7 +335,7 @@ type Mutation {
   createFAQ(answer: String!, isVisible: Boolean, question: String!, type: FAQTypes!): FAQ
   createFunding(contractId: Int!, fundingInput: FundingInput, imageInput: ImageInput): Funding
   createImage(createImageInput: ImageInput, id: Int!, type: ImageTypes!): Image
-  createNotice(content: String!, imageInput: ImageInput, title: String!): Notice
+  createNotice(content: String!, imageInput: ImageInput, title: String!, types: NoticeTypes): Notice
   createPincode(imp_uid: String!, phoneNumber: String!, pincode: String!): String
   createQnA(content: String!, imageInput: ImageInput, title: String!, type: QnATypes!): QnA
   createTrade(fundingId: Int!, price: Int!, quantity: Int!, types: TradeType): Boolean
@@ -359,7 +359,7 @@ type Mutation {
   updateCreatorMonthlyInfo(creatorMonthlyInfoInput: CreatorMonthlyInfoInpuTypes!, id: Int!): CreatorMonthlyInfo
   updateFAQ(answer: String, id: Int!, isVisible: Boolean, question: String, type: FAQTypes): FAQ
   updateFunding(fundingId: Int, fundingInput: FundingInput, imageInput: ImageInput): Boolean
-  updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String): Boolean
+  updateNotice(content: String, id: Int!, imageInput: ImageInput, title: String, types: NoticeTypes): Boolean
   updatePassword(email: String!, password: String!): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
@@ -376,6 +376,12 @@ type Notice {
   isVisible: Boolean!
   title: String
   updatedAt: DateTime!
+}
+
+"""Define funding status"""
+enum NoticeTypes {
+  MAGAZINE
+  NOTICE
 }
 
 type QnA {
