@@ -350,7 +350,7 @@ model Notice{
   isVisible                  Boolean  @default(false)
   type                       NoticeType @default(NOTICE)
   title                      String
-  content                    String
+  content                    String @db.Text()
   images     Image[]
 }
 
