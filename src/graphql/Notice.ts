@@ -65,7 +65,7 @@ export const NoticeMutation = extendType({
         title: nonNull(stringArg()),
         content: nonNull(stringArg()),
         imageInput: "ImageInput",
-        types: arg({ type: "NoticeTypes" }),
+        types: nonNull(arg({ type: "NoticeTypes" })),
       },
       async resolve(
         parent,
@@ -76,7 +76,7 @@ export const NoticeMutation = extendType({
         const defaultCreateData = {
           title,
           content,
-          types,
+          type: types,
           ...getCreateDateFormat(),
         };
         const data = !imageInput
