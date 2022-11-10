@@ -151,3 +151,22 @@ export const UserQuery = extendType({
     });
   },
 });
+
+export const UserMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("userUpdate", {
+      type: "User",
+      async resolve(parent, args, context, info) {
+        const userId = 3;
+
+        return await context.prisma.user.update({
+          where: { id: userId },
+          data: {
+            nickName: "gkgkgkk",
+          },
+        });
+      },
+    });
+  },
+});
