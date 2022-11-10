@@ -63,3 +63,7 @@ export const listRightPush = async (key: string, element: any) => {
 export const zAdd = async (key: string, score: number, value: string) => {
   return await redisClient.ZADD(key, { score, value });
 };
+
+export const zRem = async (key: string, value: string) => {
+  return await redisClient.ZREM(key, value);
+};

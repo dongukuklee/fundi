@@ -591,7 +591,9 @@ export interface NexusGenFieldTypes {
     updatePassword: boolean | null; // Boolean
     updatePincode: string | null; // String
     updateQuestion: boolean | null; // Boolean
+    updateTrade: boolean | null; // Boolean
     updateWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
+    userUpdate: NexusGenRootTypes['User'] | null; // User
     withdrawFunding: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     withdrawalApplication: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
   }
@@ -960,7 +962,9 @@ export interface NexusGenFieldTypeNames {
     updatePassword: 'Boolean'
     updatePincode: 'String'
     updateQuestion: 'Boolean'
+    updateTrade: 'Boolean'
     updateWithdrawalAccount: 'WithdrawalAccount'
+    userUpdate: 'User'
     withdrawFunding: 'AccountCash'
     withdrawalApplication: 'AccountTransfer'
   }

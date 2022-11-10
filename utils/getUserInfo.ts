@@ -72,12 +72,24 @@ const getUserIDVerificationData = async (context: Context) => {
 
 const getUserAccountCash = async (context: Context) => {
   const { userId } = context;
+
   signinCheck(userId);
   const userAccountCash = await context.prisma.accountCash.findFirst({
     where: { ownerId: userId },
   });
   if (!userAccountCash) throw new Error("user account cash not found");
   return userAccountCash;
+};
+
+const getUserAccoutBond = async (context: Context, fundingId: number) => {
+  const { userId } = context;
+
+  signinCheck(userId);
+  const userAccountBond = await context.prisma.accountBond.findFirst({
+    where: { ownerId: userId, fundingId },
+  });
+  if (!userAccountBond) throw new Error("user account bond not found");
+  return userAccountBond;
 };
 
 const getAuthIdByuserId = async (context: Context) => {
@@ -91,4 +103,5 @@ export {
   getUserAccountCash,
   getAuthIdByuserId,
   getUser,
+  getUserAccoutBond,
 };

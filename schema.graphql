@@ -363,7 +363,9 @@ type Mutation {
   updatePassword(email: String!, password: String!): Boolean
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
+  updateTrade: Boolean
   updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
+  userUpdate: User
   withdrawFunding(id: Int!): AccountCash
   withdrawalApplication(amt: Int!): AccountTransfer
 }
