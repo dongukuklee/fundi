@@ -145,62 +145,6 @@ const checkMarketList = async (
       updatedUser.amount = updatedUser.amount + price;
       updatedUser.quantity = updatedUser.quantity + 1;
     }
-    // userAccountBond = await context.prisma.accountBond.findFirst({
-    //   where: { AND: { fundingId, ownerId: userId } },
-    // });
-    // if (!userAccountBond) throw new Error("user account bond not found");
-    // if (contraryTypes === "BUY") {
-    //   // 거래자의 accountBond + 1
-    //   console.log("update user account Bond");
-    //   console.log("userId : ", userId);
-    //   const updateUserAccountBond = context.prisma.user.update({
-    //     where: { id: userId },
-    //     data: {
-    //       accountsBond: {
-    //         update: {
-    //           where: { id: userAccountBond.id },
-    //           data: { balance: { increment: 1 } },
-    //         },
-    //       },
-    //       accountCash: {
-    //         update: {
-    //           balance: {
-    //             decrement: price,
-    //           },
-    //         },
-    //       },
-    //     },
-    //   });
-
-    //   //todo
-    //   //판매자 or 구매자의 채권 및 금액 둘 다 업데이트 해야함
-    //   //현재는 하나만 했음
-    //   tradeTransaction.push(updateUserAccountBond);
-    //   //구매자의 accountBond + 1
-    //   //accountCash.balance - price
-    // } else if (contraryTypes === "SELL") {
-    //   //거래자의 accountBond - 1
-    //   //accountCash + price
-    //   console.log("user update");
-    //   const updateUserAccountBond = context.prisma.user.update({
-    //     where: {
-    //       id: userId,
-    //     },
-    //     data: {
-    //       accountCash: {
-    //         update: { balance: { increment: price } },
-    //       },
-    //       accountsBond: {
-    //         update: {
-    //           where: { id: userAccountBond.id },
-    //           data: { balance: { decrement: 1 } },
-    //         },
-    //       },
-    //     },
-    //   });
-
-    //   tradeTransaction.push(updateUserAccountBond);
-    // }
   }
 
   for (const usersToUpdate of userUpdateList) {
