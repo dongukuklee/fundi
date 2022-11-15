@@ -69,14 +69,6 @@ const checkMarketList = async (
 ) => {
   if (!types) throw new Error("types not found");
 
-  const filterIteratorCondition = (
-    isBuyType: boolean,
-    el: { price: number; quantity: number },
-    price: number
-  ) => {
-    return isBuyType ? el.price <= price : el.price >= price;
-  };
-  //const keyToDelete: { key: string; price: string }[] = [];
   const tradeTransaction: any[] = [];
   const tradeList: number[] = [];
   const tradeListForRedis: { key: string; quantity: number; price: number }[] =
@@ -87,65 +79,46 @@ const checkMarketList = async (
     contraryTypes,
     tradeTypeCheck(types)
   );
+
+  const filterIteratorCondition = (
+    isBuyType: boolean,
+    el: { price: number; quantity: number },
+    price: number
+  ) => {
+    return isBuyType ? el.price <= price : el.price >= price;
+  };
+  const popList = async (quantity: number, redisListKey: string) => {
+    for (let j = 0; j < quantity; j++) {
+      const val = await getList(redisListKey, j, j);
+      if (!val[0]) return j;
+
+      tradeList.push(Number(val[0]));
+    }
+    return quantity;
+  };
+  const filteredList = filter(list, (el) =>
+    filterIteratorCondition(tradeTypeCheck(types), el, price)
+  );
   let quantityCount = 0;
   let amount = 0;
-  if (tradeTypeCheck(types)) {
-    //SELL 의 리스트를 확인한다.
-    //리스트 중 구매하려는 금액보다 낮은 물품이 있는지 확인한다.
-    //금액이 작은 순서대로 수량 * 금액 해서 맞춘다.
-    //수량을 우선으로 체크
-    const filteredList = filter(list, (el) => el.price <= price);
-    for (let i = 0; i < filteredList.length; i++) {
-      let count;
-      if (quantityCount === quantity) break;
-      const { price, quantity: saleQuantity } = filteredList[i];
-      const redisListKey = `funding:${fundingId}:${price}:${contraryTypes}`;
-      const popList = async (quantity: number) => {
-        for (let j = 0; j < quantity; j++) {
-          const val = await getList(redisListKey, j, j);
-          if (!val[0]) return j;
 
-          tradeList.push(Number(val[0]));
-        }
-        return quantity;
-      };
-      if (quantityCount + saleQuantity < quantity) {
-        count = await popList(saleQuantity);
-      } else {
-        const tmp = quantity - quantityCount;
-        count = await popList(tmp);
-      }
-      amount = price * count;
-      quantityCount = quantityCount + count;
-      tradeListForRedis.push({ key: redisListKey, quantity: count, price });
-    }
-  } else {
-    const filteredList = filter(list, (el) => el.price >= price);
-    for (let i = 0; i < filteredList.length; i++) {
-      let count;
-      if (quantityCount === quantity) break;
-      const { price, quantity: saleQuantity } = filteredList[i];
-      const redisListKey = `funding:${fundingId}:${price}:${contraryTypes}`;
-      const popList = async (quantity: number) => {
-        for (let j = 0; j < quantity; j++) {
-          const val = await getList(redisListKey, j, j);
-          if (!val[0]) return j;
+  for (let i = 0; i < filteredList.length; i++) {
+    let count;
+    if (quantityCount === quantity) break;
+    const { price, quantity: saleQuantity } = filteredList[i];
+    const redisListKey = `funding:${fundingId}:${price}:${contraryTypes}`;
 
-          tradeList.push(Number(val[0]));
-        }
-        return quantity;
-      };
-      if (quantityCount + saleQuantity < quantity) {
-        count = await popList(saleQuantity);
-      } else {
-        const tmp = quantity - quantityCount;
-        count = await popList(tmp);
-      }
-      amount = price * count;
-      quantityCount = quantityCount + count;
-      tradeListForRedis.push({ key: redisListKey, quantity: count, price });
+    if (quantityCount + saleQuantity < quantity) {
+      count = await popList(saleQuantity, redisListKey);
+    } else {
+      const tmp = quantity - quantityCount;
+      count = await popList(tmp, redisListKey);
     }
+    amount = price * count;
+    quantityCount = quantityCount + count;
+    tradeListForRedis.push({ key: redisListKey, quantity: count, price });
   }
+
   if (tradeList.length) {
     const updateTrade = context.prisma.trade.updateMany({
       where: { id: { in: tradeList } },
@@ -155,6 +128,7 @@ const checkMarketList = async (
     tradeTransaction.push(updateTrade);
   }
   for (const tradeId of tradeList) {
+    let userAccountBond;
     const trade = await context.prisma.trade.findUnique({
       where: { id: tradeId },
       select: {
@@ -164,41 +138,55 @@ const checkMarketList = async (
       },
     });
     const { price, userId, type } = trade!;
-    const userAccountBond = await context.prisma.accountBond.findFirst({
+    userAccountBond = await context.prisma.accountBond.findFirst({
       where: { AND: { fundingId, ownerId: userId } },
     });
     if (!userAccountBond) throw new Error("user account bond not found");
     if (type === "BUY") {
       // 거래자의 accountBond + 1
-
+      console.log("update user account Bond");
+      console.log("userId : ", userId);
       const updateUserAccountBond = context.prisma.user.update({
         where: { id: userId },
         data: {
           accountsBond: {
             update: {
               where: { id: userAccountBond.id },
-              data: { balance: { increment: +1 } },
+              data: { balance: { increment: 1 } },
+            },
+          },
+          accountCash: {
+            update: {
+              balance: {
+                decrement: price,
+              },
             },
           },
         },
       });
 
+      //todo
+      //판매자 or 구매자의 채권 및 금액 둘 다 업데이트 해야함
+      //현재는 하나만 했음
       tradeTransaction.push(updateUserAccountBond);
       //구매자의 accountBond + 1
       //accountCash.balance - price
     } else if (type === "SELL") {
       //거래자의 accountBond - 1
       //accountCash + price
+      console.log("user update");
       const updateUserAccountBond = context.prisma.user.update({
         where: {
           id: userId,
         },
         data: {
-          accountCash: { update: { balance: { increment: price } } },
+          accountCash: {
+            update: { balance: { increment: price } },
+          },
           accountsBond: {
             update: {
               where: { id: userAccountBond.id },
-              data: { balance: { decrement: -1 } },
+              data: { balance: { decrement: 1 } },
             },
           },
         },
@@ -283,8 +271,20 @@ export const TradeMutation = extendType({
         info
       ) {
         const { userId } = context;
-        const userAccountCash = await getUserAccountCash(context);
-        const userAccountBond = await getUserAccoutBond(context, fundingId);
+
+        let userAccountCash = await getUserAccountCash(context);
+        let userAccountBond;
+        try {
+          userAccountBond = await getUserAccoutBond(context, fundingId);
+        } catch (error) {
+          userAccountBond = await context.prisma.accountBond.create({
+            data: {
+              fundingId: fundingId,
+              ownerId: userId!,
+            },
+          });
+        }
+
         const promiseTransaction = [];
         if (!types) throw new Error("types not found");
 
@@ -292,6 +292,11 @@ export const TradeMutation = extendType({
           throw new Error("Your account does not have sufficient balance.");
         }
 
+        if (types === "SELL" && quantity > userAccountBond.balance) {
+          throw new Error(
+            "your account bond does not have sufficient balance."
+          );
+        }
         try {
           /**
            * 마켓 리스트 조회 후 조건에 맞는 채권이 있으면 판매/구매를 진행함
@@ -402,9 +407,10 @@ export const TradeMutation = extendType({
             context.prisma.$transaction(tradeTransaction);
 
           promiseTransaction.push(prismaTransaction);
-          Promise.allSettled(promiseTransaction).then((result) => {
-            result.forEach((re) => console.log(re.status));
-          });
+          await Promise.all(promiseTransaction);
+          // .then((result) => {
+          //   result.forEach((re) => console.log(re.status));
+          // });
 
           return true;
         } catch (error) {
