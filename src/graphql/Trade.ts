@@ -1,12 +1,8 @@
 import { TradeType } from "@prisma/client";
 import { arg, extendType, intArg, nonNull, objectType } from "nexus";
-import { each, filter, map, reduce, where } from "underscore";
+import { filter, map } from "underscore";
 import { getCreateDateFormat } from "../../utils/Date";
-import {
-  getUserAccountCash,
-  getUserAccoutBond,
-  signinCheck,
-} from "../../utils/getUserInfo";
+import { getUserAccountCash, getUserAccoutBond } from "../../utils/getUserInfo";
 import {
   getList,
   listLeftPop,
@@ -73,6 +69,8 @@ const checkMarketList = async (
   const tradeList: number[] = [];
   const tradeListForRedis: { key: string; quantity: number; price: number }[] =
     [];
+  const userUpdateList: { userId: number; amount: bigint; quantity: number }[] =
+    [];
   const contraryTypes: TradeType = tradeTypeCheck(types) ? "SELL" : "BUY";
   const list = await getTradingList(
     fundingId,
@@ -127,6 +125,7 @@ const checkMarketList = async (
 
     tradeTransaction.push(updateTrade);
   }
+
   for (const tradeId of tradeList) {
     let userAccountBond;
     const trade = await context.prisma.trade.findUnique({
@@ -137,28 +136,131 @@ const checkMarketList = async (
         type: true,
       },
     });
-    const { price, userId, type } = trade!;
-    userAccountBond = await context.prisma.accountBond.findFirst({
-      where: { AND: { fundingId, ownerId: userId } },
+    const { price, userId } = trade!;
+    const idx = userUpdateList.findIndex((el) => el.userId === userId);
+    if (idx === -1) {
+      userUpdateList.push({ userId, quantity: 1, amount: price });
+    } else {
+      const updatedUser = userUpdateList[idx];
+      updatedUser.amount = updatedUser.amount + price;
+      updatedUser.quantity = updatedUser.quantity + 1;
+    }
+    // userAccountBond = await context.prisma.accountBond.findFirst({
+    //   where: { AND: { fundingId, ownerId: userId } },
+    // });
+    // if (!userAccountBond) throw new Error("user account bond not found");
+    // if (contraryTypes === "BUY") {
+    //   // 거래자의 accountBond + 1
+    //   console.log("update user account Bond");
+    //   console.log("userId : ", userId);
+    //   const updateUserAccountBond = context.prisma.user.update({
+    //     where: { id: userId },
+    //     data: {
+    //       accountsBond: {
+    //         update: {
+    //           where: { id: userAccountBond.id },
+    //           data: { balance: { increment: 1 } },
+    //         },
+    //       },
+    //       accountCash: {
+    //         update: {
+    //           balance: {
+    //             decrement: price,
+    //           },
+    //         },
+    //       },
+    //     },
+    //   });
+
+    //   //todo
+    //   //판매자 or 구매자의 채권 및 금액 둘 다 업데이트 해야함
+    //   //현재는 하나만 했음
+    //   tradeTransaction.push(updateUserAccountBond);
+    //   //구매자의 accountBond + 1
+    //   //accountCash.balance - price
+    // } else if (contraryTypes === "SELL") {
+    //   //거래자의 accountBond - 1
+    //   //accountCash + price
+    //   console.log("user update");
+    //   const updateUserAccountBond = context.prisma.user.update({
+    //     where: {
+    //       id: userId,
+    //     },
+    //     data: {
+    //       accountCash: {
+    //         update: { balance: { increment: price } },
+    //       },
+    //       accountsBond: {
+    //         update: {
+    //           where: { id: userAccountBond.id },
+    //           data: { balance: { decrement: 1 } },
+    //         },
+    //       },
+    //     },
+    //   });
+
+    //   tradeTransaction.push(updateUserAccountBond);
+    // }
+  }
+
+  for (const usersToUpdate of userUpdateList) {
+    const { amount, quantity, userId } = usersToUpdate;
+
+    let updateUserAccountBond;
+    let userAccountBond;
+    const userAccountCash = await context.prisma.accountCash.findUnique({
+      where: { ownerId: userId },
     });
+    try {
+      userAccountBond = await context.prisma.accountBond.findFirst({
+        where: { AND: { fundingId, ownerId: userId } },
+      });
+    } catch (error) {
+      userAccountBond = await context.prisma.accountBond.create({
+        data: {
+          fundingId,
+          ownerId: userId,
+        },
+      });
+    }
+
     if (!userAccountBond) throw new Error("user account bond not found");
-    if (type === "BUY") {
+    if (!userAccountCash) throw new Error("user account cash not found");
+
+    if (contraryTypes === "BUY") {
       // 거래자의 accountBond + 1
       console.log("update user account Bond");
       console.log("userId : ", userId);
-      const updateUserAccountBond = context.prisma.user.update({
+      updateUserAccountBond = context.prisma.user.update({
         where: { id: userId },
         data: {
           accountsBond: {
             update: {
               where: { id: userAccountBond.id },
-              data: { balance: { increment: 1 } },
+              data: {
+                balance: { increment: quantity },
+                transactions: {
+                  create: {
+                    amount: quantity,
+                    title: "구매",
+                    type: "DEPOSIT",
+                  },
+                },
+              },
             },
           },
           accountCash: {
             update: {
               balance: {
-                decrement: price,
+                decrement: amount,
+              },
+              transactions: {
+                create: {
+                  amount,
+                  title: "구매",
+                  type: "WITHDRAW",
+                  accumulatedCash: userAccountCash.balance - BigInt(amount),
+                },
               },
             },
           },
@@ -171,22 +273,41 @@ const checkMarketList = async (
       tradeTransaction.push(updateUserAccountBond);
       //구매자의 accountBond + 1
       //accountCash.balance - price
-    } else if (type === "SELL") {
+    } else if (contraryTypes === "SELL") {
       //거래자의 accountBond - 1
       //accountCash + price
       console.log("user update");
-      const updateUserAccountBond = context.prisma.user.update({
+      updateUserAccountBond = context.prisma.user.update({
         where: {
           id: userId,
         },
         data: {
           accountCash: {
-            update: { balance: { increment: price } },
+            update: {
+              balance: { increment: amount },
+              transactions: {
+                create: {
+                  amount,
+                  title: "판매",
+                  type: "DEPOSIT",
+                  accumulatedCash: userAccountCash.balance - BigInt(amount),
+                },
+              },
+            },
           },
           accountsBond: {
             update: {
               where: { id: userAccountBond.id },
-              data: { balance: { decrement: 1 } },
+              data: {
+                balance: { decrement: quantity },
+                transactions: {
+                  create: {
+                    amount: quantity,
+                    title: "판매",
+                    type: "WITHDRAW",
+                  },
+                },
+              },
             },
           },
         },
@@ -195,7 +316,6 @@ const checkMarketList = async (
       tradeTransaction.push(updateUserAccountBond);
     }
   }
-
   return {
     quantityCount,
     amount,
@@ -312,61 +432,104 @@ export const TradeMutation = extendType({
             // keyToDelete,
             tradeListForRedis,
           } = await checkMarketList(fundingId, price, quantity, types, context);
-
+          console.log("amount:", amount, "quantityCount:", quantityCount);
           // const a = context.prisma.$transaction(tradeTransaction);
           // promiseTransaction.push(a);
-          if (types === "BUY") {
-            // accountBond + quantityCount
-            // accountCash - amount
-            const updateUserCashAndBond = context.prisma.user.update({
-              where: { id: userId },
-              data: {
-                accountCash: {
-                  update: {
-                    balance: {
-                      decrement: amount,
+          if (!!amount && !!quantityCount) {
+            console.log("ha");
+            if (types === "BUY") {
+              // accountBond + quantityCount
+              // accountCash - amount
+              const updateUserCashAndBond = context.prisma.user.update({
+                where: { id: userId },
+                data: {
+                  accountCash: {
+                    update: {
+                      balance: {
+                        decrement: amount,
+                      },
+                      transactions: !!amount
+                        ? {
+                            create: {
+                              amount,
+                              title: "구매",
+                              type: "WITHDRAW",
+                              accumulatedCash:
+                                userAccountCash.balance - BigInt(amount),
+                            },
+                          }
+                        : undefined,
                     },
                   },
-                },
-                accountsBond: {
-                  update: {
-                    where: {
-                      id: userAccountBond.id,
-                    },
-                    data: {
-                      balance: {
-                        increment: quantityCount,
+                  accountsBond: {
+                    update: {
+                      where: {
+                        id: userAccountBond.id,
+                      },
+                      data: {
+                        balance: {
+                          increment: quantityCount,
+                        },
+                        transactions: !!quantityCount
+                          ? {
+                              create: {
+                                amount: quantityCount,
+                                title: "구매",
+                                type: "DEPOSIT",
+                              },
+                            }
+                          : undefined,
                       },
                     },
                   },
                 },
-              },
-            });
-            tradeTransaction.push(updateUserCashAndBond);
-          } else if (types === "SELL") {
-            // accountBond - quantityCount
-            // accountCash + amount
-            const updateUserCashAndBond = context.prisma.user.update({
-              where: { id: userId },
-              data: {
-                accountCash: {
-                  update: { balance: { increment: amount } },
-                },
-                accountsBond: {
-                  update: {
-                    where: {
-                      id: userAccountBond.id,
+              });
+              tradeTransaction.push(updateUserCashAndBond);
+            } else if (types === "SELL") {
+              // accountBond - quantityCount
+              // accountCash + amount
+              const updateUserCashAndBond = context.prisma.user.update({
+                where: { id: userId },
+                data: {
+                  accountCash: {
+                    update: {
+                      balance: { increment: amount },
+                      transactions: {
+                        create: {
+                          amount,
+                          title: "판매",
+                          type: "DEPOSIT",
+                          accumulatedCash:
+                            userAccountCash.balance + BigInt(amount),
+                        },
+                      },
                     },
-                    data: {
-                      balance: {
-                        decrement: quantityCount,
+                  },
+                  accountsBond: {
+                    update: {
+                      where: {
+                        id: userAccountBond.id,
+                      },
+                      data: {
+                        balance: {
+                          decrement: quantityCount,
+                        },
+                        transactions: !!quantityCount
+                          ? {
+                              create: {
+                                amount: quantityCount,
+                                title: "판매",
+                                type: "WITHDRAW",
+                              },
+                            }
+                          : undefined,
                       },
                     },
                   },
                 },
-              },
-            });
-            tradeTransaction.push(updateUserCashAndBond);
+              });
+              tradeTransaction.push(updateUserCashAndBond);
+            }
           }
 
           const redisListKey = `funding:${fundingId}:${price}:${types}`;
