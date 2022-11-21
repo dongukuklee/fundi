@@ -1123,7 +1123,8 @@ export interface NexusGenArgTypes {
       ids: number[]; // [Int!]!
     }
     cancellationOfTrade: { // args
-      ids: number[]; // [Int!]!
+      fundingId: number; // Int!
+      types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     chargeTheDeposit: { // args
       amount: number; // Int!
