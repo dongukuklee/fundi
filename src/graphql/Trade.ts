@@ -1,7 +1,7 @@
 import { TradeType } from "@prisma/client";
 import { arg, extendType, intArg, list, nonNull, objectType } from "nexus";
 import { filter, map } from "underscore";
-import { getCreateDateFormat } from "../../utils/Date";
+import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
 import { getUserAccountCash, getUserAccoutBond } from "../../utils/getUserInfo";
 import {
   getList,
@@ -142,7 +142,7 @@ const checkMarketList = async (
   if (tradeList.length) {
     const updateTrade = context.prisma.trade.updateMany({
       where: { id: { in: tradeList } },
-      data: { status: "SOLD" },
+      data: { status: "SOLD", updatedAt: getLocalDate() },
     });
 
     tradeTransaction.push(updateTrade);
@@ -564,17 +564,18 @@ export const TradeMutation = extendType({
     t.field("cancellationOfTrade", {
       type: "Boolean",
       args: {
-        ids: nonNull(list(nonNull(intArg()))),
+        fundingId: nonNull(intArg()),
+        types: arg({ type: "TradeType" }),
       },
-      async resolve(parent, { ids }, context, info) {
+      async resolve(parent, { fundingId, types }, context, info) {
         const tradeUpdateTransaction = [];
         const promiseTransaction = [];
         const toCancellationTrade = await context.prisma.trade.findMany({
           where: {
-            id: {
-              in: ids,
-            },
+            userId: context.userId,
             status: "SELLING",
+            fundingId,
+            type: types!,
           },
         });
         try {
@@ -584,6 +585,7 @@ export const TradeMutation = extendType({
                 id,
               },
               data: {
+                updatedAt: getLocalDate(),
                 status: "CANCELLATION",
               },
             });

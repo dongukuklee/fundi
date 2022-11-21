@@ -324,7 +324,7 @@ enum ImageTypes {
 type Mutation {
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
-  cancellationOfTrade(ids: [Int!]!): Boolean
+  cancellationOfTrade(fundingId: Int!, types: TradeType): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlarm: Boolean
   checkEmail(email: String!): Boolean
