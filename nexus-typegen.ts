@@ -285,12 +285,14 @@ export interface NexusGenObjects {
   Query: {};
   SortByTradeType: { // root type
     buy?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    funding?: NexusGenRootTypes['Funding'] | null; // Funding
     sell?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
   }
   Trade: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TradeList: { // root type
@@ -655,12 +657,15 @@ export interface NexusGenFieldTypes {
   }
   SortByTradeType: { // field return type
     buy: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     sell: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
   }
   Trade: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TradeList: { // field return type
@@ -1028,12 +1033,15 @@ export interface NexusGenFieldTypeNames {
   }
   SortByTradeType: { // field return type name
     buy: 'TradeList'
+    funding: 'Funding'
     sell: 'TradeList'
   }
   Trade: { // field return type name
     createdAt: 'DateTime'
+    funding: 'Funding'
     id: 'Int'
     price: 'BigInt'
+    type: 'TradeType'
     updatedAt: 'DateTime'
   }
   TradeList: { // field return type name

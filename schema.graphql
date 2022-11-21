@@ -456,13 +456,16 @@ enum Role {
 
 type SortByTradeType {
   buy: [TradeList]
+  funding: Funding
   sell: [TradeList]
 }
 
 type Trade {
   createdAt: DateTime!
+  funding: Funding
   id: Int!
   price: BigInt!
+  type: TradeType!
   updatedAt: DateTime!
 }
 
