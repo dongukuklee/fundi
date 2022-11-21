@@ -60,6 +60,10 @@ export const listRightPush = async (key: string, element: any) => {
   return await redisClient.RPUSH(key, parsedElement);
 };
 
+export const removeElementFromList = async (key: string, element: string) => {
+  return await redisClient.LREM(key, 0, element);
+};
+
 export const zAdd = async (key: string, score: number, value: string) => {
   return await redisClient.ZADD(key, { score, value });
 };

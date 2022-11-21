@@ -294,6 +294,7 @@ enum ContractTypes {
 enum TradeStatus {
   SELLING
   SOLD
+  CANCELLATION
 }
 
 enum TradeType {

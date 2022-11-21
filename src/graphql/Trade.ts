@@ -1,5 +1,5 @@
 import { TradeType } from "@prisma/client";
-import { arg, extendType, intArg, nonNull, objectType } from "nexus";
+import { arg, extendType, intArg, list, nonNull, objectType } from "nexus";
 import { filter, map } from "underscore";
 import { getCreateDateFormat } from "../../utils/Date";
 import { getUserAccountCash, getUserAccoutBond } from "../../utils/getUserInfo";
@@ -11,6 +11,7 @@ import {
   zAdd,
   zRem,
   zSetRange,
+  removeElementFromList,
 } from "../../utils/redis/ctrl";
 import { Context } from "../context";
 
@@ -31,10 +32,19 @@ const getTradingList = async (
       return {
         price: Number(price),
         quantity: await listLength(`funding:${fundingId}:${price}:${types}`),
+        type: types,
       };
     })
   );
-  return tradingList;
+
+  return filter(tradingList, (el) => {
+    const { price, quantity } = el;
+    if (quantity === 0) {
+      zRem(`funding:${fundingId}:${types}`, String(price));
+      return false;
+    }
+    return true;
+  });
 };
 
 /**
@@ -78,6 +88,17 @@ const checkMarketList = async (
     tradeTypeCheck(types)
   );
 
+  /**
+   *
+   * @param isBuyType
+   * trade type이 buy 인지 아닌지 확인한다.
+   * @param el
+   * 거래되는 금액과 수량을 담고있는 객체이다.
+   * @param price
+   * 거래 하고자 하는 금액이다.
+   * @returns
+   * filter함수 내부의 iter함수의 조건문을 반환한다.
+   */
   const filterIteratorCondition = (
     isBuyType: boolean,
     el: { price: number; quantity: number },
@@ -85,11 +106,12 @@ const checkMarketList = async (
   ) => {
     return isBuyType ? el.price <= price : el.price >= price;
   };
+
+  /** */
   const popList = async (quantity: number, redisListKey: string) => {
     for (let j = 0; j < quantity; j++) {
       const val = await getList(redisListKey, j, j);
       if (!val[0]) return j;
-
       tradeList.push(Number(val[0]));
     }
     return quantity;
@@ -127,7 +149,6 @@ const checkMarketList = async (
   }
 
   for (const tradeId of tradeList) {
-    let userAccountBond;
     const trade = await context.prisma.trade.findUnique({
       where: { id: tradeId },
       select: {
@@ -162,6 +183,7 @@ const checkMarketList = async (
     } catch (error) {
       userAccountBond = await context.prisma.accountBond.create({
         data: {
+          ...getCreateDateFormat(),
           fundingId,
           ownerId: userId,
         },
@@ -172,9 +194,11 @@ const checkMarketList = async (
     if (!userAccountCash) throw new Error("user account cash not found");
 
     if (contraryTypes === "BUY") {
-      // 거래자의 accountBond + 1
       console.log("update user account Bond");
       console.log("userId : ", userId);
+
+      //구매자의 accountBond + 1
+      //accountCash.balance - price
       updateUserAccountBond = context.prisma.user.update({
         where: { id: userId },
         data: {
@@ -185,6 +209,7 @@ const checkMarketList = async (
                 balance: { increment: quantity },
                 transactions: {
                   create: {
+                    ...getCreateDateFormat(),
                     amount: quantity,
                     title: "구매",
                     type: "DEPOSIT",
@@ -193,30 +218,10 @@ const checkMarketList = async (
               },
             },
           },
-          accountCash: {
-            update: {
-              balance: {
-                decrement: amount,
-              },
-              transactions: {
-                create: {
-                  amount,
-                  title: "구매",
-                  type: "WITHDRAW",
-                  accumulatedCash: userAccountCash.balance - BigInt(amount),
-                },
-              },
-            },
-          },
         },
       });
 
-      //todo
-      //판매자 or 구매자의 채권 및 금액 둘 다 업데이트 해야함
-      //현재는 하나만 했음
       tradeTransaction.push(updateUserAccountBond);
-      //구매자의 accountBond + 1
-      //accountCash.balance - price
     } else if (contraryTypes === "SELL") {
       //거래자의 accountBond - 1
       //accountCash + price
@@ -231,6 +236,7 @@ const checkMarketList = async (
               balance: { increment: amount },
               transactions: {
                 create: {
+                  ...getCreateDateFormat(),
                   amount,
                   title: "판매",
                   type: "DEPOSIT",
@@ -246,6 +252,7 @@ const checkMarketList = async (
                 balance: { decrement: quantity },
                 transactions: {
                   create: {
+                    ...getCreateDateFormat(),
                     amount: quantity,
                     title: "판매",
                     type: "WITHDRAW",
@@ -284,6 +291,7 @@ export const TradeList = objectType({
   definition(t) {
     t.nonNull.int("price");
     t.nonNull.int("quantity");
+    t.field("type", { type: "TradeType" });
   },
 });
 
@@ -309,7 +317,7 @@ export const TradeQuery = extendType({
       },
       async resolve(parent, { fundingId }, context, info) {
         return {
-          buy: await getTradingList(fundingId, "BUY", true),
+          buy: await getTradingList(fundingId, "BUY", false),
           sell: await getTradingList(fundingId, "SELL", false),
         };
       },
@@ -340,9 +348,11 @@ export const TradeMutation = extendType({
         let userAccountBond;
         try {
           userAccountBond = await getUserAccoutBond(context, fundingId);
+          console.log("userAccountBond :", userAccountBond);
         } catch (error) {
           userAccountBond = await context.prisma.accountBond.create({
             data: {
+              ...getCreateDateFormat(),
               fundingId: fundingId,
               ownerId: userId!,
             },
@@ -352,11 +362,19 @@ export const TradeMutation = extendType({
         const promiseTransaction = [];
         if (!types) throw new Error("types not found");
 
-        if (types === "BUY" && price * quantity > userAccountCash.balance) {
+        if (
+          types === "BUY" &&
+          BigInt(price * quantity) > userAccountCash.balance
+        ) {
+          console.log("price * quantity :", price * quantity);
+          console.log("userAccountCash.balance :", userAccountCash.balance);
+
           throw new Error("Your account does not have sufficient balance.");
         }
 
         if (types === "SELL" && quantity > userAccountBond.balance) {
+          console.log("quantity:", quantity);
+          console.log("userAccountBond.balance:", userAccountBond.balance);
           throw new Error(
             "your account bond does not have sufficient balance."
           );
@@ -392,17 +410,16 @@ export const TradeMutation = extendType({
                       balance: {
                         decrement: amount,
                       },
-                      transactions: !!amount
-                        ? {
-                            create: {
-                              amount,
-                              title: "구매",
-                              type: "WITHDRAW",
-                              accumulatedCash:
-                                userAccountCash.balance - BigInt(amount),
-                            },
-                          }
-                        : undefined,
+                      transactions: {
+                        create: {
+                          ...getCreateDateFormat(),
+                          amount,
+                          title: "구매",
+                          type: "WITHDRAW",
+                          accumulatedCash:
+                            userAccountCash.balance - BigInt(amount),
+                        },
+                      },
                     },
                   },
                   accountsBond: {
@@ -414,15 +431,14 @@ export const TradeMutation = extendType({
                         balance: {
                           increment: quantityCount,
                         },
-                        transactions: !!quantityCount
-                          ? {
-                              create: {
-                                amount: quantityCount,
-                                title: "구매",
-                                type: "DEPOSIT",
-                              },
-                            }
-                          : undefined,
+                        transactions: {
+                          create: {
+                            ...getCreateDateFormat(),
+                            amount: quantityCount,
+                            title: "구매",
+                            type: "DEPOSIT",
+                          },
+                        },
                       },
                     },
                   },
@@ -440,6 +456,7 @@ export const TradeMutation = extendType({
                       balance: { increment: amount },
                       transactions: {
                         create: {
+                          ...getCreateDateFormat(),
                           amount,
                           title: "판매",
                           type: "DEPOSIT",
@@ -461,6 +478,7 @@ export const TradeMutation = extendType({
                         transactions: !!quantityCount
                           ? {
                               create: {
+                                ...getCreateDateFormat(),
                                 amount: quantityCount,
                                 title: "판매",
                                 type: "WITHDRAW",
@@ -491,13 +509,8 @@ export const TradeMutation = extendType({
               promiseTransaction.push(listLeftPop(key));
             }
           }
-          // for (const { key, price } of keyToDelete) {
-          //   console.log(4);
-          //   promiseTransaction.push(zRem(key, String(price)));
-          //   console.log(5);
-          // }
-
-          for (let i = 0; i < quantity - quantityCount; i++) {
+          const remainingQuantity = quantity - quantityCount;
+          for (let i = 0; i < remainingQuantity; i++) {
             const newTrade = await context.prisma.trade.create({
               data: {
                 ...getCreateDateFormat(),
@@ -510,14 +523,36 @@ export const TradeMutation = extendType({
             promiseTransaction.push(listRightPush(redisListKey, newTrade.id));
             promiseTransaction.push(zAdd(marketFundingListKey, 0, `${price}`));
           }
+          if (types === "BUY") {
+            const updateAccountCash = context.prisma.accountCash.update({
+              where: {
+                ownerId: userId,
+              },
+              data: {
+                balance: {
+                  decrement: price * remainingQuantity,
+                },
+                transactions: {
+                  create: {
+                    amount: price * remainingQuantity,
+                    title: "구매",
+                    type: "WITHDRAW",
+                    accumulatedCash:
+                      userAccountCash.balance -
+                      BigInt(amount) -
+                      BigInt(price * remainingQuantity),
+                  },
+                },
+              },
+            });
+            tradeTransaction.push(updateAccountCash);
+          }
+
           const prismaTransaction =
             context.prisma.$transaction(tradeTransaction);
 
           promiseTransaction.push(prismaTransaction);
           await Promise.all(promiseTransaction);
-          // .then((result) => {
-          //   result.forEach((re) => console.log(re.status));
-          // });
 
           return true;
         } catch (error) {
@@ -526,14 +561,49 @@ export const TradeMutation = extendType({
         }
       },
     });
-    t.field("updateTrade", {
+    t.field("cancellationOfTrade", {
       type: "Boolean",
-      async resolve(parent, args, context, info) {
-        await context.prisma.trade.updateMany({
-          where: { id: { in: [8, 9, 10] } },
-          data: { status: "SELLING" },
+      args: {
+        ids: nonNull(list(nonNull(intArg()))),
+      },
+      async resolve(parent, { ids }, context, info) {
+        const tradeUpdateTransaction = [];
+        const promiseTransaction = [];
+        const toCancellationTrade = await context.prisma.trade.findMany({
+          where: {
+            id: {
+              in: ids,
+            },
+            status: "SELLING",
+          },
         });
-        return true;
+        try {
+          for (const { id, fundingId, price, type } of toCancellationTrade) {
+            const updateTrade = context.prisma.trade.update({
+              where: {
+                id,
+              },
+              data: {
+                status: "CANCELLATION",
+              },
+            });
+            const redisKey = `funding:${fundingId}:${price}:${type}`;
+            tradeUpdateTransaction.push(updateTrade);
+            promiseTransaction.push(
+              removeElementFromList(redisKey, String(id))
+            );
+          }
+          promiseTransaction.push(
+            context.prisma.$transaction(tradeUpdateTransaction)
+          );
+
+          await Promise.all(promiseTransaction);
+          return true;
+        } catch (error) {
+          console.log(error);
+          console.log("--------cancellation trade error--------");
+          return false;
+        }
       },
     });
   },
