@@ -13,7 +13,7 @@ import {
   zSetRange,
   removeElementFromList,
 } from "../../utils/redis/ctrl";
-import { Context } from "../context";
+import { Context, prisma } from "../context";
 
 const tradeTypeCheck = (types: TradeType) => {
   return types === "BUY";
@@ -280,6 +280,17 @@ export const Trade = objectType({
   name: "Trade",
   definition(t) {
     t.nonNull.int("id");
+    t.field("funding", {
+      type: "Funding",
+      resolve(parent, args, context, info) {
+        return context.prisma.trade
+          .findUnique({ where: { id: parent.id } })
+          .funding();
+      },
+    });
+    t.nonNull.field("type", {
+      type: "TradeType",
+    });
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.bigInt("price");
@@ -298,6 +309,7 @@ export const TradeList = objectType({
 export const SortByTradeType = objectType({
   name: "SortByTradeType",
   definition(t) {
+    t.field("funding", { type: "Funding" });
     t.list.field("buy", {
       type: "TradeList",
     });
@@ -316,7 +328,11 @@ export const TradeQuery = extendType({
         fundingId: nonNull(intArg()),
       },
       async resolve(parent, { fundingId }, context, info) {
+        const funding = await prisma.funding.findUnique({
+          where: { id: fundingId },
+        });
         return {
+          funding,
           buy: await getTradingList(fundingId, "BUY", false),
           sell: await getTradingList(fundingId, "SELL", false),
         };
