@@ -76,6 +76,10 @@ export const listLeftPop = async (key: string) => {
   return await redisClient.LPOP(key);
 };
 
+export const getList = async (key: string, start: number, stop: number) => {
+  return await redisClient.LRANGE(key, start, stop);
+};
+
 export const listLength = async (key: string) => {
   return await redisClient.LLEN(key);
 };

@@ -100,7 +100,7 @@ export interface NexusGenEnums {
   QnAStatus: "AWAITING_RESPONSE" | "RESPONDED"
   QnATypes: "ETC" | "INVESTMENT" | "SETTLEMENT"
   Role: "ADMIN" | "INVESTOR" | "MANAGER"
-  TradeStatus: "SELLING" | "SOLD"
+  TradeStatus: "CANCELLATION" | "SELLING" | "SOLD"
   TradeType: "BUY" | "SELL"
   TransactionType: "DEPOSIT" | "WITHDRAW"
 }
@@ -285,17 +285,20 @@ export interface NexusGenObjects {
   Query: {};
   SortByTradeType: { // root type
     buy?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    funding?: NexusGenRootTypes['Funding'] | null; // Funding
     sell?: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
   }
   Trade: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TradeList: { // root type
     price: number; // Int!
     quantity: number; // Int!
+    type?: NexusGenEnums['TradeType'] | null; // TradeType
   }
   TransactionBond: { // root type
     amount: NexusGenScalars['BigInt']; // BigInt!
@@ -552,6 +555,7 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     OAuthLogin: NexusGenRootTypes['AuthPayload'] | null; // AuthPayload
     alterSequence: boolean | null; // Boolean
+    cancellationOfTrade: boolean | null; // Boolean
     chargeTheDeposit: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     checkAlarm: boolean | null; // Boolean
     checkEmail: boolean | null; // Boolean
@@ -592,6 +596,7 @@ export interface NexusGenFieldTypes {
     updatePincode: string | null; // String
     updateQuestion: boolean | null; // Boolean
     updateWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
+    userUpdate: NexusGenRootTypes['User'] | null; // User
     withdrawFunding: NexusGenRootTypes['AccountCash'] | null; // AccountCash
     withdrawalApplication: NexusGenRootTypes['AccountTransfer'] | null; // AccountTransfer
   }
@@ -652,17 +657,21 @@ export interface NexusGenFieldTypes {
   }
   SortByTradeType: { // field return type
     buy: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     sell: Array<NexusGenRootTypes['TradeList'] | null> | null; // [TradeList]
   }
   Trade: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
+    funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   TradeList: { // field return type
     price: number; // Int!
     quantity: number; // Int!
+    type: NexusGenEnums['TradeType'] | null; // TradeType
   }
   TransactionBond: { // field return type
     account: NexusGenRootTypes['AccountBond'] | null; // AccountBond
@@ -706,6 +715,7 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['Role']; // Role!
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
+    trade: Array<NexusGenRootTypes['Trade'] | null> | null; // [Trade]
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   VirtualAccount: { // field return type
@@ -921,6 +931,7 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     OAuthLogin: 'AuthPayload'
     alterSequence: 'Boolean'
+    cancellationOfTrade: 'Boolean'
     chargeTheDeposit: 'AccountCash'
     checkAlarm: 'Boolean'
     checkEmail: 'Boolean'
@@ -961,6 +972,7 @@ export interface NexusGenFieldTypeNames {
     updatePincode: 'String'
     updateQuestion: 'Boolean'
     updateWithdrawalAccount: 'WithdrawalAccount'
+    userUpdate: 'User'
     withdrawFunding: 'AccountCash'
     withdrawalApplication: 'AccountTransfer'
   }
@@ -1021,17 +1033,21 @@ export interface NexusGenFieldTypeNames {
   }
   SortByTradeType: { // field return type name
     buy: 'TradeList'
+    funding: 'Funding'
     sell: 'TradeList'
   }
   Trade: { // field return type name
     createdAt: 'DateTime'
+    funding: 'Funding'
     id: 'Int'
     price: 'BigInt'
+    type: 'TradeType'
     updatedAt: 'DateTime'
   }
   TradeList: { // field return type name
     price: 'Int'
     quantity: 'Int'
+    type: 'TradeType'
   }
   TransactionBond: { // field return type name
     account: 'AccountBond'
@@ -1075,6 +1091,7 @@ export interface NexusGenFieldTypeNames {
     role: 'Role'
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
+    trade: 'Trade'
     updatedAt: 'DateTime'
   }
   VirtualAccount: { // field return type name
@@ -1112,6 +1129,10 @@ export interface NexusGenArgTypes {
     }
     alterSequence: { // args
       ids: number[]; // [Int!]!
+    }
+    cancellationOfTrade: { // args
+      fundingId: number; // Int!
+      types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     chargeTheDeposit: { // args
       amount: number; // Int!

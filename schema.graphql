@@ -324,6 +324,7 @@ enum ImageTypes {
 type Mutation {
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
+  cancellationOfTrade(fundingId: Int!, types: TradeType): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlarm: Boolean
   checkEmail(email: String!): Boolean
@@ -364,6 +365,7 @@ type Mutation {
   updatePincode(followingPincode: String!): String
   updateQuestion(content: String, id: Int!, imageInput: ImageInput, title: String, type: QnATypes): Boolean
   updateWithdrawalAccount(acntNo: String!, bankCode: String!, id: Int!): WithdrawalAccount
+  userUpdate: User
   withdrawFunding(id: Int!): AccountCash
   withdrawalApplication(amt: Int!): AccountTransfer
 }
@@ -454,23 +456,28 @@ enum Role {
 
 type SortByTradeType {
   buy: [TradeList]
+  funding: Funding
   sell: [TradeList]
 }
 
 type Trade {
   createdAt: DateTime!
+  funding: Funding
   id: Int!
   price: BigInt!
+  type: TradeType!
   updatedAt: DateTime!
 }
 
 type TradeList {
   price: Int!
   quantity: Int!
+  type: TradeType
 }
 
 """Define Trade status"""
 enum TradeStatus {
+  CANCELLATION
   SELLING
   SOLD
 }
@@ -532,6 +539,7 @@ type User {
   role: Role!
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt
+  trade: [Trade]
   updatedAt: DateTime!
 }
 

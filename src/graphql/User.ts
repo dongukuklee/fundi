@@ -124,6 +124,14 @@ export const User = objectType({
           .alarm();
       },
     });
+    t.list.field("trade", {
+      type: "Trade",
+      resolve(parent, args, context, info) {
+        return context.prisma.user
+          .findUnique({ where: { id: parent.id } })
+          .trade();
+      },
+    });
   },
 });
 
@@ -147,6 +155,25 @@ export const UserQuery = extendType({
         //   throw new Error("Only the owner can inquiry user information.");
         // }
         return context.prisma.user.findMany({});
+      },
+    });
+  },
+});
+
+export const UserMutation = extendType({
+  type: "Mutation",
+  definition(t) {
+    t.field("userUpdate", {
+      type: "User",
+      async resolve(parent, args, context, info) {
+        const userId = 3;
+
+        return await context.prisma.user.update({
+          where: { id: userId },
+          data: {
+            nickName: "gkgkgkk",
+          },
+        });
       },
     });
   },
