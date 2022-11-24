@@ -124,14 +124,6 @@ export const User = objectType({
           .alarm();
       },
     });
-    t.list.field("trade", {
-      type: "Trade",
-      resolve(parent, args, context, info) {
-        return context.prisma.user
-          .findUnique({ where: { id: parent.id } })
-          .trade();
-      },
-    });
   },
 });
 
