@@ -292,6 +292,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    status: NexusGenEnums['TradeStatus']; // TradeStatus!
     type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -640,6 +641,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    getMyTradeList: Array<NexusGenRootTypes['SortByTradeType'] | null> | null; // [SortByTradeType]
     getTradeList: NexusGenRootTypes['SortByTradeType'] | null; // SortByTradeType
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
@@ -665,6 +667,7 @@ export interface NexusGenFieldTypes {
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    status: NexusGenEnums['TradeStatus']; // TradeStatus!
     type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -715,7 +718,6 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['Role']; // Role!
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
-    trade: Array<NexusGenRootTypes['Trade'] | null> | null; // [Trade]
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   VirtualAccount: { // field return type
@@ -1016,6 +1018,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
+    getMyTradeList: 'SortByTradeType'
     getTradeList: 'SortByTradeType'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
@@ -1041,6 +1044,7 @@ export interface NexusGenFieldTypeNames {
     funding: 'Funding'
     id: 'Int'
     price: 'BigInt'
+    status: 'TradeStatus'
     type: 'TradeType'
     updatedAt: 'DateTime'
   }
@@ -1091,7 +1095,6 @@ export interface NexusGenFieldTypeNames {
     role: 'Role'
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
-    trade: 'Trade'
     updatedAt: 'DateTime'
   }
   VirtualAccount: { // field return type name
@@ -1132,6 +1135,7 @@ export interface NexusGenArgTypes {
     }
     cancellationOfTrade: { // args
       fundingId: number; // Int!
+      price: number; // Int!
       types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     chargeTheDeposit: { // args

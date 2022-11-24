@@ -1,8 +1,12 @@
 import { TradeType } from "@prisma/client";
 import { arg, extendType, intArg, list, nonNull, objectType } from "nexus";
-import { filter, map } from "underscore";
+import { filter, map, sortBy } from "underscore";
 import { getCreateDateFormat, getLocalDate } from "../../utils/Date";
-import { getUserAccountCash, getUserAccoutBond } from "../../utils/getUserInfo";
+import {
+  getUserAccountCash,
+  getUserAccoutBond,
+  signinCheck,
+} from "../../utils/getUserInfo";
 import {
   getList,
   listLeftPop,
@@ -58,9 +62,11 @@ const getTradingPriceList = async (redidListKey: string, isSort: Boolean) => {
   if (isSort) {
     //asc
     list = await zSetRange(redidListKey, false);
+    list = map(list, (price) => Number(price)).sort((a, b) => a - b);
   } else {
     //desc
     list = await zSetRange(redidListKey, true);
+    list = map(list, (price) => Number(price)).sort((a, b) => b - a);
   }
 
   return list;
@@ -227,9 +233,7 @@ const checkMarketList = async (
       //accountCash + price
       console.log("user update");
       updateUserAccountBond = context.prisma.user.update({
-        where: {
-          id: userId,
-        },
+        where: { id: userId },
         data: {
           accountCash: {
             update: {
@@ -291,6 +295,9 @@ export const Trade = objectType({
     t.nonNull.field("type", {
       type: "TradeType",
     });
+    t.nonNull.field("status", {
+      type: "TradeStatus",
+    });
     t.nonNull.dateTime("createdAt");
     t.nonNull.dateTime("updatedAt");
     t.nonNull.bigInt("price");
@@ -336,6 +343,54 @@ export const TradeQuery = extendType({
           buy: await getTradingList(fundingId, "BUY", false),
           sell: await getTradingList(fundingId, "SELL", false),
         };
+      },
+    });
+    t.list.field("getMyTradeList", {
+      type: "SortByTradeType",
+      async resolve(parent, args, context, info) {
+        const defaultValue: {
+          fundingId: number;
+          BUY?: { price: number; quantity: number }[];
+          SELL?: { price: number; quantity: number }[];
+        }[] = [];
+
+        const { userId } = context;
+        signinCheck(userId);
+        const groupByTrade = await context.prisma.trade.groupBy({
+          by: ["price", "fundingId", "type"],
+          where: { userId, status: "SELLING" },
+          _count: true,
+        });
+        const parsedGroupByTrade = groupByTrade.reduce((acc, cur) => {
+          const { _count: count, fundingId, type } = cur;
+          const price = Number(cur.price);
+          const idx = acc.findIndex((el) => el.fundingId === fundingId);
+          if (idx === -1) {
+            acc.push({ fundingId, [type]: [{ price, quantity: count }] });
+          } else {
+            if (!!acc[idx][type]) {
+              acc[idx][type]!.push({ price, quantity: count });
+            } else {
+              acc[idx][type] = [{ price, quantity: count }];
+            }
+          }
+          return acc;
+        }, defaultValue);
+        const userTradeList = await Promise.all(
+          parsedGroupByTrade.map(async (el) => {
+            const { BUY, SELL, fundingId } = el;
+            const funding = await context.prisma.funding.findUnique({
+              where: { id: fundingId },
+            });
+            return {
+              funding,
+              buy: BUY ? BUY : [],
+              sell: SELL ? SELL : [],
+            };
+          })
+        );
+
+        return userTradeList;
       },
     });
   },
@@ -414,7 +469,6 @@ export const TradeMutation = extendType({
           // const a = context.prisma.$transaction(tradeTransaction);
           // promiseTransaction.push(a);
           if (!!amount && !!quantityCount) {
-            console.log("ha");
             if (types === "BUY") {
               // accountBond + quantityCount
               // accountCash - amount
@@ -582,12 +636,21 @@ export const TradeMutation = extendType({
       args: {
         fundingId: nonNull(intArg()),
         types: arg({ type: "TradeType" }),
+        price: nonNull(intArg()),
       },
-      async resolve(parent, { fundingId, types }, context, info) {
+      async resolve(parent, { fundingId, types, price }, context, info) {
         const tradeUpdateTransaction = [];
         const promiseTransaction = [];
+        let accumulatedCash = BigInt(0);
+        let userBalance: bigint;
+        if (types === "BUY") {
+          const userAccountCash = await getUserAccountCash(context);
+          userBalance = userAccountCash.balance;
+        }
+
         const toCancellationTrade = await context.prisma.trade.findMany({
           where: {
+            price,
             userId: context.userId,
             status: "SELLING",
             fundingId,
@@ -605,17 +668,46 @@ export const TradeMutation = extendType({
                 status: "CANCELLATION",
               },
             });
+            if (types === "BUY") {
+              accumulatedCash! += price;
+            }
             const redisKey = `funding:${fundingId}:${price}:${type}`;
             tradeUpdateTransaction.push(updateTrade);
             promiseTransaction.push(
               removeElementFromList(redisKey, String(id))
             );
           }
+          if (types === "BUY") {
+            const userUpdate = context.prisma.user.update({
+              where: {
+                id: context.userId,
+              },
+              data: {
+                accountCash: {
+                  update: {
+                    balance: { increment: accumulatedCash },
+                    transactions: {
+                      create: {
+                        amount: accumulatedCash,
+                        accumulatedCash: BigInt(userBalance!) + accumulatedCash,
+                        title: "구매 요청 취소",
+                        type: "DEPOSIT",
+                        ...getCreateDateFormat(),
+                      },
+                    },
+                  },
+                },
+              },
+            });
+            tradeUpdateTransaction.push(userUpdate);
+          }
+
           promiseTransaction.push(
             context.prisma.$transaction(tradeUpdateTransaction)
           );
 
           await Promise.all(promiseTransaction);
+          console.log("done");
           return true;
         } catch (error) {
           console.log(error);

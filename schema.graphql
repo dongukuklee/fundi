@@ -324,7 +324,7 @@ enum ImageTypes {
 type Mutation {
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
-  cancellationOfTrade(fundingId: Int!, types: TradeType): Boolean
+  cancellationOfTrade(fundingId: Int!, price: Int!, types: TradeType): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlarm: Boolean
   checkEmail(email: String!): Boolean
@@ -431,6 +431,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getMyTradeList: [SortByTradeType]
   getTradeList(fundingId: Int!): SortByTradeType
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
@@ -465,6 +466,7 @@ type Trade {
   funding: Funding
   id: Int!
   price: BigInt!
+  status: TradeStatus!
   type: TradeType!
   updatedAt: DateTime!
 }
@@ -539,7 +541,6 @@ type User {
   role: Role!
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt
-  trade: [Trade]
   updatedAt: DateTime!
 }
 
