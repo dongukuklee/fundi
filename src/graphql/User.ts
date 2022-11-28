@@ -124,6 +124,14 @@ export const User = objectType({
           .alarm();
       },
     });
+    t.list.field("trade", {
+      type: "Trade",
+      async resolve(parent, args, context, info) {
+        return context.prisma.user
+          .findUnique({ where: { id: parent.id } })
+          .trade();
+      },
+    });
   },
 });
 
@@ -146,6 +154,7 @@ export const UserQuery = extendType({
         // if (userRole === Role.ADMIN) {
         //   throw new Error("Only the owner can inquiry user information.");
         // }
+
         return context.prisma.user.findMany({});
       },
     });
