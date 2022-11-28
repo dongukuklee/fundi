@@ -203,16 +203,17 @@ model Contract {
   id                     Int      @id @default(autoincrement())
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt  
-  lastYearEarning        BigInt
+  lastYearEarning        BigInt   
+  fundRasingRatio        Int      @default(50)
   fundingAmount          BigInt   
-  amountRecieved         BigInt
-  funding                Funding?
+  funding                Funding? 
   type                   ContractTypes @default(LOANS)
+  additionalFee          Int      @default(50)
   terms                  Int      @default(12)
-  creator                Creator     @relation(fields: [creatorId], references: [id])
-  creatorId              Int
-  startDate              DateTime
-  endDate                DateTime
+  creator                Creator  @relation(fields: [creatorId], references: [id])
+  creatorId              Int      
+  startDate              DateTime 
+  endDate                DateTime 
 }
 
 model Funding {
