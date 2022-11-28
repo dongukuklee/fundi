@@ -6,9 +6,10 @@ const makeContractVariable = (
   transactionType: string,
   creatorId?: number
 ) => {
-  const { lastYearEarning, startDate, endDate, terms, type } = contractInput;
-  const fundingAmount = Math.floor((lastYearEarning * 0.3) / 10000) * 10000;
-  const amountRecieved = fundingAmount * 0.9;
+  const { lastYearEarning, startDate, endDate, fundRasingRatio } =
+    contractInput;
+  const fundingAmount =
+    Math.floor((lastYearEarning * (fundRasingRatio / 100)) / 10000) * 10000;
   const date =
     transactionType === "create"
       ? { ...getCreateDateFormat() }
@@ -19,7 +20,6 @@ const makeContractVariable = (
     startDate: new Date(startDate),
     endDate: new Date(endDate),
     fundingAmount,
-    amountRecieved,
   };
   switch (transactionType) {
     case "create":
@@ -59,9 +59,11 @@ export const Contract = objectType({
       },
     });
     t.nonNull.bigInt("lastYearEarning");
-    t.nonNull.bigInt("amountRecieved");
+    t.nonNull.bigInt("fundingAmount");
     t.nonNull.field("type", { type: "ContractTypes" });
     t.nonNull.int("terms");
+    t.nonNull.int("fundRasingRatio");
+    t.nonNull.int("additionalFee");
     t.nonNull.dateTime("startDate");
     t.nonNull.dateTime("endDate");
   },

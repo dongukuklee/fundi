@@ -11,7 +11,6 @@ const typeChecker = (field: string, val: any) => {
     "accumulatedCash",
     "lastYearEarning",
     "fundingAmount",
-    "amountRecieved",
     "bondPrice",
     "bondsTotalNumber",
     "remainingBonds",
