@@ -45,7 +45,9 @@ export interface NexusGenInputs {
     type?: NexusGenEnums['AlarmTypes'] | null; // AlarmTypes
   }
   ContractInput: { // input type
+    additionalFee: number; // Int!
     endDate: string; // String!
+    fundRasingRatio: number; // Int!
     lastYearEarning: number; // Int!
     startDate: string; // String!
     terms: number; // Int!
@@ -178,9 +180,11 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // root type
-    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
+    additionalFee: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
+    fundRasingRatio: number; // Int!
+    fundingAmount: NexusGenScalars['BigInt']; // BigInt!
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
@@ -445,11 +449,13 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // field return type
-    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
+    additionalFee: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: NexusGenRootTypes['Creator'] | null; // Creator
     endDate: NexusGenScalars['DateTime']; // DateTime!
+    fundRasingRatio: number; // Int!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
+    fundingAmount: NexusGenScalars['BigInt']; // BigInt!
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
@@ -718,6 +724,7 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['Role']; // Role!
     totalCumulativeInvestmentAmount: NexusGenScalars['BigInt'] | null; // BigInt
     totalCumulativeSettlementAmount: NexusGenScalars['BigInt'] | null; // BigInt
+    trade: Array<NexusGenRootTypes['Trade'] | null> | null; // [Trade]
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   VirtualAccount: { // field return type
@@ -822,11 +829,13 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Contract: { // field return type name
-    amountRecieved: 'BigInt'
+    additionalFee: 'Int'
     createdAt: 'DateTime'
     creator: 'Creator'
     endDate: 'DateTime'
+    fundRasingRatio: 'Int'
     funding: 'Funding'
+    fundingAmount: 'BigInt'
     id: 'Int'
     lastYearEarning: 'BigInt'
     startDate: 'DateTime'
@@ -1095,6 +1104,7 @@ export interface NexusGenFieldTypeNames {
     role: 'Role'
     totalCumulativeInvestmentAmount: 'BigInt'
     totalCumulativeSettlementAmount: 'BigInt'
+    trade: 'Trade'
     updatedAt: 'DateTime'
   }
   VirtualAccount: { // field return type name

@@ -121,11 +121,13 @@ The `BigInt` scalar type represents non-fractional signed whole numeric values.
 scalar BigInt
 
 type Contract {
-  amountRecieved: BigInt!
+  additionalFee: Int!
   createdAt: DateTime!
   creator: Creator
   endDate: DateTime!
+  fundRasingRatio: Int!
   funding: Funding
+  fundingAmount: BigInt!
   id: Int!
   lastYearEarning: BigInt!
   startDate: DateTime!
@@ -135,7 +137,9 @@ type Contract {
 }
 
 input ContractInput {
+  additionalFee: Int!
   endDate: String!
+  fundRasingRatio: Int!
   lastYearEarning: Int!
   startDate: String!
   terms: Int!
@@ -541,6 +545,7 @@ type User {
   role: Role!
   totalCumulativeInvestmentAmount: BigInt
   totalCumulativeSettlementAmount: BigInt
+  trade: [Trade]
   updatedAt: DateTime!
 }
 

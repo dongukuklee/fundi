@@ -39,6 +39,8 @@ type Funding = {
     lastYearEarning: bigint;
     terms: number;
     type: ContractTypes;
+    additionalFee: number;
+    fundRasingRatio: number;
   };
   remainingBonds: bigint;
   status: FundingStatus;
@@ -134,7 +136,13 @@ const getFunding = async (context: Context, fundingId: number) => {
       title: true,
       remainingBonds: true,
       contract: {
-        select: { lastYearEarning: true, terms: true, type: true },
+        select: {
+          lastYearEarning: true,
+          terms: true,
+          type: true,
+          additionalFee: true,
+          fundRasingRatio: true,
+        },
       },
     },
   });
@@ -161,16 +169,34 @@ const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
 };
 
 const getAmountPerBondWhenLoan = (amount: number, funding: Funding) => {
-  const { bondsTotalNumber } = funding!;
-  const avgIncome = Number(funding?.contract?.lastYearEarning!) / 12;
-  const additionalIncome = amount - avgIncome;
+  const { bondsTotalNumber } = funding;
+  //720
+  const { contract } = funding;
+  const { additionalFee, fundRasingRatio, lastYearEarning, terms, type } =
+    contract;
+
+  // (fundingRasingRatio/100 )/(terms/12)
+  // 계약 기간에 따른 매 달 정산 비율
+  const settlementRatio = (3 * fundRasingRatio) / (25 * terms);
+
+  //매 달 평균 정산금 (계약 기간에 따라 변동)
+  const avgIncome = (Number(lastYearEarning) * (fundRasingRatio / 100)) / terms;
+
+  const additionalIncome = Math.floor(amount * settlementRatio) - avgIncome;
   const additionalIncomeCheck = additionalIncome > 0;
   const additionalAmountPerBond = additionalIncomeCheck
-    ? BigInt(Math.floor((additionalIncome * 0.24) / Number(bondsTotalNumber)))
+    ? BigInt(
+        Math.floor(
+          (additionalIncome * (additionalFee / 100)) / Number(bondsTotalNumber)
+        )
+      )
     : BigInt(0);
+
   const amountPerBond = additionalIncomeCheck
-    ? BigInt(Math.ceil((avgIncome * 0.3) / Number(bondsTotalNumber)))
-    : BigInt(Math.ceil((amount * 0.3) / Number(bondsTotalNumber)));
+    ? BigInt(
+        Math.ceil((avgIncome * settlementRatio) / Number(bondsTotalNumber))
+      )
+    : BigInt(Math.ceil((amount * settlementRatio) / Number(bondsTotalNumber)));
   return { additionalAmountPerBond, amountPerBond };
 };
 
