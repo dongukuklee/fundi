@@ -580,9 +580,17 @@ export const TradeMutation = extendType({
             }
           }
           const remainingQuantity = quantity - quantityCount;
+          const lastTrade = await context.prisma.trade.findFirst({
+            take: -1,
+            select: { id: true },
+          });
+          let lastTradeId = lastTrade?.id ? lastTrade.id : 0;
+
           for (let i = 0; i < remainingQuantity; i++) {
-            const newTrade = await context.prisma.trade.create({
+            lastTradeId += 1;
+            const newTrade = context.prisma.trade.create({
               data: {
+                id: lastTradeId,
                 ...getCreateDateFormat(),
                 price,
                 fundingId,
@@ -590,7 +598,8 @@ export const TradeMutation = extendType({
                 type: types!,
               },
             });
-            promiseTransaction.push(listRightPush(redisListKey, newTrade.id));
+            promiseTransaction.push(newTrade);
+            promiseTransaction.push(listRightPush(redisListKey, lastTradeId));
             promiseTransaction.push(zAdd(marketFundingListKey, 0, `${price}`));
           }
           if (types === "BUY") {
@@ -622,7 +631,7 @@ export const TradeMutation = extendType({
             context.prisma.$transaction(tradeTransaction);
 
           promiseTransaction.push(prismaTransaction);
-          await Promise.all(promiseTransaction);
+          Promise.all(promiseTransaction);
 
           return true;
         } catch (error) {
