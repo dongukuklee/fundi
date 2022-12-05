@@ -263,6 +263,9 @@ export interface NexusGenObjects {
     filename: string; // String!
     height: number; // Int!
     id: number; // Int!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     width: number; // Int!
   }
@@ -552,11 +555,11 @@ export interface NexusGenFieldTypes {
     height: number; // Int!
     id: number; // Int!
     notice: NexusGenRootTypes['Notice'] | null; // Notice
-    origin: string; // String!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
     qna: NexusGenRootTypes['QnA'] | null; // QnA
-    sq640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
-    w640: string; // String!
     width: number; // Int!
   }
   Mutation: { // field return type
@@ -932,11 +935,11 @@ export interface NexusGenFieldTypeNames {
     height: 'Int'
     id: 'Int'
     notice: 'Notice'
-    origin: 'String'
+    path_origin: 'String'
+    path_sq640: 'String'
+    path_w640: 'String'
     qna: 'QnA'
-    sq640: 'String'
     updatedAt: 'DateTime'
-    w640: 'String'
     width: 'Int'
   }
   Mutation: { // field return type name
