@@ -269,8 +269,8 @@ export const Funding = objectType({
     });
     t.field("contract", {
       type: "Contract",
-      async resolve(parent, args, context, info) {
-        return await context.prisma.funding
+      resolve(parent, args, context, info) {
+        return context.prisma.funding
           .findUnique({ where: { id: parent.id } })
           .contract();
       },
@@ -283,14 +283,14 @@ export const Funding = objectType({
     t.nonNull.bigInt("lastTransactionAmount");
     t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
-      async resolve(parent, args, context, info) {
+      resolve(parent, args, context, info) {
         // const { userRole } = context;
         // if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
         //   throw new Error(
         //     "Only the manager and administrator can inquiry accounts of fundings."
         //   );
         // }
-        return await context.prisma.accountBond.findMany({
+        return context.prisma.accountBond.findMany({
           where: {
             AND: {
               fundingId: parent.id,
@@ -304,14 +304,14 @@ export const Funding = objectType({
     });
     t.field("accountManager", {
       type: "AccountBond",
-      async resolve(parent, args, context, info) {
+      resolve(parent, args, context, info) {
         const { userRole } = context;
         if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
           throw new Error(
             "Only the manager and administrator can inquiry accounts of fundings."
           );
         }
-        return await context.prisma.accountBond.findFirst({
+        return context.prisma.accountBond.findFirst({
           where: {
             AND: {
               fundingId: parent.id,
@@ -336,7 +336,7 @@ export const Funding = objectType({
           .then((el) => {
             return el.map((data) => data.userId);
           });
-        return await context.prisma.user.findMany({
+        return context.prisma.user.findMany({
           where: {
             id: {
               in: likedUsers,
@@ -407,7 +407,8 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator(args.sort);
-        const funding = await context.prisma.funding.findMany({
+
+        return context.prisma.funding.findMany({
           where: {
             status: args?.status as FundingStatus | undefined,
           },
@@ -415,7 +416,6 @@ export const FundingQuery = extendType({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });
-        return funding;
       },
     });
     t.nonNull.list.nonNull.field("myFundings", {

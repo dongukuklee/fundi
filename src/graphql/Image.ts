@@ -24,41 +24,9 @@ export const Image = objectType({
     t.nonNull.int("width");
     t.nonNull.int("height");
     t.nonNull.string("filename");
-    t.nonNull.string("origin", {
-      async resolve(parent, args, context, info) {
-        const image = await context.prisma.image.findUnique({
-          select: {
-            path_origin: true,
-          },
-          where: { id: parent.id },
-        });
-        return image!.path_origin;
-      },
-    });
-    t.nonNull.string("sq640", {
-      async resolve(parent, args, context, info) {
-        const image = await context.prisma.image.findUnique({
-          select: {
-            path_sq640: true,
-          },
-          where: { id: parent.id },
-        });
-
-        return image!.path_sq640;
-      },
-    });
-    t.nonNull.string("w640", {
-      async resolve(parent, args, context, info) {
-        const image = await context.prisma.image.findUnique({
-          select: {
-            path_w640: true,
-          },
-          where: { id: parent.id },
-        });
-
-        return image!.path_w640;
-      },
-    });
+    t.nonNull.string("path_origin");
+    t.nonNull.string("path_sq640");
+    t.nonNull.string("path_w640");
     t.field("creator", {
       type: "Creator",
       resolve(parent, args, context, info) {

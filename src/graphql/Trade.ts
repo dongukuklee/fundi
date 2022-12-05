@@ -681,7 +681,7 @@ export const TradeMutation = extendType({
               accumulatedCash! += price;
             }
             const redisKey = `funding:${fundingId}:${price}:${type}`;
-            tradeUpdateTransaction.push(updateTrade);
+            promiseTransaction.push(updateTrade);
             promiseTransaction.push(
               removeElementFromList(redisKey, String(id))
             );
@@ -715,7 +715,7 @@ export const TradeMutation = extendType({
             context.prisma.$transaction(tradeUpdateTransaction)
           );
 
-          await Promise.all(promiseTransaction);
+          Promise.all(promiseTransaction);
           console.log("done");
           return true;
         } catch (error) {

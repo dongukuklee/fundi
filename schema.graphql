@@ -300,11 +300,11 @@ type Image {
   height: Int!
   id: Int!
   notice: Notice
-  origin: String!
+  path_origin: String!
+  path_sq640: String!
+  path_w640: String!
   qna: QnA
-  sq640: String!
   updatedAt: DateTime!
-  w640: String!
   width: Int!
 }
 
