@@ -39,6 +39,8 @@ type Funding = {
     lastYearEarning: bigint;
     terms: number;
     type: ContractTypes;
+    additionalFee: number;
+    fundRasingRatio: number;
   };
   remainingBonds: bigint;
   status: FundingStatus;
@@ -134,7 +136,13 @@ const getFunding = async (context: Context, fundingId: number) => {
       title: true,
       remainingBonds: true,
       contract: {
-        select: { lastYearEarning: true, terms: true, type: true },
+        select: {
+          lastYearEarning: true,
+          terms: true,
+          type: true,
+          additionalFee: true,
+          fundRasingRatio: true,
+        },
       },
     },
   });
@@ -161,16 +169,34 @@ const getTotalRefundAmount = (investor: Invester, funding: Funding) => {
 };
 
 const getAmountPerBondWhenLoan = (amount: number, funding: Funding) => {
-  const { bondsTotalNumber } = funding!;
-  const avgIncome = Number(funding?.contract?.lastYearEarning!) / 12;
-  const additionalIncome = amount - avgIncome;
+  const { bondsTotalNumber } = funding;
+  //720
+  const { contract } = funding;
+  const { additionalFee, fundRasingRatio, lastYearEarning, terms, type } =
+    contract;
+
+  // (fundingRasingRatio/100 )/(terms/12)
+  // 계약 기간에 따른 매 달 정산 비율
+  const settlementRatio = (3 * fundRasingRatio) / (25 * terms);
+
+  //매 달 평균 정산금 (계약 기간에 따라 변동)
+  const avgIncome = (Number(lastYearEarning) * (fundRasingRatio / 100)) / terms;
+
+  const additionalIncome = Math.floor(amount * settlementRatio) - avgIncome;
   const additionalIncomeCheck = additionalIncome > 0;
   const additionalAmountPerBond = additionalIncomeCheck
-    ? BigInt(Math.floor((additionalIncome * 0.24) / Number(bondsTotalNumber)))
+    ? BigInt(
+        Math.floor(
+          (additionalIncome * (additionalFee / 100)) / Number(bondsTotalNumber)
+        )
+      )
     : BigInt(0);
+
   const amountPerBond = additionalIncomeCheck
-    ? BigInt(Math.ceil((avgIncome * 0.3) / Number(bondsTotalNumber)))
-    : BigInt(Math.ceil((amount * 0.3) / Number(bondsTotalNumber)));
+    ? BigInt(
+        Math.ceil((avgIncome * settlementRatio) / Number(bondsTotalNumber))
+      )
+    : BigInt(Math.ceil((amount * settlementRatio) / Number(bondsTotalNumber)));
   return { additionalAmountPerBond, amountPerBond };
 };
 
@@ -243,8 +269,8 @@ export const Funding = objectType({
     });
     t.field("contract", {
       type: "Contract",
-      async resolve(parent, args, context, info) {
-        return await context.prisma.funding
+      resolve(parent, args, context, info) {
+        return context.prisma.funding
           .findUnique({ where: { id: parent.id } })
           .contract();
       },
@@ -257,14 +283,14 @@ export const Funding = objectType({
     t.nonNull.bigInt("lastTransactionAmount");
     t.nonNull.list.nonNull.field("accountInvestor", {
       type: "AccountBond",
-      async resolve(parent, args, context, info) {
+      resolve(parent, args, context, info) {
         // const { userRole } = context;
         // if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
         //   throw new Error(
         //     "Only the manager and administrator can inquiry accounts of fundings."
         //   );
         // }
-        return await context.prisma.accountBond.findMany({
+        return context.prisma.accountBond.findMany({
           where: {
             AND: {
               fundingId: parent.id,
@@ -278,14 +304,14 @@ export const Funding = objectType({
     });
     t.field("accountManager", {
       type: "AccountBond",
-      async resolve(parent, args, context, info) {
+      resolve(parent, args, context, info) {
         const { userRole } = context;
         if (userRole !== Role.ADMIN && userRole !== Role.MANAGER) {
           throw new Error(
             "Only the manager and administrator can inquiry accounts of fundings."
           );
         }
-        return await context.prisma.accountBond.findFirst({
+        return context.prisma.accountBond.findFirst({
           where: {
             AND: {
               fundingId: parent.id,
@@ -310,7 +336,7 @@ export const Funding = objectType({
           .then((el) => {
             return el.map((data) => data.userId);
           });
-        return await context.prisma.user.findMany({
+        return context.prisma.user.findMany({
           where: {
             id: {
               in: likedUsers,
@@ -381,7 +407,8 @@ export const FundingQuery = extendType({
       },
       async resolve(parent, args, context, info) {
         const orderBy: any = sortOptionCreator(args.sort);
-        const funding = await context.prisma.funding.findMany({
+
+        return context.prisma.funding.findMany({
           where: {
             status: args?.status as FundingStatus | undefined,
           },
@@ -389,7 +416,6 @@ export const FundingQuery = extendType({
           skip: args?.skip as number | undefined,
           take: args?.take ? args.take : TAKE,
         });
-        return funding;
       },
     });
     t.nonNull.list.nonNull.field("myFundings", {

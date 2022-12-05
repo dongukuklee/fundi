@@ -45,7 +45,9 @@ export interface NexusGenInputs {
     type?: NexusGenEnums['AlarmTypes'] | null; // AlarmTypes
   }
   ContractInput: { // input type
+    additionalFee: number; // Int!
     endDate: string; // String!
+    fundRasingRatio: number; // Int!
     lastYearEarning: number; // Int!
     startDate: string; // String!
     terms: number; // Int!
@@ -178,9 +180,11 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // root type
-    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
+    additionalFee: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     endDate: NexusGenScalars['DateTime']; // DateTime!
+    fundRasingRatio: number; // Int!
+    fundingAmount: NexusGenScalars['BigInt']; // BigInt!
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
@@ -259,6 +263,9 @@ export interface NexusGenObjects {
     filename: string; // String!
     height: number; // Int!
     id: number; // Int!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     width: number; // Int!
   }
@@ -292,6 +299,7 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    status: NexusGenEnums['TradeStatus']; // TradeStatus!
     type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -444,11 +452,13 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Contract: { // field return type
-    amountRecieved: NexusGenScalars['BigInt']; // BigInt!
+    additionalFee: number; // Int!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     creator: NexusGenRootTypes['Creator'] | null; // Creator
     endDate: NexusGenScalars['DateTime']; // DateTime!
+    fundRasingRatio: number; // Int!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
+    fundingAmount: NexusGenScalars['BigInt']; // BigInt!
     id: number; // Int!
     lastYearEarning: NexusGenScalars['BigInt']; // BigInt!
     startDate: NexusGenScalars['DateTime']; // DateTime!
@@ -545,11 +555,11 @@ export interface NexusGenFieldTypes {
     height: number; // Int!
     id: number; // Int!
     notice: NexusGenRootTypes['Notice'] | null; // Notice
-    origin: string; // String!
+    path_origin: string; // String!
+    path_sq640: string; // String!
+    path_w640: string; // String!
     qna: NexusGenRootTypes['QnA'] | null; // QnA
-    sq640: string; // String!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
-    w640: string; // String!
     width: number; // Int!
   }
   Mutation: { // field return type
@@ -640,6 +650,7 @@ export interface NexusGenFieldTypes {
     creators: NexusGenRootTypes['Creator'][]; // [Creator!]!
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     fundings: NexusGenRootTypes['Funding'][]; // [Funding!]!
+    getMyTradeList: Array<NexusGenRootTypes['SortByTradeType'] | null> | null; // [SortByTradeType]
     getTradeList: NexusGenRootTypes['SortByTradeType'] | null; // SortByTradeType
     getVirtualAccount: NexusGenRootTypes['VirtualAccount'] | null; // VirtualAccount
     getWithdrawalAccount: NexusGenRootTypes['WithdrawalAccount'] | null; // WithdrawalAccount
@@ -665,6 +676,7 @@ export interface NexusGenFieldTypes {
     funding: NexusGenRootTypes['Funding'] | null; // Funding
     id: number; // Int!
     price: NexusGenScalars['BigInt']; // BigInt!
+    status: NexusGenEnums['TradeStatus']; // TradeStatus!
     type: NexusGenEnums['TradeType']; // TradeType!
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
@@ -820,11 +832,13 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Contract: { // field return type name
-    amountRecieved: 'BigInt'
+    additionalFee: 'Int'
     createdAt: 'DateTime'
     creator: 'Creator'
     endDate: 'DateTime'
+    fundRasingRatio: 'Int'
     funding: 'Funding'
+    fundingAmount: 'BigInt'
     id: 'Int'
     lastYearEarning: 'BigInt'
     startDate: 'DateTime'
@@ -921,11 +935,11 @@ export interface NexusGenFieldTypeNames {
     height: 'Int'
     id: 'Int'
     notice: 'Notice'
-    origin: 'String'
+    path_origin: 'String'
+    path_sq640: 'String'
+    path_w640: 'String'
     qna: 'QnA'
-    sq640: 'String'
     updatedAt: 'DateTime'
-    w640: 'String'
     width: 'Int'
   }
   Mutation: { // field return type name
@@ -1016,6 +1030,7 @@ export interface NexusGenFieldTypeNames {
     creators: 'Creator'
     funding: 'Funding'
     fundings: 'Funding'
+    getMyTradeList: 'SortByTradeType'
     getTradeList: 'SortByTradeType'
     getVirtualAccount: 'VirtualAccount'
     getWithdrawalAccount: 'WithdrawalAccount'
@@ -1041,6 +1056,7 @@ export interface NexusGenFieldTypeNames {
     funding: 'Funding'
     id: 'Int'
     price: 'BigInt'
+    status: 'TradeStatus'
     type: 'TradeType'
     updatedAt: 'DateTime'
   }
@@ -1132,6 +1148,7 @@ export interface NexusGenArgTypes {
     }
     cancellationOfTrade: { // args
       fundingId: number; // Int!
+      price: number; // Int!
       types?: NexusGenEnums['TradeType'] | null; // TradeType
     }
     chargeTheDeposit: { // args

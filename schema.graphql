@@ -121,11 +121,13 @@ The `BigInt` scalar type represents non-fractional signed whole numeric values.
 scalar BigInt
 
 type Contract {
-  amountRecieved: BigInt!
+  additionalFee: Int!
   createdAt: DateTime!
   creator: Creator
   endDate: DateTime!
+  fundRasingRatio: Int!
   funding: Funding
+  fundingAmount: BigInt!
   id: Int!
   lastYearEarning: BigInt!
   startDate: DateTime!
@@ -135,7 +137,9 @@ type Contract {
 }
 
 input ContractInput {
+  additionalFee: Int!
   endDate: String!
+  fundRasingRatio: Int!
   lastYearEarning: Int!
   startDate: String!
   terms: Int!
@@ -296,11 +300,11 @@ type Image {
   height: Int!
   id: Int!
   notice: Notice
-  origin: String!
+  path_origin: String!
+  path_sq640: String!
+  path_w640: String!
   qna: QnA
-  sq640: String!
   updatedAt: DateTime!
-  w640: String!
   width: Int!
 }
 
@@ -324,7 +328,7 @@ enum ImageTypes {
 type Mutation {
   OAuthLogin(deviceToken: String!, email: String!, nickName: String, type: String): AuthPayload
   alterSequence(ids: [Int!]!): Boolean
-  cancellationOfTrade(fundingId: Int!, types: TradeType): Boolean
+  cancellationOfTrade(fundingId: Int!, price: Int!, types: TradeType): Boolean
   chargeTheDeposit(amount: Int!): AccountCash
   checkAlarm: Boolean
   checkEmail(email: String!): Boolean
@@ -431,6 +435,7 @@ type Query {
   creators(isVisible: Boolean, skip: Int, sort: String, take: Int): [Creator!]!
   funding(id: Int!): Funding
   fundings(skip: Int, sort: String, status: FundingStatus, take: Int): [Funding!]!
+  getMyTradeList: [SortByTradeType]
   getTradeList(fundingId: Int!): SortByTradeType
   getVirtualAccount: VirtualAccount
   getWithdrawalAccount: WithdrawalAccount
@@ -465,6 +470,7 @@ type Trade {
   funding: Funding
   id: Int!
   price: BigInt!
+  status: TradeStatus!
   type: TradeType!
   updatedAt: DateTime!
 }
