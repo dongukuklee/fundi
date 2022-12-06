@@ -5,7 +5,7 @@ export const FundingInput = inputObjectType({
   definition(t) {
     t.nonNull.field("status", {
       type: "FundingStatus",
-      default: "PRE_CAMPAIGN",
+      default: "CAMPAIGNING",
     });
     t.nonNull.string("title");
     t.list.nonNull.field("description", {
