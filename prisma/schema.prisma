@@ -220,7 +220,7 @@ model Funding {
   id               Int           @id @default(autoincrement())
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  status           FundingStatus @default(PRE_CAMPAIGN)
+  status           FundingStatus @default(CAMPAIGNING)
   title            String
   description      FundingDescription[]
   contract         Contract      @relation(fields: [contractId], references: [id])
