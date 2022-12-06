@@ -635,7 +635,7 @@ export const FundingMutation = extendType({
             remainingBonds: {
               increment: investorAccountBond.balance,
             },
-            status: status === "EARLY_CLOSING" ? "PRE_CAMPAIGN" : status,
+            status: status === "EARLY_CLOSING" ? "CAMPAIGNING" : status,
           },
         });
         const createTransactionBond = context.prisma.transactionBond.create({
